@@ -1,18 +1,16 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using DsmrHub.Dsmr;
-using DsmrHub.Udp;
-using DSMRParser.Models;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Provisioning.Client;
 using Microsoft.Azure.Devices.Provisioning.Client.Transport;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using SolaxHub.Solax;
 
 namespace SolaxHub.IotCentral
 {
-    internal class IotCentralProcessor : IDsmrProcessor
+    internal class IotCentralProcessor : ISolaxProcessor
     {
         private readonly ILogger<IotCentralProcessor> _logger;
         private readonly IotCentralOptions _iotCentralOptions;

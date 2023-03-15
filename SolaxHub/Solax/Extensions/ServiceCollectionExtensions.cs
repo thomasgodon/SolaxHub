@@ -1,6 +1,6 @@
 ﻿using System.IO.Ports;
 
-namespace SolaxHub.Dsmr.Extensions
+namespace SolaxHub.Solax.Extensions
 {
     internal static class ServiceCollectionExtensions
     {
@@ -8,7 +8,7 @@ namespace SolaxHub.Dsmr.Extensions
         {
             serviceCollection.Configure<SolaxOptions>(configuration.GetSection(nameof(SolaxOptions)));
             serviceCollection.AddSingleton<ISolaxClient, SolaxClient>();
-            serviceCollection.AddSingleton<IDsmrProcessorService, SolaxProcessorService>();
+            serviceCollection.AddSingleton<ISolaxProcessorService, SolaxProcessorService>();
             serviceCollection.AddSingleton<SerialPort>();
 
             return serviceCollection;

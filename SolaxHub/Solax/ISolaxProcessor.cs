@@ -1,6 +1,4 @@
-﻿using DSMRParser.Models;
-
-namespace SolaxHub.Dsmr
+﻿namespace SolaxHub.Solax
 {
     public interface ISolaxProcessor
     {

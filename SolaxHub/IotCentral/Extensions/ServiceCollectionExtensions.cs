@@ -1,9 +1,4 @@
-﻿using DsmrHub.Dsmr;
-using DsmrHub.Mqtt;
-using DsmrHub.Udp;
-using System.Configuration;
-
-namespace SolaxHub.IotCentral.Extensions
+﻿namespace SolaxHub.IotCentral.Extensions
 {
     internal static class ServiceCollectionExtensions
     {

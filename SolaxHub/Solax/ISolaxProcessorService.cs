@@ -1,6 +1,6 @@
-﻿namespace SolaxHub.Dsmr;
+﻿namespace SolaxHub.Solax;
 
-internal interface IDsmrProcessorService
+internal interface ISolaxProcessorService
 {
     Task ProcessMessage(string message, CancellationToken cancellationToken);
 }

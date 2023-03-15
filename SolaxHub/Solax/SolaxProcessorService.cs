@@ -1,10 +1,8 @@
 ﻿using System.Text;
-using DSMRParser;
-using DSMRParser.Models;
 
-namespace SolaxHub.Dsmr;
+namespace SolaxHub.Solax;
 
-internal class SolaxProcessorService : IDsmrProcessorService
+internal class SolaxProcessorService : ISolaxProcessorService
 {
     private readonly ILogger<SolaxProcessorService> _logger;
     private readonly StringBuilder _buffer = new();

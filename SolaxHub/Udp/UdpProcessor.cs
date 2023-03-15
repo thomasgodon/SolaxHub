@@ -1,12 +1,9 @@
-﻿using DsmrHub.Dsmr;
-using DsmrHub.Dsmr.Extensions;
-using DsmrHub.Udp.Extensions;
-using DSMRParser.Models;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using SolaxHub.Solax;
 
 namespace SolaxHub.Udp
 {
-    internal class UdpProcessor : IDsmrProcessor
+    internal class UdpProcessor : ISolaxProcessor
     {
         private readonly ILogger<UdpProcessor> _logger;
         private readonly UdpOptions _udpOptions;

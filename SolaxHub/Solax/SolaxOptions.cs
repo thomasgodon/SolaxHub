@@ -1,4 +1,4 @@
-﻿namespace SolaxHub.Dsmr
+﻿namespace SolaxHub.Solax
 {
     public class SolaxOptions
     {

@@ -2,18 +2,18 @@
 using System.Text;
 using Microsoft.Extensions.Options;
 
-namespace SolaxHub.Dsmr
+namespace SolaxHub.Solax
 {
     internal class SolaxClient : ISolaxClient
     {
         private readonly ILogger<SolaxClient> _logger;
         private readonly SerialPort _serialPort;
         private readonly SolaxOptions _dsmrClientOptions;
-        private readonly IDsmrProcessorService _dsmrProcessorService;
+        private readonly ISolaxProcessorService _dsmrProcessorService;
         private readonly Queue<string> _queue;
         private readonly object _queueLock = new();
 
-        public SolaxClient(ILogger<SolaxClient> logger, SerialPort serialPort, IDsmrProcessorService dsmrProcessorService, IOptions<SolaxOptions> dsmrClientOptions)
+        public SolaxClient(ILogger<SolaxClient> logger, SerialPort serialPort, ISolaxProcessorService dsmrProcessorService, IOptions<SolaxOptions> dsmrClientOptions)
         {
             _logger = logger;
             _serialPort = serialPort;
