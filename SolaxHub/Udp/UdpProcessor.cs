@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using SolaxHub.Solax;
+using SolaxHub.Solax.Extensions;
+using SolaxHub.Udp.Extensions;
 
 namespace SolaxHub.Udp
 {
@@ -14,31 +16,32 @@ namespace SolaxHub.Udp
             _udpOptions = udpOptions.Value;
         }
 
-        async Task IDsmrProcessor.ProcessTelegram(Telegram telegram, CancellationToken cancellationToken)
+        async Task ISolaxProcessor.ProcessResult(SolaxResult result, CancellationToken cancellationToken)
         {
             if (!_udpOptions.Enabled) return;
 
-            await telegram.ToUdpPacket(nameof(telegram.Identification)).SendToAsync(_udpOptions.Host, 10000, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.DSMRVersion)).SendToAsync(_udpOptions.Host, 10001, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.EquipmentId)).SendToAsync(_udpOptions.Host, 10002, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.TimeStamp)).SendToAsync(_udpOptions.Host, 10003, cancellationToken);
-
-            await telegram.ToUdpPacket(nameof(telegram.EnergyDeliveredTariff1)).SendToAsync(_udpOptions.Host, 10010, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.EnergyDeliveredTariff2)).SendToAsync(_udpOptions.Host, 10011, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.EnergyReturnedTariff1)).SendToAsync(_udpOptions.Host, 10012, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.EnergyReturnedTariff2)).SendToAsync(_udpOptions.Host, 10013, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.ElectricityTariff)).SendToAsync(_udpOptions.Host, 10014, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.PowerDelivered)).SendToAsync(_udpOptions.Host, 10015, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.PowerReturned)).SendToAsync(_udpOptions.Host, 10016, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.PowerDeliveredL1)).SendToAsync(_udpOptions.Host, 10017, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.PowerReturnedL1)).SendToAsync(_udpOptions.Host, 10018, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.VoltageL1)).SendToAsync(_udpOptions.Host, 10019, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.CurrentL1)).SendToAsync(_udpOptions.Host, 10020, cancellationToken);
-
-            await telegram.ToUdpPacket(nameof(telegram.GasDeviceType)).SendToAsync(_udpOptions.Host, 10030, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.GasEquipmentId)).SendToAsync(_udpOptions.Host, 10031, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.GasValvePosition)).SendToAsync(_udpOptions.Host, 10032, cancellationToken);
-            await telegram.ToUdpPacket(nameof(telegram.GasDelivered)).SendToAsync(_udpOptions.Host, 10033, cancellationToken);
+            await result.ToUdpPacket(nameof(result.InverterSerialNumber)).SendToAsync(_udpOptions.Host, 20000, cancellationToken);
+            await result.ToUdpPacket(nameof(result.SerialNumber)).SendToAsync(_udpOptions.Host, 20001, cancellationToken);
+            await result.ToUdpPacket(nameof(result.AcPower)).SendToAsync(_udpOptions.Host, 20002, cancellationToken);
+            await result.ToUdpPacket(nameof(result.YieldToday)).SendToAsync(_udpOptions.Host, 20003, cancellationToken);
+            await result.ToUdpPacket(nameof(result.YieldTotal)).SendToAsync(_udpOptions.Host, 20004, cancellationToken);
+            await result.ToUdpPacket(nameof(result.FeedInPower)).SendToAsync(_udpOptions.Host, 20005, cancellationToken);
+            await result.ToUdpPacket(nameof(result.FeedInEnergy)).SendToAsync(_udpOptions.Host, 20006, cancellationToken);
+            await result.ToUdpPacket(nameof(result.ConsumeEnergy)).SendToAsync(_udpOptions.Host, 20007, cancellationToken);
+            await result.ToUdpPacket(nameof(result.FeedInPowerM2)).SendToAsync(_udpOptions.Host, 20008, cancellationToken);
+            await result.ToUdpPacket(nameof(result.Soc)).SendToAsync(_udpOptions.Host, 20009, cancellationToken);
+            await result.ToUdpPacket(nameof(result.EpsPowerR)).SendToAsync(_udpOptions.Host, 20010, cancellationToken);
+            await result.ToUdpPacket(nameof(result.EpsPowerS)).SendToAsync(_udpOptions.Host, 20011, cancellationToken);
+            await result.ToUdpPacket(nameof(result.EpsPowerT)).SendToAsync(_udpOptions.Host, 20012, cancellationToken);
+            await result.ToUdpPacket(nameof(result.InverterType)).SendToAsync(_udpOptions.Host, 20013, cancellationToken);
+            await result.ToUdpPacket(nameof(result.InverterStatus)).SendToAsync(_udpOptions.Host, 20014, cancellationToken);
+            await result.ToUdpPacket(nameof(result.UploadTime)).SendToAsync(_udpOptions.Host, 20015, cancellationToken);
+            await result.ToUdpPacket(nameof(result.BatteryPower)).SendToAsync(_udpOptions.Host, 20016, cancellationToken);
+            await result.ToUdpPacket(nameof(result.PvPowerMppt1)).SendToAsync(_udpOptions.Host, 20017, cancellationToken);
+            await result.ToUdpPacket(nameof(result.PvPowerMppt2)).SendToAsync(_udpOptions.Host, 20018, cancellationToken);
+            await result.ToUdpPacket(nameof(result.PvPowerMppt3)).SendToAsync(_udpOptions.Host, 20019, cancellationToken);
+            await result.ToUdpPacket(nameof(result.PvPowerMppt4)).SendToAsync(_udpOptions.Host, 20020, cancellationToken);
+            await result.ToUdpPacket(nameof(result.BatteryStatus)).SendToAsync(_udpOptions.Host, 20021, cancellationToken);
         }
     }
 }

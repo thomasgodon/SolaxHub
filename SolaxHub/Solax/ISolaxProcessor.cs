@@ -1,7 +1,7 @@
 ﻿namespace SolaxHub.Solax
 {
-    public interface ISolaxProcessor
+    internal interface ISolaxProcessor
     {
-        Task ProcessTelegram(Telegram telegram, CancellationToken cancellationToken);
+        Task ProcessResult(SolaxResult result, CancellationToken cancellationToken);
     }
 }

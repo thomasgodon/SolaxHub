@@ -1,10 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-dsmrOpcUa-AE46CD13-A965-4FC8-9D4D-60485C39604E</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

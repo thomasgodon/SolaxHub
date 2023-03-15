@@ -1,7 +1,4 @@
-﻿using DsmrHub.Dsmr;
-using DsmrHub.Mqtt;
-using System.Configuration;
-using DsmrHub.IotCentral;
+﻿using SolaxHub.Solax;
 
 namespace SolaxHub.Udp.Extensions
 {
@@ -9,8 +6,8 @@ namespace SolaxHub.Udp.Extensions
     {
         public static IServiceCollection AddUdpSender(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.Configure<IotCentralOptions>(configuration.GetSection(nameof(IotCentralOptions)));
-            serviceCollection.AddTransient<IDsmrProcessor, IotCentralProcessor>();
+            serviceCollection.Configure<UdpOptions>(configuration.GetSection(nameof(UdpOptions)));
+            serviceCollection.AddTransient<ISolaxProcessor, UdpProcessor>();
             return serviceCollection;
         }
     }

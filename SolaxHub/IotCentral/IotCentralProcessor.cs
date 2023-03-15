@@ -24,13 +24,13 @@ namespace SolaxHub.IotCentral
             _registerInterval = new Stopwatch();
         }
 
-        public async Task ProcessTelegram(Telegram telegram, CancellationToken cancellationToken)
+        public async Task ProcessResult(SolaxResult result, CancellationToken cancellationToken)
         {
             if (!_iotCentralOptions.Enabled) return;
 
             try
             {
-                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(telegram)))
+                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result)))
                 {
                     ContentEncoding = Encoding.UTF8.WebName
                 };

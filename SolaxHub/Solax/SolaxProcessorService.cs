@@ -1,49 +1,46 @@
-﻿using System.Text;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace SolaxHub.Solax;
 
 internal class SolaxProcessorService : ISolaxProcessorService
 {
     private readonly ILogger<SolaxProcessorService> _logger;
-    private readonly StringBuilder _buffer = new();
-    private readonly DSMRTelegramParser _dsmrParser;
-    private readonly IEnumerable<ISolaxProcessor> _dsmrProcessors;
+    private readonly IEnumerable<ISolaxProcessor> _solaxProcessors;
 
-    public SolaxProcessorService(ILogger<SolaxProcessorService> logger, IEnumerable<ISolaxProcessor> dsmrProcessors)
+    public SolaxProcessorService(ILogger<SolaxProcessorService> logger, IEnumerable<ISolaxProcessor> solaxProcessors)
     {
-        _dsmrParser = new DSMRTelegramParser();
         _logger = logger;
-        _dsmrProcessors = dsmrProcessors;
+        _solaxProcessors = solaxProcessors;
     }
 
-    public async Task ProcessMessage(string message, CancellationToken cancellationToken)
+    public async Task ProcessJson(JObject json, CancellationToken cancellationToken)
     {
         try
         {
-            if (!_dsmrParser.TryParse(message, out Telegram? telegram))
+            _logger.LogTrace(json.ToString());
+            var solaxClientResponse = json.ToObject<SolaxClientResponse>();
+
+            if (solaxClientResponse == null)
             {
+                throw new NullReferenceException($"Could not cast json '{json}' to '{typeof(SolaxResult)}'");
+            }
+
+            if (solaxClientResponse.Success is false)
+            {
+                _logger.LogWarning("Response was not successful with reason: {reason}", solaxClientResponse.Exception);
                 return;
             }
 
-            if (telegram?.DSMRVersion == null)
+            foreach (var solaxProcessor in _solaxProcessors)
             {
-                return;
+                await solaxProcessor.ProcessResult(solaxClientResponse.Result, cancellationToken);
             }
-
-            _logger.LogTrace(telegram?.ToString());
-
-            foreach (var dsmrProcessor in _dsmrProcessors)
-            {
-                await dsmrProcessor.ProcessTelegram(telegram, cancellationToken);
-            }
-        }
-        catch (InvalidOBISIdException e)
-        {
-            _logger.LogWarning($"{e.Message} - {message}");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, e.Message);
+            _logger.LogError(e, "{message}", e.Message);
         }
     }
 }

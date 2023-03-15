@@ -2,12 +2,8 @@
 {
     public class SolaxOptions
     {
-        public string ComPort { get; init; } = null!;
-        public bool UseExampleTelegram { get; init; }
-        public int? SimulationRateInSeconds { get; init; } = null!;
-        public int BaudRate { get; init; }
-        public int Parity { get; init; }
-        public int DataBits { get; init; }
-        public int StopBits { get; init; }
+        public string TokenId { get; init; } = null!;
+        public string SerialNumber { get; init; } = null!;
+        public TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(7);
     }
 }

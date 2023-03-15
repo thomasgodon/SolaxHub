@@ -1,86 +1,60 @@
-﻿using System.IO.Ports;
-using System.Text;
+﻿using System.Text;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SolaxHub.Solax
 {
     internal class SolaxClient : ISolaxClient
     {
         private readonly ILogger<SolaxClient> _logger;
-        private readonly SerialPort _serialPort;
-        private readonly SolaxOptions _dsmrClientOptions;
-        private readonly ISolaxProcessorService _dsmrProcessorService;
-        private readonly Queue<string> _queue;
-        private readonly object _queueLock = new();
+        private readonly SolaxOptions _solaxClientOptions;
+        private readonly ISolaxProcessorService _solaxProcessorService;
+        private const string BaseUrl = "https://www.solaxcloud.com/proxyApp/proxy/api/getRealtimeInfo.do?";
 
-        public SolaxClient(ILogger<SolaxClient> logger, SerialPort serialPort, ISolaxProcessorService dsmrProcessorService, IOptions<SolaxOptions> dsmrClientOptions)
+        public SolaxClient(ILogger<SolaxClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxOptions> solaxClientOptions)
         {
             _logger = logger;
-            _serialPort = serialPort;
-            _dsmrClientOptions = dsmrClientOptions.Value;
-            _dsmrProcessorService = dsmrProcessorService;
-            _queue = new Queue<string>();
-
-            _serialPort.PortName = _dsmrClientOptions.ComPort;
-            _serialPort.BaudRate = _dsmrClientOptions.BaudRate;
-            _serialPort.StopBits = (StopBits)_dsmrClientOptions.StopBits;
-            _serialPort.DataBits = _dsmrClientOptions.DataBits;
-            _serialPort.Parity = (Parity)_dsmrClientOptions.Parity;
+            _solaxClientOptions = solaxClientOptions.Value;
+            _solaxProcessorService = solaxProcessorService;
         }
 
         public async Task Start(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            await Task.Run(async () =>
             {
-                try
+                // Keep this task alive until it is cancelled
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    _logger.LogInformation($"connection to {_dsmrClientOptions.ComPort} initializing");
-                    _serialPort.DataReceived += (sender, args) =>
-                    {
-                        lock (_queueLock)
-                        {
-                            _queue.Enqueue(_serialPort.ReadExisting());
-                        }
-                    };
-                    _serialPort.Open();
-                    await ProcessReceivedData(cancellationToken);
+                    await Task.Delay(_solaxClientOptions.PollInterval, cancellationToken);
+                    await CallSolaxApi(cancellationToken);
                 }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, e.Message);
-                }
+            }, cancellationToken);
+        }
 
-                if (cancellationToken.IsCancellationRequested) continue;
+        private async Task CallSolaxApi(CancellationToken cancellationToken)
+        {
+            using var client = new HttpClient();
 
-                _logger.LogInformation("Retry in 5 seconds.");
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            try
+            {
+                var result = await client.GetStringAsync(BuildUrl(), cancellationToken);
+                var json = JObject.Parse(result);
+                await _solaxProcessorService.ProcessJson(json, cancellationToken);
+            }
+            catch (JsonReaderException ex)
+            {
+                _logger.LogError(ex, "Could not parse result from '{url}'", BuildUrl().AbsoluteUri);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "An error occurred while calling '{url}'", BuildUrl().AbsoluteUri);
             }
         }
 
-        private async Task ProcessReceivedData(CancellationToken cancellationToken)
+        private Uri BuildUrl()
         {
-            var buffer = new StringBuilder();
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await Task.Delay(100, cancellationToken);
-
-                lock (_queueLock)
-                {
-                    if (_queue.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    while (_queue.Count > 0)
-                    {
-                        buffer.Append(_queue.Dequeue());
-                    }
-                }
-
-                await _dsmrProcessorService.ProcessMessage(buffer.ToString(), cancellationToken);
-                _logger.LogTrace(buffer.ToString());
-                buffer.Clear();
-            }
+            return new Uri($"{BaseUrl}tokenId={_solaxClientOptions.TokenId}&sn={_solaxClientOptions.SerialNumber}");
         }
     }
 }
