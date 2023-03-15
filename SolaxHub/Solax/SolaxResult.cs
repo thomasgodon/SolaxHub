@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace SolaxHub.Solax
 {
@@ -36,8 +37,10 @@ namespace SolaxHub.Solax
         [JsonProperty("peps3")]
         public double? EpsPowerT { get; init; }
         [JsonProperty("inverterType")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public SolaxInverterType InverterType { get; init; }
         [JsonProperty("inverterStatus")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public SolaxInverterStatus InverterStatus { get; init; }
         [JsonProperty("uploadTime")]
         public DateTimeOffset UploadTime { get; init; }
