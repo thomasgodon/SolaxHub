@@ -16,6 +16,7 @@ namespace SolaxHub.IotCentral
         private readonly IotCentralOptions _iotCentralOptions;
         private readonly Stopwatch _registerInterval;
         private DeviceClient _deviceClient = default!;
+        private string? _previousResult;
 
         public IotCentralProcessor(ILogger<IotCentralProcessor> logger, IOptions<IotCentralOptions> iotCentralOptions)
         {
@@ -27,6 +28,15 @@ namespace SolaxHub.IotCentral
         public async Task ProcessResult(SolaxResult result, CancellationToken cancellationToken)
         {
             if (!_iotCentralOptions.Enabled) return;
+
+            var serializedResult = JsonConvert.SerializeObject(result);
+
+            if (_previousResult == serializedResult)
+            {
+                return;
+            }
+
+            _previousResult = serializedResult;
 
             try
             {
