@@ -50,6 +50,7 @@ namespace SolaxHub.Solax
         [JsonProperty("powerdc4")]
         public double? PvPowerMppt4 { get; init; }
         [JsonProperty("batStatus")]
-        public int BatteryStatus { get; init; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SolaxBatteryStatus BatteryStatus { get; init; }
     }
 }
