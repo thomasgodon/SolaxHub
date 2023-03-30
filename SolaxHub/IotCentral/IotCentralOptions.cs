@@ -8,5 +8,6 @@
         public string PrimaryKey { get; set; } = default!;
         public string SecondaryKey { get; set; } = default!;
         public string ProvisioningUri { get; set; } = default!;
+        public TimeSpan SendInterval { get; set; } = TimeSpan.FromMinutes(1);
     }
 }

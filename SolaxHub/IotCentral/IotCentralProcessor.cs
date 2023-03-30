@@ -15,6 +15,7 @@ namespace SolaxHub.IotCentral
         private readonly ILogger<IotCentralProcessor> _logger;
         private readonly IotCentralOptions _iotCentralOptions;
         private readonly Stopwatch _registerInterval;
+        private DateTime _previousSentTime;
         private DeviceClient _deviceClient = default!;
         private string? _previousResult;
 
@@ -30,12 +31,15 @@ namespace SolaxHub.IotCentral
             if (!_iotCentralOptions.Enabled) return;
 
             var serializedResult = JsonConvert.SerializeObject(result);
-
             if (_previousResult == serializedResult)
             {
-                return;
+                if (DateTime.Now.Subtract(_previousSentTime) < _iotCentralOptions.SendInterval)
+                {
+                    return;
+                }
             }
 
+            _previousSentTime = DateTime.Now;
             _previousResult = serializedResult;
 
             try
