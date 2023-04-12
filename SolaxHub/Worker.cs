@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax;
+using SolaxHub.Solax.Http;
 
 namespace SolaxHub
 {
@@ -8,7 +9,7 @@ namespace SolaxHub
         private readonly ISolaxClient _solaxClient;
         private readonly IEnumerable<ISolaxProcessor> _solaxProcessors;
 
-        public Worker(ISolaxClient solaxClient, IOptions<SolaxOptions> dsmrOptions, IEnumerable<ISolaxProcessor> solaxProcessors)
+        public Worker(ISolaxClient solaxClient, IOptions<SolaxHttpOptions> dsmrOptions, IEnumerable<ISolaxProcessor> solaxProcessors)
         {
             _solaxClient = solaxClient;
             _solaxProcessors = solaxProcessors;

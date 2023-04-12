@@ -1,4 +1,5 @@
 ﻿using System.IO.Ports;
+using SolaxHub.Solax.Http;
 
 namespace SolaxHub.Solax.Extensions
 {
@@ -6,8 +7,8 @@ namespace SolaxHub.Solax.Extensions
     {
         public static IServiceCollection AddSolaxClient(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.Configure<SolaxOptions>(configuration.GetSection(nameof(SolaxOptions)));
-            serviceCollection.AddSingleton<ISolaxClient, SolaxClient>();
+            serviceCollection.Configure<SolaxHttpOptions>(configuration.GetSection(nameof(SolaxHttpOptions)));
+            serviceCollection.AddSingleton<ISolaxClient, SolaxHttpClient>();
             serviceCollection.AddSingleton<ISolaxProcessorService, SolaxProcessorService>();
             serviceCollection.AddSingleton<SerialPort>();
 

@@ -3,16 +3,16 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SolaxHub.Solax
+namespace SolaxHub.Solax.Http
 {
-    internal class SolaxClient : ISolaxClient
+    internal class SolaxHttpClient : ISolaxClient
     {
-        private readonly ILogger<SolaxClient> _logger;
-        private readonly SolaxOptions _solaxClientOptions;
+        private readonly ILogger<SolaxHttpClient> _logger;
+        private readonly SolaxHttpOptions _solaxClientOptions;
         private readonly ISolaxProcessorService _solaxProcessorService;
         private const string BaseUrl = "https://www.solaxcloud.com/proxyApp/proxy/api/getRealtimeInfo.do?";
 
-        public SolaxClient(ILogger<SolaxClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxOptions> solaxClientOptions)
+        public SolaxHttpClient(ILogger<SolaxHttpClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxHttpOptions> solaxClientOptions)
         {
             _logger = logger;
             _solaxClientOptions = solaxClientOptions.Value;
@@ -40,7 +40,21 @@ namespace SolaxHub.Solax
             {
                 var result = await client.GetStringAsync(BuildUrl(), cancellationToken);
                 var json = JObject.Parse(result);
-                await _solaxProcessorService.ProcessJson(json, cancellationToken);
+                _logger.LogTrace(json.ToString());
+
+                var solaxClientResponse = json.ToObject<SolaxHttpClientResponse>();
+                if (solaxClientResponse == null)
+                {
+                    throw new NullReferenceException($"Could not cast json '{json}' to '{typeof(SolaxHttpResult)}'");
+                }
+
+                if (solaxClientResponse.Success is false)
+                {
+                    _logger.LogWarning("Response was not successful with reason: {reason}", solaxClientResponse.Exception);
+                    return;
+                }
+
+                await _solaxProcessorService.ProcessData(solaxClientResponse.Result.ToSolaxData(), cancellationToken);
             }
             catch (JsonReaderException ex)
             {

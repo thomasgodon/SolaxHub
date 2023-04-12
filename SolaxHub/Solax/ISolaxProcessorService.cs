@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
+using SolaxHub.Solax.Http;
 
 namespace SolaxHub.Solax;
 
 internal interface ISolaxProcessorService
 {
-    Task ProcessJson(JObject json, CancellationToken cancellationToken);
+    Task ProcessData(SolaxData data, CancellationToken cancellationToken);
 }

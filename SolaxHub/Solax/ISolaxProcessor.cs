@@ -1,7 +1,9 @@
-﻿namespace SolaxHub.Solax
+﻿using SolaxHub.Solax.Http;
+
+namespace SolaxHub.Solax
 {
     internal interface ISolaxProcessor
     {
-        Task ProcessResult(SolaxResult result, CancellationToken cancellationToken);
+        Task ProcessData(SolaxData data, CancellationToken cancellationToken);
     }
 }
