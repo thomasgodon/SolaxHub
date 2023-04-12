@@ -21,12 +21,6 @@ namespace SolaxHub.Solax.Http
 
         public async Task Start(CancellationToken cancellationToken)
         {
-            if (_solaxClientOptions.Enabled is false)
-            {
-                _logger.LogWarning($"{nameof(SolaxHttpClient)} not enabled");
-                return;
-            }
-
             await Task.Run(async () =>
             {
                 // Keep this task alive until it is cancelled

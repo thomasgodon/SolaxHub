@@ -7,7 +7,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
         var configuration = hostContext.Configuration;
-        services.AddSolaxClient(configuration);
+        services.AddSolaxClients(configuration);
         services.AddUdpSender(configuration);
         services.AddIotCentral(configuration);
         services.AddHostedService<Worker>();

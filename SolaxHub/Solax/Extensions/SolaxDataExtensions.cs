@@ -4,7 +4,7 @@ using SolaxHub.Solax.Http;
 
 namespace SolaxHub.Solax.Extensions
 {
-    internal static class TelegramExtensions
+    internal static class SolaxDataExtensions
     {
 
         public static byte[] ToUdpPacket(this SolaxData result, string property)
