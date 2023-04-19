@@ -1,4 +1,4 @@
-﻿using SolaxHub.Solax.Http;
+﻿using Newtonsoft.Json;
 
 namespace SolaxHub.Solax;
 
@@ -15,6 +15,8 @@ internal class SolaxProcessorService : ISolaxProcessorService
 
     public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
     {
+        _logger.LogTrace("{log}", JsonConvert.SerializeObject(data));
+
         try
         {
             foreach (var solaxProcessor in _solaxProcessors)

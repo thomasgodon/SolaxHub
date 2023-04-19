@@ -11,6 +11,8 @@ namespace SolaxHub.Solax
         public string SerialNumber { get; init; } = default!;
         [JsonProperty("acpower")]
         public double AcPower { get; init; }
+        [JsonProperty("houseload")]
+        public double HouseLoad { get; init; }
         [JsonProperty("yieldtoday")]
         public double YieldToday { get; init; }
         [JsonProperty("yieldtotal")]

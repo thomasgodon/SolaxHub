@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -40,7 +39,7 @@ namespace SolaxHub.Solax.Http
             {
                 var result = await client.GetStringAsync(BuildUrl(), cancellationToken);
                 var json = JObject.Parse(result);
-                _logger.LogTrace(json.ToString());
+                _logger.LogTrace("{log}",json.ToString());
 
                 var solaxClientResponse = json.ToObject<SolaxHttpClientResponse>();
                 if (solaxClientResponse == null)
