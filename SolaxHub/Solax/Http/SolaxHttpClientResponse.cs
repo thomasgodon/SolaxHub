@@ -1,14 +1,14 @@
 ﻿using Newtonsoft.Json;
 
-namespace SolaxHub.Solax
+namespace SolaxHub.Solax.Http
 {
-    internal class SolaxClientResponse
+    internal class SolaxHttpClientResponse
     {
         [JsonProperty("success")]
         public bool Success { get; init; }
         [JsonProperty("exception")]
         public string Exception { get; init; } = default!;
         [JsonProperty("result")]
-        public SolaxResult Result { get; init; } = default!;
+        public SolaxHttpResult Result { get; init; } = default!;
     }
 }

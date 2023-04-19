@@ -1,12 +1,13 @@
 ﻿using System.Globalization;
 using System.Text;
+using SolaxHub.Solax.Http;
 
 namespace SolaxHub.Solax.Extensions
 {
-    internal static class TelegramExtensions
+    internal static class SolaxDataExtensions
     {
 
-        public static byte[] ToUdpPacket(this SolaxResult result, string property)
+        public static byte[] ToUdpPacket(this SolaxData result, string property)
         {
             var value = result.GetType().GetProperty(property)?.GetValue(result, null);
             var subValue = value?.GetType().GetProperty("Value")?.GetValue(value, null);

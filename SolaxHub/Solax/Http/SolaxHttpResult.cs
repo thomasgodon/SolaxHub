@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace SolaxHub.Solax
+namespace SolaxHub.Solax.Http
 {
-    internal class SolaxResult
+    internal class SolaxHttpResult
     {
         [JsonProperty("inverterSN")]
         public string InverterSerialNumber { get; init; } = default!;
@@ -25,7 +25,7 @@ namespace SolaxHub.Solax
         public double FeedInPowerM2 { get; init; }
         [JsonProperty("soc")]
         public double Soc { get; init; }
-        [JsonProperty("peps1")] 
+        [JsonProperty("peps1")]
         public double? EpsPowerR { get; init; }
         [JsonProperty("peps2")]
         public double? EpsPowerS { get; init; }
@@ -42,7 +42,7 @@ namespace SolaxHub.Solax
         [JsonProperty("batPower")]
         public double BatteryPower { get; init; }
         [JsonProperty("powerdc1")]
-        public double? PvPowerMppt1  { get; init; }
+        public double? PvPowerMppt1 { get; init; }
         [JsonProperty("powerdc2")]
         public double? PvPowerMppt2 { get; init; }
         [JsonProperty("powerdc3")]

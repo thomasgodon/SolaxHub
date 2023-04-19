@@ -7,6 +7,7 @@ using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SolaxHub.Solax;
+using SolaxHub.Solax.Http;
 
 namespace SolaxHub.IotCentral
 {
@@ -26,11 +27,11 @@ namespace SolaxHub.IotCentral
             _registerInterval = new Stopwatch();
         }
 
-        public async Task ProcessResult(SolaxResult result, CancellationToken cancellationToken)
+        public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
         {
             if (!_iotCentralOptions.Enabled) return;
 
-            var serializedResult = JsonConvert.SerializeObject(result);
+            var serializedResult = JsonConvert.SerializeObject(data);
             if (_previousResult == serializedResult)
             {
                 if (DateTime.Now.Subtract(_previousSentTime) < _iotCentralOptions.SendInterval)
@@ -44,7 +45,7 @@ namespace SolaxHub.IotCentral
 
             try
             {
-                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result)))
+                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data)))
                 {
                     ContentEncoding = Encoding.UTF8.WebName
                 };

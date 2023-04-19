@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 
 namespace SolaxHub.Solax;
 
@@ -13,27 +13,15 @@ internal class SolaxProcessorService : ISolaxProcessorService
         _solaxProcessors = solaxProcessors;
     }
 
-    public async Task ProcessJson(JObject json, CancellationToken cancellationToken)
+    public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
     {
+        _logger.LogTrace("{log}", JsonConvert.SerializeObject(data));
+
         try
         {
-            _logger.LogTrace(json.ToString());
-            var solaxClientResponse = json.ToObject<SolaxClientResponse>();
-
-            if (solaxClientResponse == null)
-            {
-                throw new NullReferenceException($"Could not cast json '{json}' to '{typeof(SolaxResult)}'");
-            }
-
-            if (solaxClientResponse.Success is false)
-            {
-                _logger.LogWarning("Response was not successful with reason: {reason}", solaxClientResponse.Exception);
-                return;
-            }
-
             foreach (var solaxProcessor in _solaxProcessors)
             {
-                await solaxProcessor.ProcessResult(solaxClientResponse.Result, cancellationToken);
+                await solaxProcessor.ProcessData(data, cancellationToken);
             }
         }
         catch (Exception e)
