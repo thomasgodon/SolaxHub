@@ -6,13 +6,14 @@
             new()
             {
                 InverterSerialNumber = data.InverterSerialNumber,
+                SerialNumber = data.RegistrationCodePocket,
                 Soc = data.BatteryCapacity,
                 BatteryPower = data.BatteryPower,
                 AcPower = data.InverterPower,
                 FeedInPower = data.FeedInPower,
                 InverterStatus = (SolaxInverterStatus)data.RunMode + 100,
                 InverterType = data.InverterSerialNumber.ToSolaxInverterType(),
-                EpsPowerR = data.EpsPowerActiveR,
+                EpsPowerR = data.PvPower1,
                 YieldToday = data.SolarEnergyToday,
                 YieldTotal = data.SolarEnergyTotal,
                 HouseLoad = data.GridImport + data.InverterPower,

@@ -9,15 +9,16 @@ namespace SolaxHub.Solax.Modbus
             new()
             {
                 InverterSerialNumber = await GetSerialNumberAsync(cancellationToken),
-                GridVoltage = await GetGridVoltageAsync(cancellationToken),
-                InverterPower = await GetGridPowerAsync(cancellationToken),
+                RegistrationCodePocket = await GetRegistrationCodePocketAsync(cancellationToken),
+                InverterVoltage = await GetInverterVoltageAsync(cancellationToken),
+                InverterPower = await GetInverterPowerAsync(cancellationToken),
                 BatteryCapacity = await GetBatteryCapacityAsync(cancellationToken),
                 BatteryPower = await GetBatteryPowerAsync(cancellationToken),
                 FeedInPower = await GetFeedInPowerAsync(cancellationToken),
                 RunMode = await GetRunModeAsync(cancellationToken),
-                EpsVoltR = await GetEpsVoltRAsync(cancellationToken),
-                EpsCurrentR = await GetEpsCurrentRAsync(cancellationToken),
-                EpsPowerActiveR = await GetEpsPowerActiveRAsync(cancellationToken),
+                EpsVolt1 = await GetPvVolt1Async(cancellationToken),
+                EpsCurrent1 = await GetEpsCurrent1Async(cancellationToken),
+                PvPower1 = await GetPvPower1RAsync(cancellationToken),
                 SolarEnergyToday = await GetSolarEnergyTodayAsync(cancellationToken),
                 SolarEnergyTotal = await GetSolarEnergyTotalAsync(cancellationToken),
                 SolarChargerUseMode = await GetSolarChargerUseModeAsync(cancellationToken)
@@ -31,7 +32,15 @@ namespace SolaxHub.Solax.Modbus
             return Encoding.ASCII.GetString(data.ToArray());
         }
 
-        private async Task<ushort> GetGridVoltageAsync(CancellationToken cancellationToken)
+        private async Task<string> GetRegistrationCodePocketAsync(CancellationToken cancellationToken)
+        {
+            const ushort startingAddress = 170;
+            const ushort count = 5;
+            var data = await _modbusClient.ReadHoldingRegistersAsync(UnitIdentifier, startingAddress, count, cancellationToken);
+            return Encoding.ASCII.GetString(data.ToArray());
+        }
+
+        private async Task<ushort> GetInverterVoltageAsync(CancellationToken cancellationToken)
         {
             const ushort startingAddress = 0;
             const ushort count = 1;
@@ -39,7 +48,7 @@ namespace SolaxHub.Solax.Modbus
             return data.ToArray()[0];
         }
 
-        private async Task<short> GetGridPowerAsync(CancellationToken cancellationToken)
+        private async Task<short> GetInverterPowerAsync(CancellationToken cancellationToken)
         {
             const ushort startingAddress = 2;
             const ushort count = 1;
@@ -63,44 +72,44 @@ namespace SolaxHub.Solax.Modbus
             return data.ToArray()[0];
         }
 
-        private async Task<ushort> GetEpsVoltRAsync(CancellationToken cancellationToken)
+        private async Task<ushort> GetPvVolt1Async(CancellationToken cancellationToken)
         {
-            const ushort startingAddress = 118;
+            const ushort startingAddress = 3;
             const ushort count = 1;
             var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
             return data.ToArray()[0];
         }
 
-        private async Task<ushort> GetEpsCurrentRAsync(CancellationToken cancellationToken)
+        private async Task<ushort> GetEpsCurrent1Async(CancellationToken cancellationToken)
         {
-            const ushort startingAddress = 119;
+            const ushort startingAddress = 6;
             const ushort count = 1;
             var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
             return data.ToArray()[0];
         }
 
-        private async Task<ushort> GetEpsPowerActiveRAsync(CancellationToken cancellationToken)
+        private async Task<ushort> GetPvPower1RAsync(CancellationToken cancellationToken)
         {
-            const ushort startingAddress = 120;
+            const ushort startingAddress = 10;
             const ushort count = 1;
             var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
             return data.ToArray()[0];
         }
 
-        private async Task<ushort> GetSolarEnergyTodayAsync(CancellationToken cancellationToken)
+        private async Task<double> GetSolarEnergyTodayAsync(CancellationToken cancellationToken)
         {
-            const ushort startingAddress = 150;
+            const ushort startingAddress = 80;
             const ushort count = 1;
             var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
-            return data.ToArray()[0];
+            return Math.Round(data.ToArray()[0] * 0.1, 2);
         }
 
-        private async Task<int> GetSolarEnergyTotalAsync(CancellationToken cancellationToken)
+        private async Task<double> GetSolarEnergyTotalAsync(CancellationToken cancellationToken)
         {
-            const ushort startingAddress = 148;
+            const ushort startingAddress = 82;
             const ushort count = 2;
             var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
-            return data.ToArray()[1] << 16 | data.ToArray()[0];
+            return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.1, 2);
         }
 
         private async Task<ushort> GetRunModeAsync(CancellationToken cancellationToken)
