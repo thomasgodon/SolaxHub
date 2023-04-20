@@ -17,10 +17,12 @@ namespace SolaxHub.Solax.Modbus
         public ushort GridImport => (ushort)(FeedInPower < 0 ? (ushort)Math.Abs(FeedInPower) : 0);
         public ushort GridExport => (ushort)(FeedInPower >= 0 ? (ushort)Math.Abs(FeedInPower) : 0);
         public int FeedInPower { get; init; } = default!;
+        public double ConsumeEnergy { get; init; } = default!;
+        public double FeedInEnergy { get; init; } = default!;
         public ushort RunMode { get; init;} = default!;
         public ushort PvPower1 { get; init; } = default!;
-        public ushort EpsVolt1 { get; init; } = default!;
-        public ushort EpsCurrent1 { get; init; } = default!;
+        public ushort PvVolt1 { get; init; } = default!;
+        public ushort PvCurrent1 { get; init; } = default!;
         public double SolarEnergyToday { get; init; } = default!;
         public double SolarEnergyTotal { get; init; } = default!;
         public ushort SolarChargerUseMode { get; init; } = default!;

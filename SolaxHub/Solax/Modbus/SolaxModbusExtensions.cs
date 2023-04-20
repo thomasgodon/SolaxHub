@@ -18,6 +18,8 @@
                 YieldTotal = data.SolarEnergyTotal,
                 HouseLoad = data.GridImport + data.InverterPower,
                 BatteryStatus = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
+                ConsumeEnergy = data.ConsumeEnergy,
+                FeedInEnergy = data.FeedInEnergy
             };
 
         private static SolaxInverterType ToSolaxInverterType(this string serialNumber) =>

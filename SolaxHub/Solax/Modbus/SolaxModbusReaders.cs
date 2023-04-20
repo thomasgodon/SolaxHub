@@ -16,12 +16,14 @@ namespace SolaxHub.Solax.Modbus
                 BatteryPower = await GetBatteryPowerAsync(cancellationToken),
                 FeedInPower = await GetFeedInPowerAsync(cancellationToken),
                 RunMode = await GetRunModeAsync(cancellationToken),
-                EpsVolt1 = await GetPvVolt1Async(cancellationToken),
-                EpsCurrent1 = await GetEpsCurrent1Async(cancellationToken),
+                PvVolt1 = await GetPvVolt1Async(cancellationToken),
+                PvCurrent1 = await GetPvCurrent1Async(cancellationToken),
                 PvPower1 = await GetPvPower1RAsync(cancellationToken),
                 SolarEnergyToday = await GetSolarEnergyTodayAsync(cancellationToken),
                 SolarEnergyTotal = await GetSolarEnergyTotalAsync(cancellationToken),
-                SolarChargerUseMode = await GetSolarChargerUseModeAsync(cancellationToken)
+                SolarChargerUseMode = await GetSolarChargerUseModeAsync(cancellationToken),
+                ConsumeEnergy = await GetConsumeEnergyAsync(cancellationToken),
+                FeedInEnergy = await GetFeedInEnergyAsync(cancellationToken)
             };
 
         private async Task<string> GetSerialNumberAsync(CancellationToken cancellationToken)
@@ -80,7 +82,7 @@ namespace SolaxHub.Solax.Modbus
             return data.ToArray()[0];
         }
 
-        private async Task<ushort> GetEpsCurrent1Async(CancellationToken cancellationToken)
+        private async Task<ushort> GetPvCurrent1Async(CancellationToken cancellationToken)
         {
             const ushort startingAddress = 6;
             const ushort count = 1;
@@ -126,6 +128,22 @@ namespace SolaxHub.Solax.Modbus
             const ushort count = 2;
             var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
             return data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff;
+        }
+
+        private async Task<double> GetFeedInEnergyAsync(CancellationToken cancellationToken)
+        {
+            const ushort startingAddress = 72;
+            const ushort count = 2;
+            var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+            return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.01, 2);
+        }
+
+        private async Task<double> GetConsumeEnergyAsync(CancellationToken cancellationToken)
+        {
+            const ushort startingAddress = 74;
+            const ushort count = 2;
+            var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+            return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.01, 2);
         }
 
         private async Task<ushort> GetSolarChargerUseModeAsync(CancellationToken cancellationToken)
