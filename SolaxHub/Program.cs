@@ -1,5 +1,6 @@
 using SolaxHub;
 using SolaxHub.IotCentral.Extensions;
+using SolaxHub.Knx.Extensions;
 using SolaxHub.Solax.Extensions;
 using SolaxHub.Udp.Extensions;
 
@@ -10,6 +11,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSolaxClients(configuration);
         services.AddUdpSender(configuration);
         services.AddIotCentral(configuration);
+        services.AddKnx(configuration);
         services.AddHostedService<Worker>();
     })
     .Build();
