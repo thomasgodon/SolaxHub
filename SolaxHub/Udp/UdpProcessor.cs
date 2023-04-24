@@ -45,7 +45,7 @@ namespace SolaxHub.Udp
                 }
                 catch (Exception)
                 {
-                    yield break;
+                    continue;
                 }
 
                 if (propertyValue == null)
