@@ -1,12 +1,8 @@
 ﻿using System.Net;
-using Knx.DatapointTypes.Dpt1Bit;
-using Knx.ExtendedMessageInterface;
 using Knx.KnxNetIp;
 using Knx;
 using Knx.DatapointTypes;
-using Knx.DatapointTypes.Dpt2ByteFloat;
 using Microsoft.Extensions.Options;
-using SolaxHub.Knx.Extensions;
 using SolaxHub.Solax;
 
 namespace SolaxHub.Knx
@@ -33,12 +29,59 @@ namespace SolaxHub.Knx
             // connect to the KNXnet/IP gateway
             if (_client.IsConnected is false)
             {
-                await _client.Connect();
+                try
+                {
+                    await _client.Connect();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Couldn't connect to '{address}'", _client.RemoteEndPoint.Address);
+                    await _client.Disconnect();
+                }
             }
 
-            foreach (var message in data.ToKnxMessages(KnxAddress.ParseLogical(_knxOptions.StartGroupAddress)))
+            foreach (var (address, type) in GenerateKnxMessages(data, _knxOptions.GroupAddressMapping).ToList())
             {
-                _client.Write(message.address, message.type);
+                _client.Write(address, type);
+            }
+        }
+
+        public static IEnumerable<(KnxLogicalAddress address, DatapointType type)> GenerateKnxMessages(SolaxData data, Dictionary<string, GroupAddressMapping> groupAddressMapping)
+        {
+            foreach (var propertyInfo in data.GetType().GetProperties())
+            {
+                dynamic propertyValue;
+                try
+                {
+                    propertyValue = Convert.ChangeType(propertyInfo.GetValue(data, null)?.ToString(), propertyInfo.PropertyType)!;
+                }
+                catch (Exception)
+                {
+                    yield break;
+                }
+                if (propertyValue == null)
+                {
+                    continue;
+                }
+
+                if (groupAddressMapping.TryGetValue(propertyInfo.Name, out var value) is false)
+                {
+                    continue;
+                }
+
+                if (KnxAddress.TryParseLogical(value.Address, out var address) is false)
+                {
+                    continue;
+                }
+
+                if (DatapointType.TryGetType(value.DataType, out var dataPointType) is false)
+                {
+                    continue;
+                }
+
+                var dataPoint = (DatapointType)Activator.CreateInstance(dataPointType, propertyValue)!;
+
+                yield return new ValueTuple<KnxLogicalAddress, DatapointType>(address, dataPoint);
             }
         }
     }
