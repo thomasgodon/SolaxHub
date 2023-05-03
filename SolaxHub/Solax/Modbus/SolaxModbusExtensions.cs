@@ -16,7 +16,7 @@
                 EpsPowerR = data.PvPower1,
                 YieldToday = data.SolarEnergyToday,
                 YieldTotal = data.SolarEnergyTotal,
-                HouseLoad = data.GridImport + data.InverterPower,
+                HouseLoad = data.InverterPower - data.FeedInPower,
                 BatteryStatus = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
                 ConsumeEnergy = data.ConsumeEnergy,
                 FeedInEnergy = data.FeedInEnergy
