@@ -7,7 +7,7 @@ namespace SolaxHub.IotCentral.Extensions
         public static IServiceCollection AddIotCentral(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.Configure<IotCentralOptions>(configuration.GetSection(nameof(IotCentralOptions)));
-            serviceCollection.AddTransient<ISolaxProcessor, IotCentralProcessor>();
+            serviceCollection.AddSingleton<ISolaxProcessor, IotCentralProcessor>();
             return serviceCollection;
         }
     }
