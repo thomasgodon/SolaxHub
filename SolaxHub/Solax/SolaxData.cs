@@ -52,5 +52,7 @@ namespace SolaxHub.Solax
         [JsonProperty("batStatus")]
         [JsonConverter(typeof(StringEnumConverter))]
         public SolaxBatteryStatus BatteryStatus { get; init; }
+        [JsonProperty("sourceTimestamp")]
+        public DateTimeOffset SourceTimestamp { get; } = DateTimeOffset.UtcNow;
     }
 }
