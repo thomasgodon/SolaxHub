@@ -4,14 +4,14 @@ using SolaxHub.Knx.Client;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxWriteProcessor : ISolaxProcessor
+    internal class KnxSolaxProcessor : ISolaxProcessor
     {
         private readonly KnxOptions _options; 
         private readonly IKnxClient _knxClient;
         private readonly Dictionary<string, KnxSolaxValue> _knxSolaxValueBuffer;
         private readonly object _solaxDataLock = new();
 
-        public KnxWriteProcessor(IOptions<KnxOptions> options, IKnxClient knxClient)
+        public KnxSolaxProcessor(IOptions<KnxOptions> options, IKnxClient knxClient)
         {
             _options = options.Value;
             _knxSolaxValueBuffer = BuildKnxSolaxValueBuffer(_options);
