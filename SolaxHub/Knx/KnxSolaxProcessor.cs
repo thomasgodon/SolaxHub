@@ -29,7 +29,7 @@ namespace SolaxHub.Knx
             await _knxClient.SendValuesAsync(updatedValues, cancellationToken);
         }
 
-        private KnxSolaxValue? UpdateValue(string capability, byte[] value)
+        private KnxSolaxValue? UpdateValue(string capability, byte[] value, bool isShort = false)
         {
             if (_knxSolaxValueBuffer.TryGetValue(capability, out var knxSolaxValue) is false)
             {
@@ -45,6 +45,7 @@ namespace SolaxHub.Knx
             }
 
             _knxSolaxValueBuffer[capability].Value = value;
+            _knxSolaxValueBuffer[capability].IsShort = isShort;
             return _knxSolaxValueBuffer[capability];
         }
 
@@ -54,6 +55,16 @@ namespace SolaxHub.Knx
             {
                 // HouseLoad - 14.056 power
                 yield return UpdateValue(nameof(SolaxData.HouseLoad), BitConverter.GetBytes((float)solaxData.HouseLoad));
+                // AcPower - 14.056 power
+                yield return UpdateValue(nameof(SolaxData.AcPower), BitConverter.GetBytes((float)solaxData.AcPower));
+                // BatteryPower - 14.056 power
+                yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
+                // BatteryStatus - 7.* 2-byte unsigned value
+                yield return UpdateValue(nameof(SolaxData.BatteryStatus), BitConverter.GetBytes((ushort)solaxData.BatteryStatus));
+                // ConsumeEnergy - 14.* 4byte float value
+                yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
+                // ConsumeEnergy - 5.001 percentage
+                yield return UpdateValue(nameof(SolaxData.Soc), BitConverter.GetBytes((byte)solaxData.Soc), isShort: true);
             }
         }
 
