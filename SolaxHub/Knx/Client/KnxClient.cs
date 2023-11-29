@@ -10,6 +10,8 @@ namespace SolaxHub.Knx.Client
         private readonly ILogger<KnxClient> _logger;
         private readonly KnxOptions _options;
         private KnxBus? _bus;
+        private IKnxReadDelegate? _readDelegate;
+        private IKnxWriteDelegate? _writeDelegate;
 
         public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options)
         {
@@ -50,6 +52,16 @@ namespace SolaxHub.Knx.Client
 
             _bus = new KnxBus(new IpTunnelingConnectorParameters(_options.Host, _options.Port));
             await _bus.ConnectAsync(cancellationToken);
+        }
+
+        public void SetReadDelegate(IKnxReadDelegate @delegate)
+        {
+            _readDelegate = @delegate;
+        }
+
+        public void SetWriteDelegate(IKnxWriteDelegate @delegate)
+        {
+            _writeDelegate = @delegate;
         }
     }
 }
