@@ -36,10 +36,11 @@ namespace SolaxHub.Solax.Modbus
                     {
                         _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
-                        // set solax client instance to all writers
+                        // set solax client instance to all writers & start writer
                         foreach (var solaxWriter in _solaxWriters)
                         {
                             solaxWriter.SetSolaxClient(this);
+                            await solaxWriter.StartAsync(cancellationToken);
                         }
                         continue;
                     }

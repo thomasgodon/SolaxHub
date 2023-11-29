@@ -17,5 +17,10 @@ namespace SolaxHub.Knx
         {
             _solaxClient = solaxClient;
         }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await _knxClient.ConnectAsync(cancellationToken);
+        }
     }
 }
