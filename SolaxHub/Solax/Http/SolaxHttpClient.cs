@@ -31,6 +31,11 @@ namespace SolaxHub.Solax.Http
             }, cancellationToken);
         }
 
+        public Task WriteRegisterAsync(byte identifier, ushort registerAddress, byte[] value, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task CallSolaxApi(CancellationToken cancellationToken)
         {
             using var client = new HttpClient();

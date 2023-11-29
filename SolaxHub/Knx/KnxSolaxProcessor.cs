@@ -24,7 +24,7 @@ namespace SolaxHub.Knx
 
             // get updated values
             var updatedValues = UpdateValues(data)
-                .Where(m => m is not null) as IEnumerable<KnxSolaxValue>;
+                .Where(m => m is not null).ToList() as IEnumerable<KnxSolaxValue>;
 
             await _knxClient.SendValuesAsync(updatedValues, cancellationToken);
         }
@@ -52,7 +52,7 @@ namespace SolaxHub.Knx
         {
             lock (_solaxDataLock)
             {
-                // HouseLoad - 
+                // HouseLoad - 14.056 power
                 yield return UpdateValue(nameof(SolaxData.HouseLoad), BitConverter.GetBytes((float)solaxData.HouseLoad));
             }
         }

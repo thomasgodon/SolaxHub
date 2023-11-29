@@ -32,7 +32,12 @@ namespace SolaxHub.Knx.Client
 
             foreach (var knxSolaxValue in values)
             {
-                await _bus.WriteGroupValueAsync(knxSolaxValue.Address, new GroupValue(knxSolaxValue.Value), MessagePriority.Low, cancellationToken);
+                if (knxSolaxValue.Value is null)
+                {
+                    return;
+
+                }
+                await _bus.WriteGroupValueAsync(knxSolaxValue.Address, new GroupValue(knxSolaxValue.Value.Reverse().ToArray()), MessagePriority.Low, cancellationToken);
             }
         }
 
