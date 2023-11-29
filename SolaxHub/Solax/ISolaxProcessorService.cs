@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using SolaxHub.Solax.Http;
-
-namespace SolaxHub.Solax;
+﻿namespace SolaxHub.Solax;
 
 internal interface ISolaxProcessorService
 {

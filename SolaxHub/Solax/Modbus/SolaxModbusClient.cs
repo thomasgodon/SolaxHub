@@ -8,14 +8,16 @@ namespace SolaxHub.Solax.Modbus
     {
         private readonly SolaxModbusOptions _solaxModbusOptions;
         private readonly ISolaxProcessorService _solaxProcessorService;
+        private readonly IEnumerable<ISolaxWriter> _solaxWriters;
         private readonly ModbusTcpClient _modbusClient;
         private readonly ILogger<SolaxModbusClient> _logger;
         private const byte UnitIdentifier = 0x00; // 0x00 and 0xFF are the defaults for TCP/IP-only Modbus devices.
 
-        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxModbusOptions> solaxModbusOptions)
+        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IEnumerable<ISolaxWriter> solaxWriters, IOptions<SolaxModbusOptions> solaxModbusOptions)
         {
             _solaxModbusOptions = solaxModbusOptions.Value;
             _solaxProcessorService = solaxProcessorService;
+            _solaxWriters = solaxWriters;
             _logger = logger;
             _modbusClient = new ModbusTcpClient();
         }
@@ -24,15 +26,21 @@ namespace SolaxHub.Solax.Modbus
         {
             var endPoint = await GetEndPointAsync(cancellationToken);
             _modbusClient.ReadTimeout = 1000;
-            _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
             await Task.Run(async () =>
             {
                 // Keep this task alive until it is cancelled
-                while (!cancellationToken.IsCancellationRequested)
+                while (cancellationToken.IsCancellationRequested is false)
                 {
                     if (_modbusClient.IsConnected is false)
                     {
+                        _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
+
+                        // set solax client instance to all writers
+                        foreach (var solaxWriter in _solaxWriters)
+                        {
+                            solaxWriter.SetSolaxClient(this);
+                        }
                         continue;
                     }
 
@@ -49,6 +57,17 @@ namespace SolaxHub.Solax.Modbus
                     }
                 }
             }, cancellationToken);
+        }
+
+        public async Task WriteRegisterAsync(byte identifier, ushort registerAddress, byte[] value, CancellationToken cancellationToken)
+        {
+            if (_modbusClient.IsConnected is false)
+            {
+                _logger.LogError("Modbus client not connected");
+                return;
+            }
+
+            await _modbusClient.WriteSingleRegisterAsync(identifier, registerAddress, value, cancellationToken);
         }
 
         private async Task<IPEndPoint> GetEndPointAsync(CancellationToken cancellationToken)
