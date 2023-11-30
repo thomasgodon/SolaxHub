@@ -11,6 +11,7 @@ namespace SolaxHub.Knx.Extensions
             serviceCollection.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
             serviceCollection.AddSingleton<ISolaxProcessor, KnxSolaxProcessor>();
             serviceCollection.AddSingleton<IKnxClient, KnxClient>();
+            serviceCollection.AddSingleton<ISolaxWriter, KnxSolaxWriter>();
             return serviceCollection;
         }
     }

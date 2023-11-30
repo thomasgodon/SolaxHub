@@ -17,7 +17,7 @@ namespace SolaxHub.Knx
         {
             _options = options.Value;
             _knxSolaxValueBuffer = BuildKnxSolaxValueBuffer(_options);
-            _capabilityAddressMapping = BuildCapabilityAddressMapping(_options);
+            _capabilityAddressMapping = BuildCapabilityReadAddressMapping(_options);
             _knxClient = knxClient;
             _knxClient.SetReadDelegate(this);
         }
@@ -89,7 +89,7 @@ namespace SolaxHub.Knx
                 .Where(
                     mapping => string.IsNullOrEmpty(mapping.Value) is false);
 
-        private static Dictionary<GroupAddress, string> BuildCapabilityAddressMapping(KnxOptions knxOptions)
+        private static Dictionary<GroupAddress, string> BuildCapabilityReadAddressMapping(KnxOptions knxOptions)
             => GetReadGroupAddressesFromOptions(knxOptions)
                 .ToDictionary(
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
