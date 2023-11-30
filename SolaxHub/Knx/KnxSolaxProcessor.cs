@@ -69,8 +69,6 @@ namespace SolaxHub.Knx
                 yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
                 // ConsumeEnergy - 5.001 percentage
                 yield return UpdateValue(nameof(SolaxData.Soc), BitConverter.GetBytes((byte)solaxData.Soc), isShort: true);
-
-                yield return UpdateValue(nameof(SolaxData), BitConverter.GetBytes((byte)solaxData.Soc), isShort: true);
             }
         }
 

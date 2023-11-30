@@ -51,6 +51,9 @@ namespace SolaxHub.Solax
         public double? PvPowerMppt4 { get; init; }
         [JsonProperty("batStatus")]
         [JsonConverter(typeof(StringEnumConverter))]
+        public SolaxInverterUseMode BatteryStatus => InverterUseMode;
+        [JsonProperty("inverterUseMode")] 
+        [JsonConverter(typeof(StringEnumConverter))]
         public SolaxInverterUseMode InverterUseMode { get; init; }
         [JsonProperty("sourceTimestamp")]
         public DateTimeOffset SourceTimestamp { get; } = DateTimeOffset.UtcNow;
