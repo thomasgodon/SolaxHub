@@ -1,20 +1,23 @@
 ﻿using Microsoft.Extensions.Options;
 using SolaxHub.Solax;
 using SolaxHub.Knx.Client;
+using Knx.Falcon;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxSolaxProcessor : ISolaxProcessor
+    internal class KnxSolaxProcessor : ISolaxProcessor, IKnxReadDelegate
     {
         private readonly KnxOptions _options; 
         private readonly IKnxClient _knxClient;
         private readonly Dictionary<string, KnxSolaxValue> _knxSolaxValueBuffer;
+        private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
         private readonly object _solaxDataLock = new();
 
         public KnxSolaxProcessor(IOptions<KnxOptions> options, IKnxClient knxClient)
         {
             _options = options.Value;
             _knxSolaxValueBuffer = BuildKnxSolaxValueBuffer(_options);
+            _capabilityAddressMapping = BuildCapabilityAddressMapping(_options);
             _knxClient = knxClient;
         }
 
@@ -84,5 +87,29 @@ namespace SolaxHub.Knx
             => options.GroupAddressMapping
                 .Where(
                     mapping => string.IsNullOrEmpty(mapping.Value) is false);
+
+        private static Dictionary<GroupAddress, string> BuildCapabilityAddressMapping(KnxOptions knxOptions)
+            => GroupAddressMappingsFromOptions(knxOptions)
+                .ToDictionary(
+                    groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
+                    groupAddressMapping => groupAddressMapping.Key);
+
+        public KnxSolaxValue? ReadValue(GroupAddress address)
+        {
+            if (_capabilityAddressMapping.TryGetValue(address, out var capability) is false)
+            {
+                return null;
+            }
+
+            lock (_solaxDataLock)
+            {
+                if (_knxSolaxValueBuffer.TryGetValue(capability, out var knxSolaxValue))
+                {
+                    return knxSolaxValue;
+                }
+            }
+
+            return null;
+        }
     }
 }

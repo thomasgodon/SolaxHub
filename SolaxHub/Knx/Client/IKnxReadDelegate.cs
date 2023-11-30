@@ -1,7 +1,9 @@
-﻿namespace SolaxHub.Knx.Client
+﻿using Knx.Falcon;
+
+namespace SolaxHub.Knx.Client
 {
     internal interface IKnxReadDelegate
     {
-        Task SendReadReplyAsync(CancellationToken cancellationToken);
+        KnxSolaxValue? ReadValue(GroupAddress address);
     }
 }
