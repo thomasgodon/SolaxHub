@@ -11,7 +11,7 @@ namespace SolaxHub.Solax.Modbus
         private readonly IEnumerable<ISolaxWriter> _solaxWriters;
         private readonly ModbusTcpClient _modbusClient;
         private readonly ILogger<SolaxModbusClient> _logger;
-        private const byte UnitIdentifier = 0x00; // 0x00 and 0xFF are the defaults for TCP/IP-only Modbus devices.
+        private const byte UnitIdentifier = 0x00;
 
         public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IEnumerable<ISolaxWriter> solaxWriters, IOptions<SolaxModbusOptions> solaxModbusOptions)
         {
