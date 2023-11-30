@@ -74,7 +74,7 @@ namespace SolaxHub.Knx
 
         private static Dictionary<string, KnxSolaxValue> BuildKnxSolaxValueBuffer(KnxOptions knxOptions)
         {
-            var solaxData = new Dictionary<string, KnxSolaxValue>(knxOptions.GroupAddressMapping.Count);
+            var solaxData = new Dictionary<string, KnxSolaxValue>(knxOptions.ReadGroupAddresses.Count);
 
             foreach (var groupAddressMapping in GroupAddressMappingsFromOptions(knxOptions))
             {
@@ -85,7 +85,7 @@ namespace SolaxHub.Knx
         }
 
         private static IEnumerable<KeyValuePair<string, string>> GroupAddressMappingsFromOptions(KnxOptions options)
-            => options.GroupAddressMapping
+            => options.ReadGroupAddresses
                 .Where(
                     mapping => string.IsNullOrEmpty(mapping.Value) is false);
 
