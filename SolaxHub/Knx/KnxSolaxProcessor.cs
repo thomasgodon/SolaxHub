@@ -19,6 +19,7 @@ namespace SolaxHub.Knx
             _knxSolaxValueBuffer = BuildKnxSolaxValueBuffer(_options);
             _capabilityAddressMapping = BuildCapabilityAddressMapping(_options);
             _knxClient = knxClient;
+            _knxClient.SetReadDelegate(this);
         }
 
         public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)

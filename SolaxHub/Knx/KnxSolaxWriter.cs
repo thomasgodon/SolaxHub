@@ -1,4 +1,5 @@
-﻿using SolaxHub.Knx.Client;
+﻿using Knx.Falcon;
+using SolaxHub.Knx.Client;
 using SolaxHub.Solax;
 
 namespace SolaxHub.Knx
@@ -11,6 +12,7 @@ namespace SolaxHub.Knx
         public KnxSolaxWriter(IKnxClient knxClient)
         {
             _knxClient = knxClient;
+            _knxClient.SetWriteDelegate(this);
         }
 
         public void SetSolaxClient(ISolaxClient solaxClient)
@@ -23,9 +25,8 @@ namespace SolaxHub.Knx
             await _knxClient.ConnectAsync(cancellationToken);
         }
 
-        public Task ProcessWriteAsync(CancellationToken cancellationToken)
+        public Task ProcessWriteAsync(GroupAddress groupsAddress, byte[] value, CancellationToken cancellationToken)
         {
-            // TODO: write to solax client
             throw new NotImplementedException();
         }
     }
