@@ -63,12 +63,16 @@ namespace SolaxHub.Knx
                 yield return UpdateValue(nameof(SolaxData.AcPower), BitConverter.GetBytes((float)solaxData.AcPower));
                 // BatteryPower - 14.056 power
                 yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
-                // Inverter use Mode - 7.* 2-byte unsigned value
-                yield return UpdateValue(nameof(SolaxData.InverterUseMode), BitConverter.GetBytes((ushort)solaxData.InverterUseMode));
+                // InverterUseMode - 6.020 status with mode
+                yield return UpdateValue(nameof(SolaxData.InverterUseMode), new[] { (byte)((int)solaxData.InverterUseMode * 2.55) });
                 // ConsumeEnergy - 14.* 4byte float value
                 yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
-                // ConsumeEnergy - 5.001 percentage
-                yield return UpdateValue(nameof(SolaxData.Soc), BitConverter.GetBytes((byte)solaxData.Soc), isShort: true);
+                // Soc - 5.001 percentage
+                yield return UpdateValue(nameof(SolaxData.Soc), new[] { (byte)(solaxData.Soc * 2.55) });
+                // EpsPowerR - 14.056 power
+                yield return UpdateValue(nameof(SolaxData.EpsPowerR), BitConverter.GetBytes((float)(solaxData.EpsPowerR ?? 0)));
+                // InverterStatus - 6.020 status with mode
+                yield return UpdateValue(nameof(SolaxData.InverterStatus), new[] { (byte)solaxData.InverterStatus });
             }
         }
 

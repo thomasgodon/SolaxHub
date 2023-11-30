@@ -48,7 +48,7 @@ namespace SolaxHub.Knx
             switch (capability)
             {
                 case nameof(SolaxData.InverterUseMode):
-                    await solaxClient.SetSolarChargerUseModeAsync((SolaxInverterUseMode)BitConverter.ToUInt16(value), cancellationToken);
+                    await solaxClient.SetSolarChargerUseModeAsync((SolaxInverterUseMode)value[0], cancellationToken);
                     break;
             }
         }
