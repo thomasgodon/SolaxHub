@@ -51,6 +51,10 @@ namespace SolaxHub.Knx.Client
             }
 
             _bus = new KnxBus(new IpTunnelingConnectorParameters(_options.Host, _options.Port));
+            _bus.GroupMessageReceived += async (_, args) =>
+            {
+                await ProcessGroupMessageReceivedAsync(args, cancellationToken);
+            };
             await _bus.ConnectAsync(cancellationToken);
         }
 
@@ -62,6 +66,34 @@ namespace SolaxHub.Knx.Client
         public void SetWriteDelegate(IKnxWriteDelegate @delegate)
         {
             _writeDelegate = @delegate;
+        }
+
+        private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
+        {
+            switch (e.EventType)
+            {
+                // respond to read requests
+                case GroupEventType.ValueRead:
+                {
+                    var readValue = _readDelegate?.ReadValue(e.DestinationAddress);
+                    if (readValue == null)
+                    {
+                        return;
+                    }
+
+                    await SendValuesAsync(new[] { readValue }, cancellationToken);
+                    return;
+                }
+                // respond to write requests
+                case GroupEventType.ValueWrite:
+                    if (_writeDelegate is null)
+                    {
+                        return;
+                    }
+
+                    await _writeDelegate.ProcessWriteAsync(e.DestinationAddress, e.Value.Value, cancellationToken);
+                    break;
+            }
         }
     }
 }

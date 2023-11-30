@@ -1,7 +1,9 @@
-﻿namespace SolaxHub.Knx.Client
+﻿using Knx.Falcon;
+
+namespace SolaxHub.Knx.Client
 {
     internal interface IKnxWriteDelegate
     {
-        Task ProcessWriteAsync(CancellationToken cancellationToken);
+        Task ProcessWriteAsync(GroupAddress groupsAddress, byte[] value, CancellationToken cancellationToken);
     }
 }
