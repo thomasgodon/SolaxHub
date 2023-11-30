@@ -31,7 +31,7 @@ namespace SolaxHub.Solax.Http
             }, cancellationToken);
         }
 
-        public Task WriteRegisterAsync(byte identifier, ushort registerAddress, byte[] value, CancellationToken cancellationToken)
+        public Task SetSolarChargerUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

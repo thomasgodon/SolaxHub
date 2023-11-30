@@ -51,6 +51,6 @@ namespace SolaxHub.Solax.Http
         public double? PvPowerMppt4 { get; init; }
         [JsonProperty("batStatus")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public SolaxBatteryStatus BatteryStatus { get; init; }
+        public SolaxInverterUseMode InverterUseMode { get; init; }
     }
 }

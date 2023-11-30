@@ -17,7 +17,7 @@
                 YieldToday = data.SolarEnergyToday,
                 YieldTotal = data.SolarEnergyTotal,
                 HouseLoad = data.InverterPower - data.FeedInPower,
-                BatteryStatus = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
+                InverterUseMode = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
                 ConsumeEnergy = data.ConsumeEnergy,
                 FeedInEnergy = data.FeedInEnergy
             };
@@ -29,14 +29,14 @@
                 _ => SolaxInverterType.Unknown
             };
 
-        private static SolaxBatteryStatus ToSolaxBatteryStatus(this ushort chargerUseMode)
+        private static SolaxInverterUseMode ToSolaxBatteryStatus(this ushort chargerUseMode)
             => chargerUseMode switch
             {
-                0 => SolaxBatteryStatus.SelfUseMode,
-                1 => SolaxBatteryStatus.FeedInPriority,
-                2 => SolaxBatteryStatus.BackUpMode,
-                3 => SolaxBatteryStatus.ForceTimeUse,
-                _ => SolaxBatteryStatus.Unknown
+                0 => SolaxInverterUseMode.SelfUseMode,
+                1 => SolaxInverterUseMode.FeedInPriority,
+                2 => SolaxInverterUseMode.BackUpMode,
+                3 => SolaxInverterUseMode.ForceTimeUse,
+                _ => SolaxInverterUseMode.Unknown
             };
     }
 }

@@ -60,17 +60,6 @@ namespace SolaxHub.Solax.Modbus
             }, cancellationToken);
         }
 
-        public async Task WriteRegisterAsync(byte identifier, ushort registerAddress, byte[] value, CancellationToken cancellationToken)
-        {
-            if (_modbusClient.IsConnected is false)
-            {
-                _logger.LogError("Modbus client not connected");
-                return;
-            }
-
-            await _modbusClient.WriteSingleRegisterAsync(identifier, registerAddress, value, cancellationToken);
-        }
-
         private async Task<IPEndPoint> GetEndPointAsync(CancellationToken cancellationToken)
         {
             if (IPAddress.TryParse(_solaxModbusOptions.Host, out var parsedIp))

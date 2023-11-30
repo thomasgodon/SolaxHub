@@ -5,6 +5,7 @@
         SelfUseMode = 0,
         ForceTimeUse = 1,
         BackUpMode = 2,
-        FeedInEnergy = 3
+        FeedInPriority = 3,
+        Unknown = 4
     }
 }

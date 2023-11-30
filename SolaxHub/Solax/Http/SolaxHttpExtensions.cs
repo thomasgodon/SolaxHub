@@ -33,7 +33,7 @@ namespace SolaxHub.Solax.Http
                 PvPowerMppt2 = result.PvPowerMppt2,
                 PvPowerMppt3 = result.PvPowerMppt3,
                 PvPowerMppt4 = result.PvPowerMppt4,
-                BatteryStatus = result.BatteryStatus
+                InverterUseMode = result.InverterUseMode
             };
     }
 }
