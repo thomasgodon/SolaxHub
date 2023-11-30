@@ -63,7 +63,7 @@ namespace SolaxHub.Knx
                 yield return UpdateValue(nameof(SolaxData.AcPower), BitConverter.GetBytes((float)solaxData.AcPower));
                 // BatteryPower - 14.056 power
                 yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
-                // BatteryStatus - 7.* 2-byte unsigned value
+                // Inverter use Mode - 7.* 2-byte unsigned value
                 yield return UpdateValue(nameof(SolaxData.InverterUseMode), BitConverter.GetBytes((ushort)solaxData.InverterUseMode));
                 // ConsumeEnergy - 14.* 4byte float value
                 yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
@@ -76,7 +76,7 @@ namespace SolaxHub.Knx
         {
             var solaxData = new Dictionary<string, KnxSolaxValue>(knxOptions.ReadGroupAddresses.Count);
 
-            foreach (var groupAddressMapping in GroupAddressMappingsFromOptions(knxOptions))
+            foreach (var groupAddressMapping in GetReadGroupAddressesFromOptions(knxOptions))
             {
                 solaxData.Add(groupAddressMapping.Key, new KnxSolaxValue(groupAddressMapping.Value));
             }
@@ -84,13 +84,13 @@ namespace SolaxHub.Knx
             return solaxData;
         }
 
-        private static IEnumerable<KeyValuePair<string, string>> GroupAddressMappingsFromOptions(KnxOptions options)
+        private static IEnumerable<KeyValuePair<string, string>> GetReadGroupAddressesFromOptions(KnxOptions options)
             => options.ReadGroupAddresses
                 .Where(
                     mapping => string.IsNullOrEmpty(mapping.Value) is false);
 
         private static Dictionary<GroupAddress, string> BuildCapabilityAddressMapping(KnxOptions knxOptions)
-            => GroupAddressMappingsFromOptions(knxOptions)
+            => GetReadGroupAddressesFromOptions(knxOptions)
                 .ToDictionary(
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
                     groupAddressMapping => groupAddressMapping.Key);

@@ -25,9 +25,15 @@ namespace SolaxHub.Knx
             await _knxClient.ConnectAsync(cancellationToken);
         }
 
-        public Task ProcessWriteAsync(GroupAddress groupsAddress, byte[] value, CancellationToken cancellationToken)
+        public async Task ProcessWriteAsync(GroupAddress groupsAddress, byte[] value, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (_solaxClient is null)
+            {
+                return;
+            }
+
+            var useMode = (SolaxInverterUseMode)BitConverter.ToUInt16(value);
+            await _solaxClient.SetSolarChargerUseModeAsync(useMode, cancellationToken);
         }
     }
 }
