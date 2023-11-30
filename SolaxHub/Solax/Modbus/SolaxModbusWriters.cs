@@ -7,6 +7,6 @@ internal partial class SolaxModbusClient
         const ushort registerAddress = 0x001F;
         var data = BitConverter.GetBytes((ushort)useMode);
 
-        await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, data, cancellationToken);
+        await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, data.Reverse().ToArray(), cancellationToken);
     }
 }
