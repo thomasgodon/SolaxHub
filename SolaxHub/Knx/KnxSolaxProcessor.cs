@@ -73,10 +73,10 @@ namespace SolaxHub.Knx
                 yield return UpdateValue(nameof(SolaxData.EpsPowerR), BitConverter.GetBytes((float)(solaxData.EpsPowerR ?? 0)));
                 // InverterStatus - 6.020 status with mode
                 yield return UpdateValue(nameof(SolaxData.InverterStatus), new[] { (byte)solaxData.InverterStatus });
-                // YieldToday - 14.*
-                yield return UpdateValue(nameof(SolaxData.YieldToday), BitConverter.GetBytes((float)solaxData.YieldToday));
-                // YieldTotal - 14.*
-                yield return UpdateValue(nameof(SolaxData.YieldTotal), BitConverter.GetBytes((float)solaxData.YieldTotal));
+                // YieldToday - 13.010 Wh
+                yield return UpdateValue(nameof(SolaxData.YieldToday), BitConverter.GetBytes((ushort)solaxData.YieldToday * 1000));
+                // YieldTotal - 13.010 Wh
+                yield return UpdateValue(nameof(SolaxData.YieldTotal), BitConverter.GetBytes((ushort)solaxData.YieldTotal * 1000));
             }
         }
 
