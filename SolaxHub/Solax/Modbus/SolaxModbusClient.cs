@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using FluentModbus;
 using Microsoft.Extensions.Options;
+using static Newtonsoft.Json.JsonConvert;
 
 namespace SolaxHub.Solax.Modbus
 {
@@ -50,6 +51,7 @@ namespace SolaxHub.Solax.Modbus
                     try
                     {
                         var data = await GetSolaxModbusData(cancellationToken);
+                        _logger.LogTrace("{message}", SerializeObject(data));
                         await _solaxProcessorService.ProcessData(data.ToSolaxData(), cancellationToken);
                     }
                     catch (Exception e)
