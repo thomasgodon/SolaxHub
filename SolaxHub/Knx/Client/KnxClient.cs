@@ -65,7 +65,6 @@ namespace SolaxHub.Knx.Client
                 await ProcessGroupMessageReceivedAsync(args, cancellationToken);
             };
             await _bus.ConnectAsync(cancellationToken);
-            await _bus.SetInterfaceConfigurationAsync(new BusInterfaceConfiguration(_options.IndividualAddress), cancellationToken);
         }
 
         public void SetReadDelegate(IKnxReadDelegate @delegate)
