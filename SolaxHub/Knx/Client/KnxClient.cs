@@ -39,7 +39,16 @@ namespace SolaxHub.Knx.Client
                     return;
 
                 }
-                await _bus.WriteGroupValueAsync(knxSolaxValue.Address, new GroupValue(knxSolaxValue.Value.Reverse().ToArray()), MessagePriority.Low, cancellationToken);
+
+                var writeCancellationToken = new CancellationTokenSource();
+
+                await Task.WhenAny(
+                    _bus.WriteGroupValueAsync(knxSolaxValue.Address,
+                        new GroupValue(knxSolaxValue.Value.Reverse().ToArray()), MessagePriority.Low,
+                        writeCancellationToken.Token),
+                    Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken));
+
+                writeCancellationToken.Cancel();
             }
         }
 
@@ -56,6 +65,7 @@ namespace SolaxHub.Knx.Client
                 await ProcessGroupMessageReceivedAsync(args, cancellationToken);
             };
             await _bus.ConnectAsync(cancellationToken);
+            await _bus.SetInterfaceConfigurationAsync(new BusInterfaceConfiguration(_options.IndividualAddress), cancellationToken);
         }
 
         public void SetReadDelegate(IKnxReadDelegate @delegate)
