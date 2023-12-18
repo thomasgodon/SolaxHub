@@ -77,6 +77,8 @@ namespace SolaxHub.Knx
                 yield return UpdateValue(nameof(SolaxData.YieldToday), BitConverter.GetBytes((float)solaxData.YieldToday));
                 // YieldTotal - 14
                 yield return UpdateValue(nameof(SolaxData.YieldTotal), BitConverter.GetBytes((float)solaxData.YieldTotal));
+                // TotalBatteryOutputEnergy - 14
+                yield return UpdateValue(nameof(SolaxData.TodayBatteryOutputEnergy), BitConverter.GetBytes((float)solaxData.TodayBatteryOutputEnergy));
             }
         }
 
