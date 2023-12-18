@@ -19,5 +19,6 @@
         public double SolarEnergyTotal { get; init; } = default!;
         public ushort SolarChargerUseMode { get; init; } = default!;
         public double BatteryOutputEnergyToday { get; init; } = default!;
+        public double BatteryInputEnergyToday { get; init; } = default!;
     }
 }

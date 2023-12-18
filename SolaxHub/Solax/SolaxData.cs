@@ -57,7 +57,9 @@ namespace SolaxHub.Solax
         public SolaxInverterUseMode InverterUseMode { get; init; }
         [JsonProperty("sourceTimestamp")]
         public DateTimeOffset SourceTimestamp { get; } = DateTimeOffset.UtcNow;
-        [JsonProperty("todayBatteryOutputEnergy")]
-        public double TodayBatteryOutputEnergy { get; init; }
+        [JsonProperty("batteryOutputEnergyToday")]
+        public double BatteryOutputEnergyToday { get; init; }
+        [JsonProperty("BatteryInputEnergyToday")]
+        public double BatteryInputEnergyToday { get; init; }
     }
 }

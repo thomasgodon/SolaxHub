@@ -20,7 +20,8 @@
                 InverterUseMode = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
                 ConsumeEnergy = data.ConsumeEnergy,
                 FeedInEnergy = data.FeedInEnergy,
-                TodayBatteryOutputEnergy = data.BatteryOutputEnergyToday
+                BatteryOutputEnergyToday = data.BatteryOutputEnergyToday,
+                BatteryInputEnergyToday = data.BatteryInputEnergyToday
             };
 
         private static SolaxInverterType ToSolaxInverterType(this string serialNumber) =>
