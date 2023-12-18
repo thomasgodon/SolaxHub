@@ -5,8 +5,6 @@ internal partial class SolaxModbusClient
     public async Task SetSolarChargerUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken)
     {
         const ushort registerAddress = 0x001F;
-        var data = BitConverter.GetBytes((ushort)useMode);
-
-        await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, data.Reverse().ToArray(), cancellationToken);
+        await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, (ushort)useMode, cancellationToken);
     }
 }
