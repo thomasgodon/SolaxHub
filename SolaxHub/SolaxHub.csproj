@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentModbus" Version="5.0.2" />
+    <PackageReference Include="FluentModbus" Version="5.0.3" />
     <PackageReference Include="Knx.Falcon.Sdk" Version="6.1.6264" />
-    <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.41.3" />
-    <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Client" Version="1.19.2" />
-    <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Amqp" Version="1.16.4" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.42.1" />
+    <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Client" Version="1.19.4" />
+    <PackageReference Include="Microsoft.Azure.Devices.Provisioning.Transport.Amqp" Version="1.16.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
