@@ -37,6 +37,9 @@ namespace SolaxHub.Solax.Modbus
                     {
                         _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
+                        // unlock advanced inverter
+                        await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
+
                         // set solax client instance to all writers & start writer
                         foreach (var solaxWriter in _solaxWriters)
                         {
