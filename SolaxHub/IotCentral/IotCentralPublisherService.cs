@@ -6,6 +6,7 @@ using Microsoft.Azure.Devices.Provisioning.Client.Transport;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using SolaxHub.IotCentral.Extensions;
 using SolaxHub.IotCentral.Models;
 using SolaxHub.Solax;
 
@@ -63,10 +64,10 @@ namespace SolaxHub.IotCentral
             while (cancellationToken.IsCancellationRequested is false)
             {
                 // get solax data
-                var data = _solaxProcessorService.ConsumeSolaxData();
+                var data = _solaxProcessorService.ReadSolaxData();
 
                 // process solax data
-                var serializedResult = JsonConvert.SerializeObject(data);
+                var serializedResult = JsonConvert.SerializeObject(data.ToDeviceData());
 
                 foreach (var (client, interval, deviceOptions) in _deviceClients)
                 {

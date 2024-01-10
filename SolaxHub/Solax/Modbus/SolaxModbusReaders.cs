@@ -1,10 +1,11 @@
 ﻿using System.Text;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Modbus;
 
 internal partial class SolaxModbusClient
 {
-    private async Task<SolaxModbusData> GetSolaxModbusData(CancellationToken cancellationToken) =>
+    private async Task<SolaxData> GetSolaxModbusData(CancellationToken cancellationToken) =>
         new()
         {
             InverterSerialNumber = await GetSerialNumberAsync(cancellationToken),

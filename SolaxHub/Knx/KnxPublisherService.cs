@@ -2,8 +2,9 @@
 using SolaxHub.Solax;
 using SolaxHub.Knx.Client;
 using Knx.Falcon;
-using SolaxHub.Solax.Models;
+using SolaxHub.IotCentral.Models;
 using SolaxHub.Knx.Models;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx
 {
@@ -40,7 +41,7 @@ namespace SolaxHub.Knx
             while (cancellationToken.IsCancellationRequested is false)
             {
                 // get solax data
-                var data = _solaxProcessorService.ConsumeSolaxData();
+                var data = _solaxProcessorService.ReadSolaxData();
 
                 // process solax data
                 var updatedValues = UpdateValues(data)
@@ -78,7 +79,7 @@ namespace SolaxHub.Knx
             lock (_solaxDataLock)
             {
                 // HouseLoad - 14.056 power
-                yield return UpdateValue(nameof(SolaxData.HouseLoad), BitConverter.GetBytes((float)solaxData.HouseLoad));
+                yield return UpdateValue(nameof(SolaxData.), BitConverter.GetBytes((float)solaxData.HouseLoad));
                 // AcPower - 14.056 power
                 yield return UpdateValue(nameof(SolaxData.AcPower), BitConverter.GetBytes((float)solaxData.AcPower));
                 // BatteryPower - 14.056 power

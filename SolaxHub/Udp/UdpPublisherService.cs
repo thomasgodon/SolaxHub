@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax;
 using System.Net.Sockets;
-using SolaxHub.Solax.Models;
+using SolaxHub.IotCentral.Models;
 
 namespace SolaxHub.Udp
 {
@@ -31,7 +31,7 @@ namespace SolaxHub.Udp
             while (cancellationToken.IsCancellationRequested is false)
             {
                 // get solax data
-                var data = _solaxProcessorService.ConsumeSolaxData();
+                var data = _solaxProcessorService.ReadSolaxData();
 
                 // process solax data
                 foreach (var (udpData, port) in GenerateUdpMessages(data, _options.PortMapping).ToList())
@@ -46,7 +46,7 @@ namespace SolaxHub.Udp
             }
         }
 
-        private static IEnumerable<(byte[] Data, int Port)> GenerateUdpMessages(SolaxData data, Dictionary<string, int> portMapping)
+        private static IEnumerable<(byte[] Data, int Port)> GenerateUdpMessages(DeviceData data, Dictionary<string, int> portMapping)
         {
             foreach (var propertyInfo in data.GetType().GetProperties())
             {

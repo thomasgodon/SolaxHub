@@ -1,5 +1,6 @@
 ﻿using Knx.Falcon;
 using Microsoft.Extensions.Options;
+using SolaxHub.IotCentral.Models;
 using SolaxHub.Knx.Client;
 using SolaxHub.Solax;
 using SolaxHub.Solax.Models;
@@ -48,7 +49,7 @@ namespace SolaxHub.Knx
         {
             switch (capability)
             {
-                case nameof(SolaxData.InverterUseMode):
+                case nameof(DeviceData.InverterUseMode):
                     await solaxClient.SetSolarChargerUseModeAsync((SolaxInverterUseMode)value[0], cancellationToken);
                     break;
             }

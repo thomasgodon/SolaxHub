@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SolaxHub.Solax.Models;
+using SolaxHub.IotCentral.Models;
 
 namespace SolaxHub.Solax;
 
@@ -14,7 +14,7 @@ internal class SolaxProcessorService : ISolaxProcessorService
         _solaxProcessors = solaxProcessors;
     }
 
-    public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
+    public async Task ProcessData(DeviceData data, CancellationToken cancellationToken)
     {
         _logger.LogTrace("{log}", JsonConvert.SerializeObject(data));
 
@@ -29,5 +29,10 @@ internal class SolaxProcessorService : ISolaxProcessorService
         {
             _logger.LogError(e, "{message}", e.Message);
         }
+    }
+
+    public DeviceData ConsumeSolaxData()
+    {
+        throw new NotImplementedException();
     }
 }
