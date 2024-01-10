@@ -5,11 +5,9 @@ namespace SolaxHub
     internal class Worker : BackgroundService
     {
         private readonly ISolaxClientFactory _solaxClientFactory;
-        private readonly ILogger<Worker> _logger;
 
-        public Worker(ILogger<Worker> logger, ISolaxClientFactory solaxClientFactory)
+        public Worker(ISolaxClientFactory solaxClientFactory)
         {
-            _logger = logger;
             _solaxClientFactory = solaxClientFactory;
         }
 
