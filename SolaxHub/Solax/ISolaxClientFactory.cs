@@ -2,5 +2,5 @@
 
 internal interface ISolaxClientFactory
 {
-    ISolaxClient? CreateSolaxClient();
+    ISolaxClient CreateSolaxClient();
 }
