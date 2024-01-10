@@ -7,32 +7,47 @@ using SolaxHub.Knx.Models;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxSolaxProcessor : ISolaxProcessor, IKnxReadDelegate
+    internal class KnxPublisherService : ISolaxConsumer
     {
         private readonly KnxOptions _options; 
         private readonly IKnxClient _knxClient;
+        private readonly ISolaxProcessorService _solaxProcessorService;
         private readonly Dictionary<string, KnxSolaxValue> _knxSolaxValueBuffer;
         private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
         private readonly object _solaxDataLock = new();
 
-        public KnxSolaxProcessor(IOptions<KnxOptions> options, IKnxClient knxClient)
+        public bool Enabled => _options.Enabled;
+
+        public KnxPublisherService(
+            IOptions<KnxOptions> options, 
+            IKnxClient knxClient,
+            ISolaxProcessorService solaxProcessorService)
         {
             _options = options.Value;
             _knxSolaxValueBuffer = BuildKnxSolaxValueBuffer(_options);
             _capabilityAddressMapping = BuildCapabilityReadAddressMapping(_options);
             _knxClient = knxClient;
-            _knxClient.SetReadDelegate(this);
+            _solaxProcessorService = solaxProcessorService;
         }
 
-        public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             if (_options.Enabled is false) return;
 
-            // get updated values
-            var updatedValues = UpdateValues(data)
-                .Where(m => m is not null).ToList() as IEnumerable<KnxSolaxValue>;
+            while (cancellationToken.IsCancellationRequested is false)
+            {
+                // get solax data
+                var data = _solaxProcessorService.ConsumeSolaxData();
 
-            await _knxClient.SendValuesAsync(updatedValues, cancellationToken);
+                // get updated values
+                var updatedValues = UpdateValues(data)
+                    .Where(m => m is not null).ToList() as IEnumerable<KnxSolaxValue>;
+
+                await _knxClient.SendValuesAsync(updatedValues, cancellationToken);
+
+                // wait for next poll
+                await Task.Delay(_options.Interval, cancellationToken);
+            }
         }
 
         private KnxSolaxValue? UpdateValue(string capability, byte[] value, bool isShort = false)

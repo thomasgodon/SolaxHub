@@ -6,13 +6,13 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxSolaxWriter : ISolaxWriter, IKnxWriteDelegate
+    internal class KnxReaderService : ISolaxWriter, IKnxWriteDelegate
     {
         private readonly IKnxClient _knxClient;
         private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
         private ISolaxModbusClient? _solaxClient;
 
-        public KnxSolaxWriter(IKnxClient knxClient, IOptions<KnxOptions> options)
+        public KnxReaderService(IKnxClient knxClient, IOptions<KnxOptions> options)
         {
             _knxClient = knxClient;
             _knxClient.SetWriteDelegate(this);

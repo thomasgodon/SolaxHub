@@ -11,7 +11,7 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.IotCentral
 {
-    internal class IotCentralProcessor : ISolaxProcessor
+    internal class IotCentralProcessor : ISolaxConsumer
     {
         private readonly ILogger<IotCentralProcessor> _logger;
         private readonly List<(DeviceClient Client, Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();

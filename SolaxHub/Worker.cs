@@ -4,17 +4,16 @@ namespace SolaxHub
 {
     internal class Worker : BackgroundService
     {
-        private readonly ISolaxClientFactory _solaxClientFactory;
+        private readonly ISolaxModbusClient _solaxModbusClient;
 
-        public Worker(ISolaxClientFactory solaxClientFactory)
+        public Worker(ISolaxModbusClient solaxModbusClient)
         {
-            _solaxClientFactory = solaxClientFactory;
+            _solaxModbusClient = solaxModbusClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var client = _solaxClientFactory.CreateSolaxClient();
-            await client.Start(cancellationToken);
+            await _solaxModbusClient.Start(cancellationToken);
         }
     }
 }

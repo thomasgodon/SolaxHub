@@ -6,9 +6,9 @@ namespace SolaxHub.Solax;
 internal class SolaxProcessorService : ISolaxProcessorService
 {
     private readonly ILogger<SolaxProcessorService> _logger;
-    private readonly IEnumerable<ISolaxProcessor> _solaxProcessors;
+    private readonly IEnumerable<ISolaxConsumer> _solaxProcessors;
 
-    public SolaxProcessorService(ILogger<SolaxProcessorService> logger, IEnumerable<ISolaxProcessor> solaxProcessors)
+    public SolaxProcessorService(ILogger<SolaxProcessorService> logger, IEnumerable<ISolaxConsumer> solaxProcessors)
     {
         _logger = logger;
         _solaxProcessors = solaxProcessors;

@@ -6,7 +6,7 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Udp
 {
-    internal class UdpProcessor : ISolaxProcessor
+    internal class UdpProcessor : ISolaxConsumer
     {
         private readonly UdpOptions _udpOptions;
 
@@ -15,7 +15,7 @@ namespace SolaxHub.Udp
             _udpOptions = udpOptions.Value;
         }
 
-        async Task ISolaxProcessor.ProcessData(SolaxData data, CancellationToken cancellationToken)
+        async Task ISolaxConsumer.ProcessData(SolaxData data, CancellationToken cancellationToken)
         {
             if (!_udpOptions.Enabled) return;
 
