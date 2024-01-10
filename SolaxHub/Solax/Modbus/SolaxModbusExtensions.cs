@@ -1,4 +1,6 @@
-﻿namespace SolaxHub.Solax.Modbus
+﻿using SolaxHub.Solax.Models;
+
+namespace SolaxHub.Solax.Modbus
 {
     internal static class SolaxModbusExtensions
     {

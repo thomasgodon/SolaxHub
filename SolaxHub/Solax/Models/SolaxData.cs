@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace SolaxHub.Solax
+namespace SolaxHub.Solax.Models
 {
     internal class SolaxData
     {
@@ -52,7 +52,7 @@ namespace SolaxHub.Solax
         [JsonProperty("batStatus")]
         [JsonConverter(typeof(StringEnumConverter))]
         public SolaxInverterUseMode BatteryStatus => InverterUseMode;
-        [JsonProperty("inverterUseMode")] 
+        [JsonProperty("inverterUseMode")]
         [JsonConverter(typeof(StringEnumConverter))]
         public SolaxInverterUseMode InverterUseMode { get; init; }
         [JsonProperty("sourceTimestamp")]

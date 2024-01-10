@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax;
 using System.Net.Sockets;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Udp
 {

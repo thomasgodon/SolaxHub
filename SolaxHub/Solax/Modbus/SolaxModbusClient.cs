@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using FluentModbus;
 using Microsoft.Extensions.Options;
+using SolaxHub.Solax.Models;
 using static Newtonsoft.Json.JsonConvert;
 
 namespace SolaxHub.Solax.Modbus

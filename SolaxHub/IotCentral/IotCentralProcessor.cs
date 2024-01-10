@@ -7,6 +7,7 @@ using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SolaxHub.Solax;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.IotCentral
 {

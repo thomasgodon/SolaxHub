@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SolaxHub.Solax
+namespace SolaxHub.Solax.Models
 {
     public enum SolaxLockState
     {

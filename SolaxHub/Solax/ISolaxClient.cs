@@ -1,4 +1,6 @@
-﻿namespace SolaxHub.Solax;
+﻿using SolaxHub.Solax.Models;
+
+namespace SolaxHub.Solax;
 
 public interface ISolaxClient
 {

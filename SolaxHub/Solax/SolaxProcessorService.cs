@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax;
 

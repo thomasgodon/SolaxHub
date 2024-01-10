@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using SolaxHub.Knx.Client;
 using SolaxHub.Solax;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx
 {

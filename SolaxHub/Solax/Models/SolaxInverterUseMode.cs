@@ -1,4 +1,4 @@
-﻿namespace SolaxHub.Solax
+﻿namespace SolaxHub.Solax.Models
 {
     public enum SolaxInverterUseMode
     {
