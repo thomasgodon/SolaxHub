@@ -8,12 +8,10 @@ namespace SolaxHub.Udp
 {
     internal class UdpProcessor : ISolaxProcessor
     {
-        private readonly ILogger<UdpProcessor> _logger;
         private readonly UdpOptions _udpOptions;
 
-        public UdpProcessor(ILogger<UdpProcessor> logger, IOptions<UdpOptions> udpOptions)
+        public UdpProcessor(IOptions<UdpOptions> udpOptions)
         {
-            _logger = logger;
             _udpOptions = udpOptions.Value;
         }
 
