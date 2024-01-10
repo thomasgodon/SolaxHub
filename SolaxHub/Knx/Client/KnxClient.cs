@@ -2,6 +2,7 @@
 using Knx.Falcon.Sdk;
 using Knx.Falcon;
 using Microsoft.Extensions.Options;
+using SolaxHub.Knx.Models;
 
 namespace SolaxHub.Knx.Client
 {

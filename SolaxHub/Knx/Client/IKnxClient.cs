@@ -1,4 +1,6 @@
-﻿namespace SolaxHub.Knx.Client;
+﻿using SolaxHub.Knx.Models;
+
+namespace SolaxHub.Knx.Client;
 
 internal interface IKnxClient
 {

@@ -3,6 +3,7 @@ using SolaxHub.Solax;
 using SolaxHub.Knx.Client;
 using Knx.Falcon;
 using SolaxHub.Solax.Models;
+using SolaxHub.Knx.Models;
 
 namespace SolaxHub.Knx
 {
