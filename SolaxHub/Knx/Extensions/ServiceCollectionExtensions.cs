@@ -1,5 +1,4 @@
-﻿using SolaxHub.IotCentral;
-using SolaxHub.Knx.Client;
+﻿using SolaxHub.Knx.Client;
 using SolaxHub.Solax;
 
 namespace SolaxHub.Knx.Extensions
