@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using FluentModbus;
 using Microsoft.Extensions.Options;
+using static Newtonsoft.Json.JsonConvert;
 
 namespace SolaxHub.Solax.Modbus
 {
@@ -8,14 +9,16 @@ namespace SolaxHub.Solax.Modbus
     {
         private readonly SolaxModbusOptions _solaxModbusOptions;
         private readonly ISolaxProcessorService _solaxProcessorService;
+        private readonly IEnumerable<ISolaxWriter> _solaxWriters;
         private readonly ModbusTcpClient _modbusClient;
         private readonly ILogger<SolaxModbusClient> _logger;
-        private const byte UnitIdentifier = 0x00; // 0x00 and 0xFF are the defaults for TCP/IP-only Modbus devices.
+        private const byte UnitIdentifier = 0x00;
 
-        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxModbusOptions> solaxModbusOptions)
+        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IEnumerable<ISolaxWriter> solaxWriters, IOptions<SolaxModbusOptions> solaxModbusOptions)
         {
             _solaxModbusOptions = solaxModbusOptions.Value;
             _solaxProcessorService = solaxProcessorService;
+            _solaxWriters = solaxWriters;
             _logger = logger;
             _modbusClient = new ModbusTcpClient();
         }
@@ -24,15 +27,25 @@ namespace SolaxHub.Solax.Modbus
         {
             var endPoint = await GetEndPointAsync(cancellationToken);
             _modbusClient.ReadTimeout = 1000;
-            _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
             await Task.Run(async () =>
             {
                 // Keep this task alive until it is cancelled
-                while (!cancellationToken.IsCancellationRequested)
+                while (cancellationToken.IsCancellationRequested is false)
                 {
                     if (_modbusClient.IsConnected is false)
                     {
+                        _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
+
+                        // unlock advanced inverter
+                        await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
+
+                        // set solax client instance to all writers & start writer
+                        foreach (var solaxWriter in _solaxWriters)
+                        {
+                            solaxWriter.SetSolaxClient(this);
+                            await solaxWriter.StartAsync(cancellationToken);
+                        }
                         continue;
                     }
 
@@ -41,6 +54,7 @@ namespace SolaxHub.Solax.Modbus
                     try
                     {
                         var data = await GetSolaxModbusData(cancellationToken);
+                        _logger.LogTrace("{message}", SerializeObject(data));
                         await _solaxProcessorService.ProcessData(data.ToSolaxData(), cancellationToken);
                     }
                     catch (Exception e)

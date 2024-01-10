@@ -1,4 +1,5 @@
 ﻿using SolaxHub.IotCentral;
+using SolaxHub.Knx.Client;
 using SolaxHub.Solax;
 
 namespace SolaxHub.Knx.Extensions
@@ -8,7 +9,9 @@ namespace SolaxHub.Knx.Extensions
         public static IServiceCollection AddKnx(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
-            serviceCollection.AddTransient<ISolaxProcessor, KnxProcessor>();
+            serviceCollection.AddSingleton<ISolaxProcessor, KnxSolaxProcessor>();
+            serviceCollection.AddSingleton<IKnxClient, KnxClient>();
+            serviceCollection.AddSingleton<ISolaxWriter, KnxSolaxWriter>();
             return serviceCollection;
         }
     }

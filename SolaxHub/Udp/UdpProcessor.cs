@@ -1,12 +1,6 @@
 ﻿using System.Text;
-using Knx.DatapointTypes;
-using Knx;
 using Microsoft.Extensions.Options;
-using SolaxHub.Knx;
 using SolaxHub.Solax;
-using SolaxHub.Solax.Extensions;
-using SolaxHub.Solax.Http;
-using SolaxHub.Udp.Extensions;
 using System.Net.Sockets;
 
 namespace SolaxHub.Udp

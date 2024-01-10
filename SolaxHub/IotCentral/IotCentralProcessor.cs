@@ -41,6 +41,11 @@ namespace SolaxHub.IotCentral
 
         public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
         {
+            if (_options.IotDevices.Any(m => m.Enabled) is false)
+            {
+                return;
+            }
+
             if (_deviceClients.Any() is false)
             {
                 await PopulateDeviceList(cancellationToken);

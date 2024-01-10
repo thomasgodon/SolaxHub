@@ -1,6 +1,4 @@
-﻿using SolaxHub.Solax.Http;
-
-namespace SolaxHub.Solax
+﻿namespace SolaxHub.Solax
 {
     internal interface ISolaxProcessor
     {

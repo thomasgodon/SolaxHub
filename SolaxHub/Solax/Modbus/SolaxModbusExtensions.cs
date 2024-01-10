@@ -17,25 +17,28 @@
                 YieldToday = data.SolarEnergyToday,
                 YieldTotal = data.SolarEnergyTotal,
                 HouseLoad = data.InverterPower - data.FeedInPower,
-                BatteryStatus = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
+                InverterUseMode = data.SolarChargerUseMode.ToSolaxBatteryStatus(),
                 ConsumeEnergy = data.ConsumeEnergy,
-                FeedInEnergy = data.FeedInEnergy
+                FeedInEnergy = data.FeedInEnergy,
+                BatteryOutputEnergyToday = data.BatteryOutputEnergyToday,
+                BatteryInputEnergyToday = data.BatteryInputEnergyToday
             };
 
         private static SolaxInverterType ToSolaxInverterType(this string serialNumber) =>
             serialNumber switch
             {
-                { } when serialNumber.StartsWith("H43")  => SolaxInverterType.X1HybridG4, // HYBRID | GEN4 | X1 # Gen4 X1 3kW / 3.7kW
+                not null when serialNumber.StartsWith("H43")  => SolaxInverterType.X1HybridG4, // HYBRID | GEN4 | X1 # Gen4 X1 3kW / 3.7kW
                 _ => SolaxInverterType.Unknown
             };
 
-        private static SolaxBatteryStatus ToSolaxBatteryStatus(this ushort chargerUseMode)
-        {
-            if (chargerUseMode == 0) return SolaxBatteryStatus.SelfUseMode;
-            if (chargerUseMode == 1) return SolaxBatteryStatus.FeedInPriority;
-            if (chargerUseMode == 2) return SolaxBatteryStatus.BackUpMode;
-            if (chargerUseMode == 3) return SolaxBatteryStatus.ForceTimeUse;
-            return SolaxBatteryStatus.Unknown;
-        }
+        private static SolaxInverterUseMode ToSolaxBatteryStatus(this ushort chargerUseMode)
+            => chargerUseMode switch
+            {
+                0 => SolaxInverterUseMode.SelfUseMode,
+                1 => SolaxInverterUseMode.FeedInPriority,
+                2 => SolaxInverterUseMode.BackUpMode,
+                3 => SolaxInverterUseMode.ForceTimeUse,
+                _ => SolaxInverterUseMode.Unknown
+            };
     }
 }

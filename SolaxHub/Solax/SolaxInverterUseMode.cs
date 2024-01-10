@@ -1,6 +1,6 @@
 ﻿namespace SolaxHub.Solax
 {
-    internal enum SolaxBatteryStatus
+    public enum SolaxInverterUseMode
     {
         SelfUseMode = 0,
         ForceTimeUse = 1,

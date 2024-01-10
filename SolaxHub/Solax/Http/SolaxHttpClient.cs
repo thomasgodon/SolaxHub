@@ -31,6 +31,11 @@ namespace SolaxHub.Solax.Http
             }, cancellationToken);
         }
 
+        public Task SetSolarChargerUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task CallSolaxApi(CancellationToken cancellationToken)
         {
             using var client = new HttpClient();
