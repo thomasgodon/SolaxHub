@@ -1,4 +1,4 @@
-﻿namespace SolaxHub.IotCentral
+﻿namespace SolaxHub.IotCentral.Models
 {
     internal class IotDevice
     {

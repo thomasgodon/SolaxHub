@@ -6,21 +6,29 @@ using Microsoft.Azure.Devices.Provisioning.Client.Transport;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using SolaxHub.IotCentral.Models;
 using SolaxHub.Solax;
-using SolaxHub.Solax.Models;
 
 namespace SolaxHub.IotCentral
 {
-    internal class IotCentralProcessor : ISolaxConsumer
+    internal class IotCentralPublisherService : ISolaxConsumer
     {
-        private readonly ILogger<IotCentralProcessor> _logger;
-        private readonly List<(DeviceClient Client, Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
+        private readonly ILogger<IotCentralPublisherService> _logger;
+        private readonly ISolaxProcessorService _solaxProcessorService;
+        private readonly List<(DeviceClient Client,Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
         private readonly IotCentralOptions _options;
         private string? _previousResult;
 
-        public IotCentralProcessor(ILogger<IotCentralProcessor> logger, IOptions<IotCentralOptions> iotCentralOptions)
+        public bool Enabled => _options.IotDevices.Any(m => m.Enabled);
+
+        public IotCentralPublisherService(
+            ILogger<IotCentralPublisherService> logger, 
+            IOptions<IotCentralOptions> iotCentralOptions,
+            ISolaxProcessorService solaxProcessorService
+            )
         {
             _logger = logger;
+            _solaxProcessorService = solaxProcessorService;
             _options = iotCentralOptions.Value;
         }
 
@@ -40,9 +48,9 @@ namespace SolaxHub.IotCentral
             }
         }
 
-        public async Task ProcessData(SolaxData data, CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_options.IotDevices.Any(m => m.Enabled) is false)
+            if (Enabled is false)
             {
                 return;
             }
@@ -52,40 +60,51 @@ namespace SolaxHub.IotCentral
                 await PopulateDeviceList(cancellationToken);
             }
 
-            var serializedResult = JsonConvert.SerializeObject(data);
-
-            foreach (var (client, interval, deviceOptions) in _deviceClients)
+            while (cancellationToken.IsCancellationRequested is false)
             {
-                if (!deviceOptions.Enabled) return;
+                // get solax data
+                var data = _solaxProcessorService.ConsumeSolaxData();
 
-                if (interval.Elapsed < deviceOptions.SendInterval)
-                {
-                    continue;
-                }
+                // process solax data
+                var serializedResult = JsonConvert.SerializeObject(data);
 
-                if (_previousResult == serializedResult)
+                foreach (var (client, interval, deviceOptions) in _deviceClients)
                 {
-                    continue;
-                }
+                    if (!deviceOptions.Enabled) return;
 
-                try
-                {
-                    var message = new Message(Encoding.UTF8.GetBytes(serializedResult))
+                    if (interval.Elapsed < deviceOptions.SendInterval)
                     {
-                        ContentEncoding = Encoding.UTF8.WebName
-                    };
+                        continue;
+                    }
 
-                    await client.SendEventAsync(message, cancellationToken);
-                    _logger.LogDebug("Send to device with id: {deviceId}", deviceOptions.DeviceId);
-                    interval.Restart();
+                    if (_previousResult == serializedResult)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        var message = new Message(Encoding.UTF8.GetBytes(serializedResult))
+                        {
+                            ContentEncoding = Encoding.UTF8.WebName
+                        };
+
+                        await client.SendEventAsync(message, cancellationToken);
+                        _logger.LogDebug("Send to device with id: {deviceId}", deviceOptions.DeviceId);
+                        interval.Restart();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Could not send message to device {deviceId}", deviceOptions.DeviceId);
+                    }
                 }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Could not send message to device {deviceId}", deviceOptions.DeviceId);
-                }
+
+                _previousResult = serializedResult;
+
+                // wait for next poll
+                // lowest send interval from the configured iot devices is used
+                await Task.Delay(_options.IotDevices.Select(m => m.SendInterval).Min(), cancellationToken);
             }
-
-            _previousResult = serializedResult;
         }
 
         private async Task<DeviceClient?> CreateDeviceClientAsync(IotDevice options, CancellationToken cancellationToken)

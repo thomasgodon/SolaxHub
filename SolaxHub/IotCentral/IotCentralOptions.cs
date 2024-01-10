@@ -1,4 +1,6 @@
-﻿namespace SolaxHub.IotCentral
+﻿using SolaxHub.IotCentral.Models;
+
+namespace SolaxHub.IotCentral
 {
     internal class IotCentralOptions
     {
