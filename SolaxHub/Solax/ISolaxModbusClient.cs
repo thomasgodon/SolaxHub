@@ -2,7 +2,7 @@
 
 namespace SolaxHub.Solax;
 
-public interface ISolaxClient
+public interface ISolaxModbusClient
 {
     Task Start(CancellationToken cancellationToken);
     Task SetSolarChargerUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken);

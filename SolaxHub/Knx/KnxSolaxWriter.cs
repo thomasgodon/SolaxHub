@@ -10,7 +10,7 @@ namespace SolaxHub.Knx
     {
         private readonly IKnxClient _knxClient;
         private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
-        private ISolaxClient? _solaxClient;
+        private ISolaxModbusClient? _solaxClient;
 
         public KnxSolaxWriter(IKnxClient knxClient, IOptions<KnxOptions> options)
         {
@@ -19,7 +19,7 @@ namespace SolaxHub.Knx
             _capabilityAddressMapping = BuildCapabilityWriteAddressMapping(options.Value);
         }
 
-        public void SetSolaxClient(ISolaxClient solaxClient)
+        public void SetSolaxClient(ISolaxModbusClient solaxClient)
         {
             _solaxClient = solaxClient;
         }
@@ -44,7 +44,7 @@ namespace SolaxHub.Knx
             await WriteModbusAsync(value, capability, _solaxClient, cancellationToken);
         }
 
-        public static async Task WriteModbusAsync(byte[] value, string capability, ISolaxClient solaxClient, CancellationToken cancellationToken)
+        public static async Task WriteModbusAsync(byte[] value, string capability, ISolaxModbusClient solaxClient, CancellationToken cancellationToken)
         {
             switch (capability)
             {

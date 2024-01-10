@@ -11,6 +11,6 @@ namespace SolaxHub.Solax
             _modbusClient = modbusClient;
         }
 
-        public ISolaxClient CreateSolaxClient() => _modbusClient;
+        public ISolaxModbusClient CreateSolaxClient() => _modbusClient;
     }
 }

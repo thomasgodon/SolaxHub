@@ -6,7 +6,7 @@ using static Newtonsoft.Json.JsonConvert;
 
 namespace SolaxHub.Solax.Modbus
 {
-    internal partial class SolaxModbusClient : ISolaxClient
+    internal partial class SolaxModbusClient : ISolaxModbusClient
     {
         private readonly SolaxModbusOptions _solaxModbusOptions;
         private readonly ISolaxProcessorService _solaxProcessorService;

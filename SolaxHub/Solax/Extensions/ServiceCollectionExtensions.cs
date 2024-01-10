@@ -17,7 +17,7 @@ namespace SolaxHub.Solax.Extensions
         {
             serviceCollection.Configure<SolaxModbusOptions>(configuration.GetSection(nameof(SolaxModbusOptions)));
             serviceCollection.AddSingleton<SolaxModbusClient>();
-            serviceCollection.AddSingleton<ISolaxClient>(m => m.GetRequiredService<SolaxModbusClient>());
+            serviceCollection.AddSingleton<ISolaxModbusClient>(m => m.GetRequiredService<SolaxModbusClient>());
         }
     }
 }

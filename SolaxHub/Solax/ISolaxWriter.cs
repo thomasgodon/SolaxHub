@@ -2,7 +2,7 @@
 {
     internal interface ISolaxWriter
     {
-        void SetSolaxClient(ISolaxClient solaxClient);
+        void SetSolaxClient(ISolaxModbusClient solaxClient);
         Task StartAsync(CancellationToken cancellationToken);
     }
 }
