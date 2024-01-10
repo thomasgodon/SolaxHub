@@ -32,14 +32,17 @@ namespace SolaxHub.Knx
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_options.Enabled is false) return;
+            if (Enabled is false)
+            {
+                return;
+            }
 
             while (cancellationToken.IsCancellationRequested is false)
             {
                 // get solax data
                 var data = _solaxProcessorService.ConsumeSolaxData();
 
-                // get updated values
+                // process solax data
                 var updatedValues = UpdateValues(data)
                     .Where(m => m is not null).ToList() as IEnumerable<KnxSolaxValue>;
 

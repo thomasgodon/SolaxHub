@@ -6,24 +6,43 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Udp
 {
-    internal class UdpProcessor : ISolaxConsumer
+    internal class UdpPublisherService : ISolaxConsumer
     {
-        private readonly UdpOptions _udpOptions;
+        private readonly ISolaxProcessorService _solaxProcessorService;
+        private readonly UdpOptions _options;
 
-        public UdpProcessor(IOptions<UdpOptions> udpOptions)
+        public UdpPublisherService(
+            IOptions<UdpOptions> udpOptions,
+            ISolaxProcessorService solaxProcessorService)
         {
-            _udpOptions = udpOptions.Value;
+            _solaxProcessorService = solaxProcessorService;
+            _options = udpOptions.Value;
         }
 
-        async Task ISolaxConsumer.ProcessData(SolaxData data, CancellationToken cancellationToken)
-        {
-            if (!_udpOptions.Enabled) return;
+        public bool Enabled => _options.Enabled;
 
-            foreach (var (udpData, port) in GenerateUdpMessages(data, _udpOptions.PortMapping).ToList())
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            if (Enabled is false)
             {
-                using var udpSender = new UdpClient();
-                udpSender.Connect(_udpOptions.Host, port);
-                await udpSender.SendAsync(udpData, cancellationToken);
+                return;
+            }
+
+            while (cancellationToken.IsCancellationRequested is false)
+            {
+                // get solax data
+                var data = _solaxProcessorService.ConsumeSolaxData();
+
+                // process solax data
+                foreach (var (udpData, port) in GenerateUdpMessages(data, _options.PortMapping).ToList())
+                {
+                    using var udpSender = new UdpClient();
+                    udpSender.Connect(_options.Host, port);
+                    await udpSender.SendAsync(udpData, cancellationToken);
+                }
+
+                // wait for next poll
+                await Task.Delay(_options.Interval, cancellationToken);
             }
         }
 
