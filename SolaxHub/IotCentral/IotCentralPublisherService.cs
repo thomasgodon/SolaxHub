@@ -9,27 +9,22 @@ using Newtonsoft.Json;
 using SolaxHub.IotCentral.Extensions;
 using SolaxHub.IotCentral.Models;
 using SolaxHub.Solax;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.IotCentral
 {
     internal class IotCentralPublisherService : ISolaxConsumer
     {
         private readonly ILogger<IotCentralPublisherService> _logger;
-        private readonly ISolaxProcessorService _solaxProcessorService;
         private readonly List<(DeviceClient Client,Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
         private readonly IotCentralOptions _options;
         private string? _previousResult;
 
         public bool Enabled => _options.IotDevices.Any(m => m.Enabled);
 
-        public IotCentralPublisherService(
-            ILogger<IotCentralPublisherService> logger, 
-            IOptions<IotCentralOptions> iotCentralOptions,
-            ISolaxProcessorService solaxProcessorService
-            )
+        public IotCentralPublisherService(ILogger<IotCentralPublisherService> logger, IOptions<IotCentralOptions> iotCentralOptions)
         {
             _logger = logger;
-            _solaxProcessorService = solaxProcessorService;
             _options = iotCentralOptions.Value;
         }
 
@@ -49,7 +44,7 @@ namespace SolaxHub.IotCentral
             }
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellationToken)
         {
             if (Enabled is false)
             {
@@ -62,10 +57,7 @@ namespace SolaxHub.IotCentral
             }
 
             while (cancellationToken.IsCancellationRequested is false)
-            {
-                // get solax data
-                var data = _solaxProcessorService.ReadSolaxData();
-
+            {                
                 // process solax data
                 var serializedResult = JsonConvert.SerializeObject(data.ToDeviceData());
 
