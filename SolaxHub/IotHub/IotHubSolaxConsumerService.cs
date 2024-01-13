@@ -13,16 +13,16 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.IotHub
 {
-    internal class IotHubPublisherService : ISolaxConsumer
+    internal class IotHubSolaxConsumerService : ISolaxConsumer
     {
-        private readonly ILogger<IotHubPublisherService> _logger;
+        private readonly ILogger<IotHubSolaxConsumerService> _logger;
         private readonly List<(DeviceClient Client,Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
         private readonly IotHubOptions _options;
         private string? _previousResult;
 
         public bool Enabled => _options.IotDevices.Any(m => m.Enabled);
 
-        public IotHubPublisherService(ILogger<IotHubPublisherService> logger, IOptions<IotHubOptions> iotCentralOptions)
+        public IotHubSolaxConsumerService(ILogger<IotHubSolaxConsumerService> logger, IOptions<IotHubOptions> iotCentralOptions)
         {
             _logger = logger;
             _options = iotCentralOptions.Value;

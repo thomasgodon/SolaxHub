@@ -6,11 +6,11 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Udp
 {
-    internal class UdpPublisherService : ISolaxConsumer
+    internal class UdpSolaxConsumerService : ISolaxConsumer
     {
         private readonly UdpOptions _options;
 
-        public UdpPublisherService(IOptions<UdpOptions> udpOptions)
+        public UdpSolaxConsumerService(IOptions<UdpOptions> udpOptions)
         {
             _options = udpOptions.Value;
         }

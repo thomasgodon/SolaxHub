@@ -12,7 +12,6 @@ namespace SolaxHub.Knx.Client
         private readonly KnxOptions _options;
         private KnxBus? _bus;
         private IKnxReadDelegate? _readDelegate;
-        private IKnxWriteDelegate? _writeDelegate;
 
         public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options)
         {
@@ -73,16 +72,10 @@ namespace SolaxHub.Knx.Client
             _readDelegate = @delegate;
         }
 
-        public void SetWriteDelegate(IKnxWriteDelegate @delegate)
-        {
-            _writeDelegate = @delegate;
-        }
-
         private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
         {
             switch (e.EventType)
             {
-                // respond to read requests
                 case GroupEventType.ValueRead:
                 {
                     var readValue = _readDelegate?.ReadValue(e.DestinationAddress);
@@ -94,7 +87,7 @@ namespace SolaxHub.Knx.Client
                     await SendValuesAsync(new[] { readValue }, cancellationToken);
                     return;
                 }
-                // respond to write requests
+
                 case GroupEventType.ValueWrite:
                     if (_writeDelegate is null)
                     {
@@ -103,6 +96,10 @@ namespace SolaxHub.Knx.Client
 
                     await _writeDelegate.ProcessWriteAsync(e.DestinationAddress, e.Value.Value, cancellationToken);
                     break;
+                
+                default:
+                    _logger.LogWarning("Message type'{type}' not implemented", e.EventType);
+                        break;
             }
         }
     }
