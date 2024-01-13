@@ -5,6 +5,6 @@ namespace SolaxHub.Knx.Client
 {
     internal interface IKnxReadDelegate
     {
-        KnxSolaxValue? ReadValue(GroupAddress address);
+        KnxValue? ReadValue(GroupAddress address);
     }
 }

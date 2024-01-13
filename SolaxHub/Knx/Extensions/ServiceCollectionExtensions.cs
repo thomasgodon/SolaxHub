@@ -8,7 +8,7 @@ namespace SolaxHub.Knx.Extensions
         public static IServiceCollection AddKnx(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
-            serviceCollection.AddSingleton<ISolaxConsumer, KnxPublisherService>();
+            serviceCollection.AddSingleton<ISolaxConsumer, KnxWriterService>();
             serviceCollection.AddSingleton<IKnxClient, KnxClient>();
             serviceCollection.AddSingleton<ISolaxWriter, KnxReaderService>();
             return serviceCollection;

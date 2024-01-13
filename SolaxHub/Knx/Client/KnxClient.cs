@@ -20,7 +20,7 @@ namespace SolaxHub.Knx.Client
             _options = options.Value;
         }
 
-        public async Task SendValuesAsync(IEnumerable<KnxSolaxValue> values, CancellationToken cancellationToken)
+        public async Task SendValuesAsync(IEnumerable<KnxValue> values, CancellationToken cancellationToken)
         {
             if (_bus?.ConnectionState != BusConnectionState.Connected)
             {

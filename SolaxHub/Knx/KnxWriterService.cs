@@ -7,17 +7,17 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxPublisherService : ISolaxConsumer
+    internal class KnxWriterService : ISolaxConsumer
     {
         private readonly KnxOptions _options; 
         private readonly IKnxClient _knxClient;
-        private readonly Dictionary<string, KnxSolaxValue> _knxSolaxValueBuffer;
+        private readonly Dictionary<string, KnxValue> _knxSolaxValueBuffer;
         private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
         private readonly object _solaxDataLock = new();
 
         public bool Enabled => _options.Enabled;
 
-        public KnxPublisherService(IOptions<KnxOptions> options, IKnxClient knxClient)
+        public KnxWriterService(IOptions<KnxOptions> options, IKnxClient knxClient)
         {
             _options = options.Value;
             _knxSolaxValueBuffer = BuildKnxSolaxValueBuffer(_options);
@@ -33,12 +33,12 @@ namespace SolaxHub.Knx
             }
 
             var updatedValues = UpdateValues(data)
-                .Where(m => m is not null).ToList() as IEnumerable<KnxSolaxValue>;
+                .Where(m => m is not null).ToList() as IEnumerable<KnxValue>;
 
             await _knxClient.SendValuesAsync(updatedValues, cancellationToken);
         }
 
-        private KnxSolaxValue? UpdateValue(string capability, byte[] value, bool isShort = false)
+        private KnxValue? UpdateValue(string capability, byte[] value, bool isShort = false)
         {
             if (_knxSolaxValueBuffer.TryGetValue(capability, out var knxSolaxValue) is false)
             {
@@ -58,7 +58,7 @@ namespace SolaxHub.Knx
             return _knxSolaxValueBuffer[capability];
         }
 
-        private IEnumerable<KnxSolaxValue?> UpdateValues(SolaxData solaxData)
+        private IEnumerable<KnxValue?> UpdateValues(SolaxData solaxData)
         {
             lock (_solaxDataLock)
             {
@@ -89,13 +89,13 @@ namespace SolaxHub.Knx
             }
         }
 
-        private static Dictionary<string, KnxSolaxValue> BuildKnxSolaxValueBuffer(KnxOptions knxOptions)
+        private static Dictionary<string, KnxValue> BuildKnxSolaxValueBuffer(KnxOptions knxOptions)
         {
-            var solaxData = new Dictionary<string, KnxSolaxValue>(knxOptions.ReadGroupAddresses.Count);
+            var solaxData = new Dictionary<string, KnxValue>(knxOptions.ReadGroupAddresses.Count);
 
             foreach (var groupAddressMapping in GetReadGroupAddressesFromOptions(knxOptions))
             {
-                solaxData.Add(groupAddressMapping.Key, new KnxSolaxValue(groupAddressMapping.Value));
+                solaxData.Add(groupAddressMapping.Key, new KnxValue(groupAddressMapping.Value));
             }
 
             return solaxData;
@@ -112,7 +112,7 @@ namespace SolaxHub.Knx
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
                     groupAddressMapping => groupAddressMapping.Key);
 
-        public KnxSolaxValue? ReadValue(GroupAddress address)
+        public KnxValue? ReadValue(GroupAddress address)
         {
             if (_capabilityAddressMapping.TryGetValue(address, out var capability) is false)
             {
