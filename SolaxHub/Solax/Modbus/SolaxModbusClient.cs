@@ -56,7 +56,7 @@ namespace SolaxHub.Solax.Modbus
                     {
                         var data = await GetSolaxModbusData(cancellationToken);
                         _logger.LogTrace("{message}", SerializeObject(data));
-                        await _solaxProcessorService.ProcessData(data.ToSolaxData(), cancellationToken);
+                        await _solaxProcessorService.ConsumeSolaxDataAsync(data.ToSolaxData(), cancellationToken);
                     }
                     catch (Exception e)
                     {

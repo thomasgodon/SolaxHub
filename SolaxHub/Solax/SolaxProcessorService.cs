@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SolaxHub.IotCentral.Models;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax;
 
@@ -7,6 +7,8 @@ internal class SolaxProcessorService : ISolaxProcessorService
 {
     private readonly ILogger<SolaxProcessorService> _logger;
     private readonly IEnumerable<ISolaxConsumer> _solaxProcessors;
+    private SolaxData? _latestSolaxData;
+    private readonly object _latestSolaxDataLock = new ();
 
     public SolaxProcessorService(ILogger<SolaxProcessorService> logger, IEnumerable<ISolaxConsumer> solaxProcessors)
     {
@@ -14,15 +16,20 @@ internal class SolaxProcessorService : ISolaxProcessorService
         _solaxProcessors = solaxProcessors;
     }
 
-    public async Task ProcessData(DeviceData data, CancellationToken cancellationToken)
+    public async Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellationToken)
     {
-        _logger.LogTrace("{log}", JsonConvert.SerializeObject(data));
+        lock (_latestSolaxDataLock)
+        {
+            _latestSolaxData = data;
+        }
+
+        _logger.LogTrace("{log}", JsonConvert.SerializeObject(_latestSolaxData));
 
         try
         {
-            foreach (var solaxProcessor in _solaxProcessors)
+            foreach (var solaxProcessor in _solaxProcessors.Where(m => m.Enabled))
             {
-                await solaxProcessor.ProcessData(data, cancellationToken);
+                await solaxProcessor.ConsumeSolaxDataAsync(_latestSolaxData, cancellationToken);
             }
         }
         catch (Exception e)
@@ -31,8 +38,11 @@ internal class SolaxProcessorService : ISolaxProcessorService
         }
     }
 
-    public DeviceData ConsumeSolaxData()
+    public SolaxData? ReadSolaxData()
     {
-        throw new NotImplementedException();
+        lock (_latestSolaxDataLock)
+        {
+            return _latestSolaxData;
+        }
     }
 }
