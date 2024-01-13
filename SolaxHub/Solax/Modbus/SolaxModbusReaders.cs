@@ -15,13 +15,13 @@ internal partial class SolaxModbusClient
             BatteryCapacity = await GetBatteryCapacityAsync(cancellationToken),
             BatteryPower = await GetBatteryPowerAsync(cancellationToken),
             FeedInPower = await GetFeedInPowerAsync(cancellationToken),
-            RunMode = await GetRunModeAsync(cancellationToken),
+            InverterStatus = (SolaxInverterStatus)(await GetInverterStatusAsync(cancellationToken) + 100),
             PvVolt1 = await GetPvVolt1Async(cancellationToken),
             PvCurrent1 = await GetPvCurrent1Async(cancellationToken),
             PvPower1 = await GetPvPower1RAsync(cancellationToken),
             SolarEnergyToday = await GetSolarEnergyTodayAsync(cancellationToken),
             SolarEnergyTotal = await GetSolarEnergyTotalAsync(cancellationToken),
-            SolarChargerUseMode = await GetSolarChargerUseModeAsync(cancellationToken),
+            SolaxInverterUseMode = (await GetSolarChargerUseModeAsync(cancellationToken)).ToSolaxInverterUseMode(),
             ConsumeEnergy = await GetConsumeEnergyAsync(cancellationToken),
             FeedInEnergy = await GetFeedInEnergyAsync(cancellationToken),
             BatteryOutputEnergyToday = await GetTodayBatteryOutputEnergyAsync(cancellationToken),
@@ -116,7 +116,7 @@ internal partial class SolaxModbusClient
         return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.1, 2);
     }
 
-    private async Task<ushort> GetRunModeAsync(CancellationToken cancellationToken)
+    private async Task<ushort> GetInverterStatusAsync(CancellationToken cancellationToken)
     {
         const ushort startingAddress = 9;
         const ushort count = 1;

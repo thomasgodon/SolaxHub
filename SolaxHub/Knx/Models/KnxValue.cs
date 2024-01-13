@@ -2,9 +2,9 @@
 
 namespace SolaxHub.Knx.Models
 {
-    internal class KnxSolaxValue
+    internal class KnxValue
     {
-        public KnxSolaxValue(GroupAddress address)
+        public KnxValue(GroupAddress address)
         {
             Address = address;
         }

@@ -11,7 +11,7 @@ namespace SolaxHub.Solax.Modbus
                 _ => SolaxInverterType.Unknown
             };
 
-        public static SolaxInverterUseMode ToSolaxBatteryStatus(this ushort chargerUseMode)
+        public static SolaxInverterUseMode ToSolaxInverterUseMode(this ushort chargerUseMode)
             => chargerUseMode switch
             {
                 0 => SolaxInverterUseMode.SelfUseMode,

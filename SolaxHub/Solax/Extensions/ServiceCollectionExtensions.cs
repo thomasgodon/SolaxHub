@@ -6,7 +6,6 @@ namespace SolaxHub.Solax.Extensions
     {
         public static IServiceCollection AddSolaxClients(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.AddSingleton<ISolaxClientFactory, SolaxClientFactory>();
             serviceCollection.AddModbusClient(configuration);
             serviceCollection.AddSingleton<ISolaxProcessorService, SolaxProcessorService>();
 
