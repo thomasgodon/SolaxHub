@@ -1,10 +1,10 @@
-﻿using SolaxHub.IotCentral.Models;
+﻿using SolaxHub.IotHub.Models;
 using SolaxHub.Solax.Modbus;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.IotCentral.Extensions
+namespace SolaxHub.IotHub.Extensions
 {
-    internal static class IotCentralExtensions
+    internal static class IotHubExtensions
     {
         public static DeviceData ToDeviceData(this SolaxData data) =>
             new()

@@ -6,23 +6,23 @@ using Microsoft.Azure.Devices.Provisioning.Client.Transport;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SolaxHub.IotCentral.Extensions;
-using SolaxHub.IotCentral.Models;
+using SolaxHub.IotHub.Extensions;
+using SolaxHub.IotHub.Models;
 using SolaxHub.Solax;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.IotCentral
+namespace SolaxHub.IotHub
 {
-    internal class IotCentralPublisherService : ISolaxConsumer
+    internal class IotHubPublisherService : ISolaxConsumer
     {
-        private readonly ILogger<IotCentralPublisherService> _logger;
+        private readonly ILogger<IotHubPublisherService> _logger;
         private readonly List<(DeviceClient Client,Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
-        private readonly IotCentralOptions _options;
+        private readonly IotHubOptions _options;
         private string? _previousResult;
 
         public bool Enabled => _options.IotDevices.Any(m => m.Enabled);
 
-        public IotCentralPublisherService(ILogger<IotCentralPublisherService> logger, IOptions<IotCentralOptions> iotCentralOptions)
+        public IotHubPublisherService(ILogger<IotHubPublisherService> logger, IOptions<IotHubOptions> iotCentralOptions)
         {
             _logger = logger;
             _options = iotCentralOptions.Value;

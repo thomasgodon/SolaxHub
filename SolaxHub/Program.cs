@@ -1,5 +1,5 @@
 using SolaxHub;
-using SolaxHub.IotCentral.Extensions;
+using SolaxHub.IotHub.Extensions;
 using SolaxHub.Knx.Extensions;
 using SolaxHub.Solax.Extensions;
 using SolaxHub.Udp.Extensions;

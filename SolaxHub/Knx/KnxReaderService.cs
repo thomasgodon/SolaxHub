@@ -1,6 +1,6 @@
 ﻿using Knx.Falcon;
 using Microsoft.Extensions.Options;
-using SolaxHub.IotCentral.Models;
+using SolaxHub.IotHub.Models;
 using SolaxHub.Knx.Client;
 using SolaxHub.Solax;
 using SolaxHub.Solax.Models;

@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Converters;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.IotCentral.Models
+namespace SolaxHub.IotHub.Models
 {
     internal class DeviceData
     {

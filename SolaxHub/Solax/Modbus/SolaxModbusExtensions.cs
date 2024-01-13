@@ -1,5 +1,4 @@
-﻿using SolaxHub.IotCentral.Models;
-using SolaxHub.Solax.Models;
+﻿using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Modbus
 {

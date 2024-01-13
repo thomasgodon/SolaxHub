@@ -1,13 +1,13 @@
 ﻿using SolaxHub.Solax;
 
-namespace SolaxHub.IotCentral.Extensions
+namespace SolaxHub.IotHub.Extensions
 {
     internal static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddIotCentral(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.Configure<IotCentralOptions>(configuration.GetSection(nameof(IotCentralOptions)));
-            serviceCollection.AddSingleton<ISolaxConsumer, IotCentralPublisherService>();
+            serviceCollection.Configure<IotHubOptions>(configuration.GetSection(nameof(IotHubOptions)));
+            serviceCollection.AddSingleton<ISolaxConsumer, IotHubPublisherService>();
             return serviceCollection;
         }
     }
