@@ -2,51 +2,38 @@
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax;
 using System.Net.Sockets;
-using SolaxHub.IotCentral.Models;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Udp
 {
     internal class UdpPublisherService : ISolaxConsumer
     {
-        private readonly ISolaxProcessorService _solaxProcessorService;
         private readonly UdpOptions _options;
 
-        public UdpPublisherService(
-            IOptions<UdpOptions> udpOptions,
-            ISolaxProcessorService solaxProcessorService)
+        public UdpPublisherService(IOptions<UdpOptions> udpOptions)
         {
-            _solaxProcessorService = solaxProcessorService;
             _options = udpOptions.Value;
         }
 
         public bool Enabled => _options.Enabled;
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellationToken)
         {
             if (Enabled is false)
             {
                 return;
             }
 
-            while (cancellationToken.IsCancellationRequested is false)
+            // process solax data
+            foreach (var (udpData, port) in GenerateUdpMessages(data, _options.PortMapping).ToList())
             {
-                // get solax data
-                var data = _solaxProcessorService.ReadSolaxData();
-
-                // process solax data
-                foreach (var (udpData, port) in GenerateUdpMessages(data, _options.PortMapping).ToList())
-                {
-                    using var udpSender = new UdpClient();
-                    udpSender.Connect(_options.Host, port);
-                    await udpSender.SendAsync(udpData, cancellationToken);
-                }
-
-                // wait for next poll
-                await Task.Delay(_options.Interval, cancellationToken);
+                using var udpSender = new UdpClient();
+                udpSender.Connect(_options.Host, port);
+                await udpSender.SendAsync(udpData, cancellationToken);
             }
         }
 
-        private static IEnumerable<(byte[] Data, int Port)> GenerateUdpMessages(DeviceData data, Dictionary<string, int> portMapping)
+        private static IEnumerable<(byte[] Data, int Port)> GenerateUdpMessages(SolaxData data, IReadOnlyDictionary<string, int> portMapping)
         {
             foreach (var propertyInfo in data.GetType().GetProperties())
             {

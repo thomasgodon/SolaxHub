@@ -1,8 +1,10 @@
-﻿namespace SolaxHub.Solax
+﻿using SolaxHub.Solax.Models;
+
+namespace SolaxHub.Solax
 {
     internal interface ISolaxConsumer
     {
         bool Enabled { get; }
-        Task StartAsync(CancellationToken cancellation);
+        Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellation);
     }
 }
