@@ -43,10 +43,12 @@ namespace SolaxHub.IotHub.Services
 
         public async Task Send(SolaxData data, CancellationToken cancellationToken)
         {
-            if (_deviceClients.Any() is false)
+            if (_options.IotDevices.Any(m => m.Enabled) is false)
             {
-                await PopulateDeviceList(cancellationToken);
+                return;
             }
+
+            await PopulateDeviceList(cancellationToken);
 
             while (cancellationToken.IsCancellationRequested is false)
             {

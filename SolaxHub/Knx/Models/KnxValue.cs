@@ -11,7 +11,6 @@ namespace SolaxHub.Knx.Models
 
         public GroupAddress Address { get; }
         public byte[]? Value { get; internal set; }
-        public bool IsShort { get; internal set; }
 
         public override string ToString()
         {
