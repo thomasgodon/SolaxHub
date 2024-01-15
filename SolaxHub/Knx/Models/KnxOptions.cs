@@ -1,6 +1,6 @@
 ﻿using Knx.Falcon;
 
-namespace SolaxHub.Knx
+namespace SolaxHub.Knx.Models
 {
     internal class KnxOptions
     {
