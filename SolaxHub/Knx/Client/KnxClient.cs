@@ -71,6 +71,14 @@ namespace SolaxHub.Knx.Client
                 await ProcessGroupMessageReceivedAsync(args, cancellationToken);
             };
             await _bus.ConnectAsync(cancellationToken);
+            if (_bus.ConnectionState == BusConnectionState.Connected)
+            {
+                _logger.LogInformation("Connected to {host} at port: {port}", _options.Host, _options.Port);
+            }
+            else
+            {
+                _logger.LogError("Something went wrong when trying to connect to {host} at port: {port}", _options.Host, _options.Port);
+            }
         }
 
         private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
