@@ -1,15 +1,16 @@
 ﻿using MediatR;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Services;
 
 namespace SolaxHub.Knx.Requests.Handlers
 {
     internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueRequest>
     {
-        private readonly ISolaxModbusClient _solaxModbusClient;
+        private readonly ISolaxControllerService _solaxControllerService;
 
-        public KnxWriteValueRequestHandler(ISolaxModbusClient solaxModbusClient)
+        public KnxWriteValueRequestHandler(ISolaxControllerService solaxControllerService)
         {
-            _solaxModbusClient = solaxModbusClient;
+            _solaxControllerService = solaxControllerService;
         }
 
         public Task Handle(KnxWriteValueRequest request, CancellationToken cancellationToken)

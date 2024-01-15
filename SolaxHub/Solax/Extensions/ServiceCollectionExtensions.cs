@@ -1,6 +1,6 @@
-﻿using SolaxHub.Solax.Modbus;
-using SolaxHub.Solax.Modbus.Client;
+﻿using SolaxHub.Solax.Modbus.Client;
 using SolaxHub.Solax.Modbus.Models;
+using SolaxHub.Solax.Services;
 using SolaxModbusClient = SolaxHub.Solax.Modbus.Client.SolaxModbusClient;
 
 namespace SolaxHub.Solax.Extensions
@@ -10,6 +10,7 @@ namespace SolaxHub.Solax.Extensions
         public static IServiceCollection AddSolaxClients(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.AddModbusClient(configuration);
+            serviceCollection.AddSingleton<ISolaxControllerService, SolaxControllerService>();
 
             return serviceCollection;
         }
