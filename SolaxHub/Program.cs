@@ -8,6 +8,7 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
         var configuration = hostContext.Configuration;
+        services.AddMediatR(m => m.RegisterServicesFromAssembly(typeof(Program).Assembly));
         services.AddHostedService<Worker>();
         services.AddSolaxClients(configuration);
         services.AddUdpSender(configuration);

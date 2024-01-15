@@ -1,22 +1,27 @@
 ﻿using Knx.Falcon.Configuration;
 using Knx.Falcon.Sdk;
 using Knx.Falcon;
+using MediatR;
 using Microsoft.Extensions.Options;
 using SolaxHub.Knx.Models;
+using SolaxHub.Knx.Requests;
 
 namespace SolaxHub.Knx.Client
 {
     internal class KnxClient : IKnxClient
     {
         private readonly ILogger<KnxClient> _logger;
+        private readonly ISender _sender;
         private readonly KnxOptions _options;
         private KnxBus? _bus;
-        private IKnxValueReadDelegate? _valueReadDelegate;
-        private IKnxValueWriteDelegate? _valueWriteDelegate;
 
-        public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options)
+        public KnxClient(
+            ILogger<KnxClient> logger, 
+            IOptions<KnxOptions> options,
+            ISender sender)
         {
             _logger = logger;
+            _sender = sender;
             _options = options.Value;
         }
 
@@ -68,27 +73,16 @@ namespace SolaxHub.Knx.Client
             await _bus.ConnectAsync(cancellationToken);
         }
 
-        public void SetValueReadDelegate(IKnxValueReadDelegate @delegate)
-        {
-            _valueReadDelegate = @delegate;
-        }
-
-        public void SetValueWriteDelegate(IKnxValueWriteDelegate @delegate)
-        {
-            _valueWriteDelegate = @delegate;
-        }
-
         private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
         {
             switch (e.EventType)
             {
                 case GroupEventType.ValueRead:
-                {
-                    if (_valueReadDelegate is null)
+                    var readValueRequest = new KnxReadValueRequest()
                     {
-                        return;
-                    }
-                    var readValue = await _valueReadDelegate.ResolveValueReadAsync(e.DestinationAddress, cancellationToken);
+                        GroupAddress = e.DestinationAddress
+                    };
+                    var readValue = await _sender.Send(readValueRequest, cancellationToken);
                     if (readValue is null)
                     {
                         return;
@@ -96,15 +90,14 @@ namespace SolaxHub.Knx.Client
 
                     await SendValuesAsync(new[] { readValue }, cancellationToken);
                     return;
-                }
 
                 case GroupEventType.ValueWrite:
-                    if (_valueWriteDelegate is null)
+                    var writeValueRequest = new KnxWriteValueRequest()
                     {
-                        return;
-                    }
-
-                    await _valueWriteDelegate.ProcessValueWriteAsync(e.DestinationAddress, e.Value.Value, cancellationToken);
+                        GroupAddress = e.DestinationAddress,
+                        Value = e.Value.Value
+                    };
+                    await _sender.Send(writeValueRequest, cancellationToken);
                     break;
                 
                 default:
