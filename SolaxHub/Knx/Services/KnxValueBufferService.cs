@@ -36,6 +36,14 @@ namespace SolaxHub.Knx.Services
             }
         }
 
+        public IReadOnlyDictionary<string, KnxValue> GetKnxValues()
+        {
+            lock (_mappingLock)
+            {
+                return _capabilityKnxValueMapping.ToDictionary(key => key.Key, value => value.Value);
+            }
+        }
+
         private static Dictionary<string, KnxValue> BuildCapabilityKnxValueMapping(KnxOptions options)
         {
             var solaxData = new Dictionary<string, KnxValue>(options.ReadGroupAddresses.Count);
