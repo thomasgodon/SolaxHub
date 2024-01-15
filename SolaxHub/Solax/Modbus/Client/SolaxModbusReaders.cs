@@ -2,7 +2,7 @@
 using SolaxHub.Solax.Extensions;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.Solax.Modbus;
+namespace SolaxHub.Solax.Modbus.Client;
 
 internal partial class SolaxModbusClient
 {

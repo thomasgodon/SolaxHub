@@ -1,7 +1,4 @@
 ﻿using SolaxHub.Knx.Client;
-using SolaxHub.Knx.Models;
-using SolaxHub.Knx.Notifications.Handlers;
-using SolaxHub.Solax;
 
 namespace SolaxHub.Knx.Extensions
 {
@@ -11,7 +8,6 @@ namespace SolaxHub.Knx.Extensions
         {
             serviceCollection.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
             serviceCollection.AddSingleton<IKnxClient, KnxClient>();
-            serviceCollection.AddSingleton<ISolaxConsumer, KnxSolaxDataNotificationHandler>();
             return serviceCollection;
         }
     }

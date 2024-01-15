@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;

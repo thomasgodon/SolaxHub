@@ -1,27 +1,30 @@
 ﻿using System.Net;
 using System.Text.Json;
 using FluentModbus;
+using MediatR;
 using Microsoft.Extensions.Options;
-using SolaxHub.Solax.Modbus.Client;
 using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Models;
-using SolaxHub.Solax.Services;
+using SolaxHub.Solax.Notifications;
 
-namespace SolaxHub.Solax.Modbus
+namespace SolaxHub.Solax.Modbus.Client
 {
     internal partial class SolaxModbusClient : ISolaxModbusClient
     {
         private readonly SolaxModbusOptions _solaxModbusOptions;
-        private readonly ISolaxProcessorService _solaxProcessorService;
         private readonly ModbusTcpClient _modbusClient;
         private readonly ILogger<SolaxModbusClient> _logger;
+        private readonly IPublisher _publisher;
         private const byte UnitIdentifier = 0x00;
 
-        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxModbusOptions> solaxModbusOptions)
+        public SolaxModbusClient(
+            ILogger<SolaxModbusClient> logger, 
+            IOptions<SolaxModbusOptions> solaxModbusOptions,
+            IPublisher publisher)
         {
             _solaxModbusOptions = solaxModbusOptions.Value;
-            _solaxProcessorService = solaxProcessorService;
             _logger = logger;
+            _publisher = publisher;
             _modbusClient = new ModbusTcpClient();
         }
 
@@ -51,7 +54,7 @@ namespace SolaxHub.Solax.Modbus
                     {
                         var data = await GetSolaxModbusData(cancellationToken);
                         _logger.LogTrace("{message}", JsonSerializer.Serialize(data));
-                        await _solaxProcessorService.ConsumeSolaxDataAsync(data, cancellationToken);
+                        await _publisher.Publish(new SolaxDataArrivedNotification(data), cancellationToken);
                     }
                     catch (Exception e)
                     {
