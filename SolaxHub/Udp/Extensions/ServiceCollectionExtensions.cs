@@ -8,7 +8,6 @@ namespace SolaxHub.Udp.Extensions
         public static IServiceCollection AddUdpSender(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.Configure<UdpOptions>(configuration.GetSection(nameof(UdpOptions)));
-            serviceCollection.AddTransient<ISolaxConsumer, UdpSolaxConsumerService>();
             return serviceCollection;
         }
     }

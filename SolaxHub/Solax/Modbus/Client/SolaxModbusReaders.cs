@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using SolaxHub.Solax.Extensions;
 using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Modbus;

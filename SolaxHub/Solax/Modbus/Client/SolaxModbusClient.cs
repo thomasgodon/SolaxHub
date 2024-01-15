@@ -2,6 +2,8 @@
 using System.Text.Json;
 using FluentModbus;
 using Microsoft.Extensions.Options;
+using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Models;
 using SolaxHub.Solax.Services;
 

@@ -1,4 +1,4 @@
-﻿namespace SolaxHub.Solax.Modbus
+﻿namespace SolaxHub.Solax.Modbus.Models
 {
     public class SolaxModbusOptions
     {

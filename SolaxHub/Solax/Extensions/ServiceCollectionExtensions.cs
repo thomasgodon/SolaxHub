@@ -1,4 +1,6 @@
 ﻿using SolaxHub.Solax.Modbus;
+using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Services;
 
 namespace SolaxHub.Solax.Extensions
