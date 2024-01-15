@@ -1,4 +1,4 @@
-﻿namespace SolaxHub.Udp
+﻿namespace SolaxHub.Udp.Models
 {
     internal class UdpOptions
     {

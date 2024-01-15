@@ -1,31 +1,25 @@
-﻿using System.Text;
-using Microsoft.Extensions.Options;
-using SolaxHub.Solax;
-using System.Net.Sockets;
+﻿using MediatR;
 using SolaxHub.Solax.Models;
+using SolaxHub.Solax.Notifications;
+using System.Net.Sockets;
+using System.Text;
+using Microsoft.Extensions.Options;
 
-namespace SolaxHub.Udp
+namespace SolaxHub.Udp.Notifications.Handlers
 {
-    internal class UdpSolaxConsumerService : ISolaxConsumer
+    internal class UdpSolaxDataNotificationHandler : INotificationHandler<SolaxDataArrivedNotification>
     {
         private readonly UdpOptions _options;
 
-        public UdpSolaxConsumerService(IOptions<UdpOptions> udpOptions)
+        public UdpSolaxDataNotificationHandler(IOptions<UdpOptions> options)
         {
-            _options = udpOptions.Value;
+            _options = options.Value;
         }
 
-        public bool Enabled => _options.Enabled;
-
-        public async Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellationToken)
+        public async Task Handle(SolaxDataArrivedNotification notification, CancellationToken cancellationToken)
         {
-            if (Enabled is false)
-            {
-                return;
-            }
-
             // process solax data
-            foreach (var (udpData, port) in GenerateUdpMessages(data, _options.PortMapping).ToList())
+            foreach (var (udpData, port) in GenerateUdpMessages(notification.Data, _options.PortMapping).ToList())
             {
                 using var udpSender = new UdpClient();
                 udpSender.Connect(_options.Host, port);

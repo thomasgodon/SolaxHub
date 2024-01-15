@@ -1,4 +1,5 @@
 ﻿using SolaxHub.Solax;
+using SolaxHub.Udp.Models;
 
 namespace SolaxHub.Udp.Extensions
 {
