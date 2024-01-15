@@ -8,21 +8,18 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SolaxHub.IotHub.Extensions;
 using SolaxHub.IotHub.Models;
-using SolaxHub.Solax;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.IotHub
+namespace SolaxHub.IotHub.Services
 {
-    internal class IotHubSolaxConsumerService : ISolaxConsumer
+    internal class IotHubDevicesService : IIotHubDevicesService
     {
-        private readonly ILogger<IotHubSolaxConsumerService> _logger;
-        private readonly List<(DeviceClient Client,Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
+        private readonly ILogger<IotHubDevicesService> _logger;
+        private readonly List<(DeviceClient Client, Stopwatch Interval, IotDevice DeviceOptions)> _deviceClients = new();
         private readonly IotHubOptions _options;
         private string? _previousResult;
 
-        public bool Enabled => _options.IotDevices.Any(m => m.Enabled);
-
-        public IotHubSolaxConsumerService(ILogger<IotHubSolaxConsumerService> logger, IOptions<IotHubOptions> iotCentralOptions)
+        public IotHubDevicesService(ILogger<IotHubDevicesService> logger, IOptions<IotHubOptions> iotCentralOptions)
         {
             _logger = logger;
             _options = iotCentralOptions.Value;
@@ -44,20 +41,15 @@ namespace SolaxHub.IotHub
             }
         }
 
-        public async Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellationToken)
+        public async Task Send(SolaxData data, CancellationToken cancellationToken)
         {
-            if (Enabled is false)
-            {
-                return;
-            }
-
             if (_deviceClients.Any() is false)
             {
                 await PopulateDeviceList(cancellationToken);
             }
 
             while (cancellationToken.IsCancellationRequested is false)
-            {                
+            {
                 // process solax data
                 var serializedResult = JsonConvert.SerializeObject(data.ToDeviceData());
 

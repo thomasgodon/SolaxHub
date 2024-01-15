@@ -1,5 +1,5 @@
 ﻿using SolaxHub.IotHub.Models;
-using SolaxHub.Solax;
+using SolaxHub.IotHub.Services;
 
 namespace SolaxHub.IotHub.Extensions
 {
@@ -8,7 +8,7 @@ namespace SolaxHub.IotHub.Extensions
         public static IServiceCollection AddIotCentral(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.Configure<IotHubOptions>(configuration.GetSection(nameof(IotHubOptions)));
-            serviceCollection.AddSingleton<ISolaxConsumer, IotHubSolaxConsumerService>();
+            serviceCollection.AddSingleton<IotHubDevicesService, IotHubDevicesService>();
             return serviceCollection;
         }
     }
