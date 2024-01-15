@@ -27,12 +27,9 @@ namespace SolaxHub.Knx.Requests.Handlers
                 return Task.FromResult<KnxValue?>(null);
             }
 
-            if (_knxValueBufferService.GetKnxValues().TryGetValue(capability, out var knxValue) is false)
-            {
-                return Task.FromResult<KnxValue?>(null);
-            }
-
-            return Task.FromResult<KnxValue?>(knxValue);
+            return _knxValueBufferService.GetKnxValues().TryGetValue(capability, out var knxValue) is false 
+                ? Task.FromResult<KnxValue?>(null) 
+                : Task.FromResult<KnxValue?>(knxValue);
         }
 
         private static Dictionary<GroupAddress, string> BuildReadGroupAddressCapabilityMapping(KnxOptions options)
