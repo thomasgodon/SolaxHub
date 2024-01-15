@@ -58,7 +58,7 @@ namespace SolaxHub.Knx.Client
             }
         }
 
-        public async Task ConnectAsync(CancellationToken cancellationToken)
+        private async Task ConnectAsync(CancellationToken cancellationToken)
         {
             if (_bus?.ConnectionState == BusConnectionState.Connected)
             {
