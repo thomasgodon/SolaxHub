@@ -1,6 +1,4 @@
-﻿using SolaxHub.IotHub.Models;
-
-namespace SolaxHub.IotHub
+﻿namespace SolaxHub.IotHub.Models
 {
     internal class IotHubOptions
     {

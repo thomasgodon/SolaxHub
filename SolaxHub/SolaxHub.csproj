@@ -31,4 +31,8 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="IotHub\Notifications\Handlers\" />
+  </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-﻿using SolaxHub.Solax;
+﻿using SolaxHub.IotHub.Models;
+using SolaxHub.Solax;
 
 namespace SolaxHub.IotHub.Extensions
 {

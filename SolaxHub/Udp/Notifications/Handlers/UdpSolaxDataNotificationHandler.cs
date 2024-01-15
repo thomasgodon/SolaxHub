@@ -4,6 +4,7 @@ using SolaxHub.Solax.Notifications;
 using System.Net.Sockets;
 using System.Text;
 using Microsoft.Extensions.Options;
+using SolaxHub.Udp.Models;
 
 namespace SolaxHub.Udp.Notifications.Handlers
 {
