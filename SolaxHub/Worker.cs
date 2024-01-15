@@ -1,4 +1,4 @@
-using SolaxHub.Solax;
+using SolaxHub.Solax.Modbus;
 
 namespace SolaxHub
 {

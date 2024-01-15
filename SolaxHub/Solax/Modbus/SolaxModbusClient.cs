@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentModbus;
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax.Models;
+using SolaxHub.Solax.Services;
 
 namespace SolaxHub.Solax.Modbus
 {

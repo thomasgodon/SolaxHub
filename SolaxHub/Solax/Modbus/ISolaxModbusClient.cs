@@ -1,6 +1,6 @@
 ﻿using SolaxHub.Solax.Models;
 
-namespace SolaxHub.Solax;
+namespace SolaxHub.Solax.Modbus;
 
 public interface ISolaxModbusClient
 {

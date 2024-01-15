@@ -1,14 +1,14 @@
 ﻿using System.Text.Json;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.Solax;
+namespace SolaxHub.Solax.Services;
 
 internal class SolaxProcessorService : ISolaxProcessorService
 {
     private readonly ILogger<SolaxProcessorService> _logger;
     private readonly IEnumerable<ISolaxConsumer> _solaxConsumers;
     private SolaxData? _latestSolaxData;
-    private readonly object _latestSolaxDataLock = new ();
+    private readonly object _latestSolaxDataLock = new();
 
     public SolaxProcessorService(ILogger<SolaxProcessorService> logger, IEnumerable<ISolaxConsumer> solaxConsumers)
     {
