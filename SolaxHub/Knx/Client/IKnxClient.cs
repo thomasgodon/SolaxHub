@@ -6,6 +6,6 @@ internal interface IKnxClient
 {
     Task SendValuesAsync(IEnumerable<KnxValue> values, CancellationToken cancellationToken);
     Task ConnectAsync(CancellationToken cancellationToken);
-    void SetReadDelegate(IKnxReadDelegate @delegate);
-    void SetWriteDelegate(IKnxWriteDelegate @delegate);
+    void SetValueReadDelegate(IKnxValueReadDelegate @delegate);
+    void SetValueWriteDelegate(IKnxValueWriteDelegate @delegate);
 }

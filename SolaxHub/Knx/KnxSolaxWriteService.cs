@@ -7,16 +7,16 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxReaderService : ISolaxWriter, IKnxWriteDelegate
+    internal class KnxSolaxWriteService : IKnxValueWriteDelegate
     {
         private readonly IKnxClient _knxClient;
         private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
         private ISolaxModbusClient? _solaxClient;
 
-        public KnxReaderService(IKnxClient knxClient, IOptions<KnxOptions> options)
+        public KnxSolaxWriteService(IKnxClient knxClient, IOptions<KnxOptions> options)
         {
             _knxClient = knxClient;
-            _knxClient.SetWriteDelegate(this);
+            _knxClient.SetValueWriteDelegate(this);
             _capabilityAddressMapping = BuildCapabilityWriteAddressMapping(options.Value);
         }
 
@@ -30,7 +30,7 @@ namespace SolaxHub.Knx
             await _knxClient.ConnectAsync(cancellationToken);
         }
 
-        public async Task ProcessWriteAsync(GroupAddress groupsAddress, byte[] value, CancellationToken cancellationToken)
+        public async Task ProcessValueWriteAsync(GroupAddress groupsAddress, byte[] value, CancellationToken cancellationToken)
         {
             if (_solaxClient is null)
             {

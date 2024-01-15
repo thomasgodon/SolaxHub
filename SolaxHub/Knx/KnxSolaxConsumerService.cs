@@ -7,7 +7,7 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx
 {
-    internal class KnxWriterService : ISolaxConsumer
+    internal class KnxSolaxConsumerService : ISolaxConsumer, IKnxValueReadDelegate
     {
         private readonly KnxOptions _options; 
         private readonly IKnxClient _knxClient;
@@ -17,12 +17,13 @@ namespace SolaxHub.Knx
 
         public bool Enabled => _options.Enabled;
 
-        public KnxWriterService(IOptions<KnxOptions> options, IKnxClient knxClient)
+        public KnxSolaxConsumerService(IOptions<KnxOptions> options, IKnxClient knxClient)
         {
             _options = options.Value;
             _knxValueBuffer = BuildKnxSolaxValueBuffer(_options);
             _capabilityAddressMapping = BuildCapabilityReadAddressMapping(_options);
             _knxClient = knxClient;
+            _knxClient.SetValueReadDelegate(this);
         }
 
         public async Task ConsumeSolaxDataAsync(SolaxData data, CancellationToken cancellationToken)
@@ -112,22 +113,22 @@ namespace SolaxHub.Knx
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
                     groupAddressMapping => groupAddressMapping.Key);
 
-        public KnxValue? ReadValue(GroupAddress address)
+        public Task<KnxValue?> ResolveValueReadAsync(GroupAddress address, CancellationToken cancellationToken)
         {
             if (_capabilityAddressMapping.TryGetValue(address, out var capability) is false)
             {
-                return null;
+                return Task.FromResult<KnxValue?>(null);
             }
 
             lock (_solaxDataLock)
             {
                 if (_knxValueBuffer.TryGetValue(capability, out var knxSolaxValue))
                 {
-                    return knxSolaxValue;
+                    return Task.FromResult<KnxValue?>(knxSolaxValue);
                 }
             }
 
-            return null;
+            return Task.FromResult<KnxValue?>(null);
         }
     }
 }

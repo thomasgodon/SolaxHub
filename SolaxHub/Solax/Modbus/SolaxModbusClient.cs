@@ -10,16 +10,14 @@ namespace SolaxHub.Solax.Modbus
     {
         private readonly SolaxModbusOptions _solaxModbusOptions;
         private readonly ISolaxProcessorService _solaxProcessorService;
-        private readonly IEnumerable<ISolaxWriter> _solaxWriters;
         private readonly ModbusTcpClient _modbusClient;
         private readonly ILogger<SolaxModbusClient> _logger;
         private const byte UnitIdentifier = 0x00;
 
-        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IEnumerable<ISolaxWriter> solaxWriters, IOptions<SolaxModbusOptions> solaxModbusOptions)
+        public SolaxModbusClient(ILogger<SolaxModbusClient> logger, ISolaxProcessorService solaxProcessorService, IOptions<SolaxModbusOptions> solaxModbusOptions)
         {
             _solaxModbusOptions = solaxModbusOptions.Value;
             _solaxProcessorService = solaxProcessorService;
-            _solaxWriters = solaxWriters;
             _logger = logger;
             _modbusClient = new ModbusTcpClient();
         }
@@ -41,12 +39,6 @@ namespace SolaxHub.Solax.Modbus
                         // unlock advanced inverter
                         await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
 
-                        // set solax client instance to all writers & start writer
-                        foreach (var solaxWriter in _solaxWriters)
-                        {
-                            solaxWriter.SetSolaxClient(this);
-                            await solaxWriter.StartAsync(cancellationToken);
-                        }
                         continue;
                     }
 

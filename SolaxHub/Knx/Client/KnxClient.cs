@@ -11,7 +11,8 @@ namespace SolaxHub.Knx.Client
         private readonly ILogger<KnxClient> _logger;
         private readonly KnxOptions _options;
         private KnxBus? _bus;
-        private IKnxReadDelegate? _readDelegate;
+        private IKnxValueReadDelegate? _valueReadDelegate;
+        private IKnxValueWriteDelegate? _valueWriteDelegate;
 
         public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options)
         {
@@ -67,9 +68,14 @@ namespace SolaxHub.Knx.Client
             await _bus.ConnectAsync(cancellationToken);
         }
 
-        public void SetReadDelegate(IKnxReadDelegate @delegate)
+        public void SetValueReadDelegate(IKnxValueReadDelegate @delegate)
         {
-            _readDelegate = @delegate;
+            _valueReadDelegate = @delegate;
+        }
+
+        public void SetValueWriteDelegate(IKnxValueWriteDelegate @delegate)
+        {
+            _valueWriteDelegate = @delegate;
         }
 
         private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
@@ -78,8 +84,12 @@ namespace SolaxHub.Knx.Client
             {
                 case GroupEventType.ValueRead:
                 {
-                    var readValue = _readDelegate?.ReadValue(e.DestinationAddress);
-                    if (readValue == null)
+                    if (_valueReadDelegate is null)
+                    {
+                        return;
+                    }
+                    var readValue = await _valueReadDelegate.ResolveValueReadAsync(e.DestinationAddress, cancellationToken);
+                    if (readValue is null)
                     {
                         return;
                     }
@@ -89,12 +99,12 @@ namespace SolaxHub.Knx.Client
                 }
 
                 case GroupEventType.ValueWrite:
-                    if (_writeDelegate is null)
+                    if (_valueWriteDelegate is null)
                     {
                         return;
                     }
 
-                    await _writeDelegate.ProcessWriteAsync(e.DestinationAddress, e.Value.Value, cancellationToken);
+                    await _valueWriteDelegate.ProcessValueWriteAsync(e.DestinationAddress, e.Value.Value, cancellationToken);
                     break;
                 
                 default:
