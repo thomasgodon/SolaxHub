@@ -52,9 +52,9 @@ namespace SolaxHub.Solax.Modbus.Client
 
                     try
                     {
-                        var data = await GetSolaxModbusData(cancellationToken);
-                        _logger.LogTrace("{message}", JsonSerializer.Serialize(data));
-                        await _publisher.Publish(new SolaxDataArrivedNotification(data), cancellationToken);
+                        _lastReceivedData = await GetSolaxModbusData(cancellationToken);
+                        _logger.LogTrace("{message}", JsonSerializer.Serialize(_lastReceivedData));
+                        await _publisher.Publish(new SolaxDataArrivedNotification(_lastReceivedData), cancellationToken);
                     }
                     catch (Exception e)
                     {

@@ -6,6 +6,10 @@ namespace SolaxHub.Solax.Modbus.Client;
 
 internal partial class SolaxModbusClient
 {
+    private SolaxData? _lastReceivedData;
+
+    public SolaxData? GetLastReceivedData() => _lastReceivedData;
+
     private async Task<SolaxData> GetSolaxModbusData(CancellationToken cancellationToken) =>
         new()
         {
