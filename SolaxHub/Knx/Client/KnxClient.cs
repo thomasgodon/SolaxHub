@@ -101,7 +101,7 @@ namespace SolaxHub.Knx.Client
                     break;
                 
                 default:
-                    _logger.LogWarning("Message type'{type}' not implemented", e.EventType);
+                    _logger.LogTrace("Message type'{type}' not implemented", e.EventType);
                         break;
             }
         }

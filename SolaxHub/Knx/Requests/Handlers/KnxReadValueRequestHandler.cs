@@ -11,7 +11,7 @@ namespace SolaxHub.Knx.Requests.Handlers
 
         public Task<KnxValue?> Handle(KnxReadValueRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<KnxValue?>(null);
         }
     }
 }
