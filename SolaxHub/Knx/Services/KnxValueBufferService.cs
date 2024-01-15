@@ -4,7 +4,7 @@ using SolaxHub.Knx.Models;
 
 namespace SolaxHub.Knx.Services
 {
-    internal class KnxValueBufferService
+    internal class KnxValueBufferService : IKnxValueBufferService
     {
         private readonly Dictionary<string, KnxValue> _knxValueBuffer;
         private readonly Dictionary<GroupAddress, string> _capabilityAddressMapping;
@@ -27,7 +27,7 @@ namespace SolaxHub.Knx.Services
             return solaxData;
         }
 
-        private KnxValue? UpdateValue(string capability, byte[] value, bool isShort = false)
+        public KnxValue? UpdateValue(string capability, byte[] value)
         {
             if (_knxValueBuffer.TryGetValue(capability, out var knxSolaxValue) is false)
             {
@@ -43,7 +43,6 @@ namespace SolaxHub.Knx.Services
             }
 
             _knxValueBuffer[capability].Value = value;
-            _knxValueBuffer[capability].IsShort = isShort;
             return _knxValueBuffer[capability];
         }
 

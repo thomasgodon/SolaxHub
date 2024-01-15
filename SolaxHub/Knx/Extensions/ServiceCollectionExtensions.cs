@@ -1,4 +1,6 @@
 ﻿using SolaxHub.Knx.Client;
+using SolaxHub.Knx.Models;
+using SolaxHub.Knx.Services;
 
 namespace SolaxHub.Knx.Extensions
 {
@@ -8,6 +10,7 @@ namespace SolaxHub.Knx.Extensions
         {
             serviceCollection.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
             serviceCollection.AddSingleton<IKnxClient, KnxClient>();
+            serviceCollection.AddSingleton<IKnxValueBufferService, KnxValueBufferService>();
             return serviceCollection;
         }
     }
