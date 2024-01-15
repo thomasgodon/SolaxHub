@@ -42,6 +42,15 @@ namespace SolaxHub.Solax.Modbus.Client
                     {
                         _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
+                        if (_modbusClient.IsConnected)
+                        {
+                            _logger.LogInformation("Connected to {host} at port: {port}", endPoint.Address, endPoint.Port);
+                        }
+                        else
+                        {
+                            _logger.LogError("Something went wrong when trying to connect to {host} at port: {port}", endPoint.Address, endPoint.Port);
+                        }
+
                         // unlock advanced inverter
                         await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
 
