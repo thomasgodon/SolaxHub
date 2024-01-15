@@ -1,10 +1,11 @@
 ﻿using SolaxHub.Knx.Models;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Knx.Services
 {
     internal interface IKnxValueBufferService
     {
-        KnxValue? UpdateValue(string capability, byte[] value);
+        IEnumerable<KnxValue> UpdateKnxValues(SolaxData data);
         IReadOnlyDictionary<string, KnxValue> GetKnxValues();
     }
 }
