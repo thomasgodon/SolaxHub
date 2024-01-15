@@ -19,6 +19,11 @@ namespace SolaxHub.Udp.Notifications.Handlers
 
         public async Task Handle(SolaxDataArrivedNotification notification, CancellationToken cancellationToken)
         {
+            if (_options.Enabled is false)
+            {
+                return;
+            }
+
             // process solax data
             foreach (var (udpData, port) in GenerateUdpMessages(notification.Data, _options.PortMapping).ToList())
             {
