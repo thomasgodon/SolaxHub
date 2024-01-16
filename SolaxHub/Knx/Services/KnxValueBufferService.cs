@@ -17,7 +17,12 @@ namespace SolaxHub.Knx.Services
 
 
         public IEnumerable<KnxValue> UpdateKnxValues(SolaxData data)
-            => UpdateValues(data).Where(m => m is not null)!;
+        {
+            lock (_mappingLock)
+            {
+                return UpdateValues(data).Where(m => m is not null).ToList()!;
+            }
+        }
 
 
         private KnxValue? UpdateValue(string capability, byte[] value)
@@ -61,33 +66,30 @@ namespace SolaxHub.Knx.Services
 
         private IEnumerable<KnxValue?> UpdateValues(SolaxData solaxData)
         {
-            lock (_mappingLock)
-            {
-                // HouseLoad - 14.056 power
-                yield return UpdateValue(nameof(SolaxData.HouseLoad), BitConverter.GetBytes((float)solaxData.HouseLoad));
-                // AcPower - 14.056 power
-                yield return UpdateValue(nameof(SolaxData.InverterPower), BitConverter.GetBytes((float)solaxData.InverterPower));
-                // BatteryPower - 14.056 power
-                yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
-                // SolarChargerUseMode - 6.020 status with mode
-                yield return UpdateValue(nameof(SolaxData.SolaxInverterUseMode), new[] { (byte)((int)solaxData.SolaxInverterUseMode * 2.55) });
-                // ConsumeEnergy - 14.* 4byte float value
-                yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
-                // BatteryCapacity - 5.001 percentage
-                yield return UpdateValue(nameof(SolaxData.BatteryCapacity), new[] { (byte)(solaxData.BatteryCapacity * 2.55) });
-                // EpsPower1 - 14.056 power
-                yield return UpdateValue(nameof(SolaxData.PvPower1), BitConverter.GetBytes((float)solaxData.PvPower1));
-                // InverterStatus - 6.020 status with mode
-                yield return UpdateValue(nameof(SolaxData.InverterStatus), new[] { (byte)solaxData.InverterStatus });
-                // SolarEnergyToday - 14
-                yield return UpdateValue(nameof(SolaxData.SolarEnergyToday), BitConverter.GetBytes((float)solaxData.SolarEnergyToday));
-                // SolarEnergyTotal - 14
-                yield return UpdateValue(nameof(SolaxData.SolarEnergyTotal), BitConverter.GetBytes((float)solaxData.SolarEnergyTotal));
-                // BatteryOutputEnergyToday - 14
-                yield return UpdateValue(nameof(SolaxData.BatteryOutputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryOutputEnergyToday));
-                // BatteryInputEnergyToday - 14
-                yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyToday));
-            }
+            // HouseLoad - 14.056 power
+            yield return UpdateValue(nameof(SolaxData.HouseLoad), BitConverter.GetBytes((float)solaxData.HouseLoad));
+            // AcPower - 14.056 power
+            yield return UpdateValue(nameof(SolaxData.InverterPower), BitConverter.GetBytes((float)solaxData.InverterPower));
+            // BatteryPower - 14.056 power
+            yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
+            // SolarChargerUseMode - 6.020 status with mode
+            yield return UpdateValue(nameof(SolaxData.SolaxInverterUseMode), new[] { (byte)((int)solaxData.SolaxInverterUseMode * 2.55) });
+            // ConsumeEnergy - 14.* 4byte float value
+            yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
+            // BatteryCapacity - 5.001 percentage
+            yield return UpdateValue(nameof(SolaxData.BatteryCapacity), new[] { (byte)(solaxData.BatteryCapacity * 2.55) });
+            // EpsPower1 - 14.056 power
+            yield return UpdateValue(nameof(SolaxData.PvPower1), BitConverter.GetBytes((float)solaxData.PvPower1));
+            // InverterStatus - 6.020 status with mode
+            yield return UpdateValue(nameof(SolaxData.InverterStatus), new[] { (byte)solaxData.InverterStatus });
+            // SolarEnergyToday - 14
+            yield return UpdateValue(nameof(SolaxData.SolarEnergyToday), BitConverter.GetBytes((float)solaxData.SolarEnergyToday));
+            // SolarEnergyTotal - 14
+            yield return UpdateValue(nameof(SolaxData.SolarEnergyTotal), BitConverter.GetBytes((float)solaxData.SolarEnergyTotal));
+            // BatteryOutputEnergyToday - 14
+            yield return UpdateValue(nameof(SolaxData.BatteryOutputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryOutputEnergyToday));
+            // BatteryInputEnergyToday - 14
+            yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyToday));
         }
     }
 }
