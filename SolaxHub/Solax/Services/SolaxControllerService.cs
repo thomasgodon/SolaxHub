@@ -1,5 +1,4 @@
-﻿using SolaxHub.Solax.Modbus.Client;
-using SolaxHub.Solax.Models;
+﻿using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Services
 {
@@ -9,8 +8,11 @@ namespace SolaxHub.Solax.Services
         {
         }
 
+        public SolaxRemoteControlPowerControlMode PowerControlMode { get; private set; } = SolaxRemoteControlPowerControlMode.Disabled;
+
         public Task SetRemoteControlPowerControlModeAsync(SolaxRemoteControlPowerControlMode powerControlMode)
         {
+            PowerControlMode = powerControlMode;
             return Task.CompletedTask;
         }
     }
