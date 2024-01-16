@@ -3,7 +3,7 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Requests
 {
-    internal class CalculatePowerControlRequest : IRequest<byte[]?>
+    internal class CalculatePowerControlRequest : IRequest<SolaxPowerControlCalculation>
     {
         public CalculatePowerControlRequest(SolaxData solaxData)
         {

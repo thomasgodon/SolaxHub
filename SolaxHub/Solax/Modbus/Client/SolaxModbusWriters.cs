@@ -16,7 +16,7 @@ internal partial class SolaxModbusClient
         await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, (ushort)lockState, cancellationToken);
     }
 
-    public async Task SetModbusPowerControl(bool enabled, double activePower, double reactivePower, CancellationToken cancellationToken)
+    public async Task SetModbusPowerControlAsync(bool enabled, double activePower, double reactivePower, CancellationToken cancellationToken)
     {
         const ushort registerAddress = 0x007C;
         await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, new byte[5], cancellationToken);

@@ -68,7 +68,7 @@ namespace SolaxHub.Solax.Modbus.Client
                         _lastReceivedData = await GetSolaxModbusData(cancellationToken);
                         _logger.LogTrace("{message}", JsonSerializer.Serialize(_lastReceivedData));
 
-                        // calculate remote control power control
+                        // calculate & set remote control power control
                         await CalculateRemotePowerControlAsync(_lastReceivedData, cancellationToken);
 
                         // notify new solax data has arrived
@@ -102,12 +102,12 @@ namespace SolaxHub.Solax.Modbus.Client
 
         private async Task CalculateRemotePowerControlAsync(SolaxData solaxData, CancellationToken cancellationToken)
         {
-            var remotePowerControlValue =
-                await _sender.Send(new CalculatePowerControlRequest(_lastReceivedData), cancellationToken);
-            if (remotePowerControlValue != null)
-            {
-
-            }
+            var remotePowerControlValue = await _sender.Send(new CalculatePowerControlRequest(solaxData), cancellationToken);
+            await SetModbusPowerControlAsync(
+                remotePowerControlValue.ModbusPowerControl,
+                remotePowerControlValue.RemoteControlReactivePower, 
+                remotePowerControlValue.RemoteControlReactivePower,
+                cancellationToken);
         }
     }
 }
