@@ -4,6 +4,6 @@ namespace SolaxHub.Solax.Services
 {
     internal interface ISolaxControllerService
     {
-        Task SetInverterUseMode(SolaxInverterUseMode useMode);
+        Task SetInverterUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken);
     }
 }

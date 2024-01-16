@@ -10,22 +10,28 @@ namespace SolaxHub.Knx.Requests.Handlers
 {
     internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueRequest>
     {
+        private readonly ILogger<KnxWriteValueRequestHandler> _logger;
         private readonly ISolaxControllerService _solaxControllerService;
         private readonly Dictionary<GroupAddress, string> _writeGroupAddressCapabilityMapping;
 
         public KnxWriteValueRequestHandler(
             IOptions<KnxOptions> options,
+            ILogger<KnxWriteValueRequestHandler> logger,
             ISolaxControllerService solaxControllerService)
         {
+            _logger = logger;
             _solaxControllerService = solaxControllerService;
             _writeGroupAddressCapabilityMapping = BuildWriteGroupAddressCapabilityMapping(options.Value);
         }
 
-        public Task Handle(KnxWriteValueRequest request, CancellationToken cancellationToken)
+        public async Task Handle(KnxWriteValueRequest request, CancellationToken cancellationToken)
         {
-            return _writeGroupAddressCapabilityMapping.TryGetValue(request.GroupAddress, out var capability) is false 
-                ? Task.CompletedTask 
-                : ProcessCapabilityValue(capability, request.Value);
+            if (_writeGroupAddressCapabilityMapping.TryGetValue(request.GroupAddress, out var capability) is false)
+            {
+                return;
+            }
+            
+            await ProcessCapabilityValueAsync(capability, request.Value, cancellationToken);
         }
 
         private static Dictionary<GroupAddress, string> BuildWriteGroupAddressCapabilityMapping(KnxOptions options)
@@ -34,11 +40,18 @@ namespace SolaxHub.Knx.Requests.Handlers
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
                     groupAddressMapping => groupAddressMapping.Key);
 
-        private Task ProcessCapabilityValue(string capability, byte[] value)
-            => capability switch
+        private async Task ProcessCapabilityValueAsync(string capability, byte[] value, CancellationToken cancellationToken)
+        {
+            switch (capability)
             {
-                "InverterUseMode" => _solaxControllerService.SetInverterUseMode((SolaxInverterUseMode)BitConverter.ToInt16(value)),
-                _ => Task.CompletedTask
-            };
+                case "InverterUseMode": 
+                    await _solaxControllerService.SetInverterUseModeAsync((SolaxInverterUseMode)BitConverter.ToInt16(value), cancellationToken);
+                    break;
+
+                default:
+                    _logger.LogWarning("Writing parameter '{parameter}' not implemented", capability);
+                    break;
+            }
+        }
     }
 }
