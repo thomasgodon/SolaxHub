@@ -5,16 +5,13 @@ namespace SolaxHub.Solax.Services
 {
     internal class SolaxControllerService : ISolaxControllerService
     {
-        private readonly ISolaxModbusClient _solaxModbusClient;
-
-        public SolaxControllerService(ISolaxModbusClient solaxModbusClient)
+        public SolaxControllerService()
         {
-            _solaxModbusClient = solaxModbusClient;
         }
 
-        public async Task SetInverterUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken)
+        public Task SetRemoteControlPowerControlModeAsync(SolaxRemoteControlPowerControlMode powerControlMode)
         {
-            await _solaxModbusClient.SetSolarChargerUseModeAsync(useMode, cancellationToken);
+            return Task.CompletedTask;
         }
     }
 }

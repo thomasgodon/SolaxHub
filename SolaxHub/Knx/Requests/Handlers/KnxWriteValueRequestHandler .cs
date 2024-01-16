@@ -30,8 +30,15 @@ namespace SolaxHub.Knx.Requests.Handlers
             {
                 return;
             }
-            
-            await ProcessCapabilityValueAsync(capability, request.Value, cancellationToken);
+
+            try
+            {
+                await ProcessCapabilityValue(capability, request.Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("{message}", e.Message);
+            }
         }
 
         private static Dictionary<GroupAddress, string> BuildWriteGroupAddressCapabilityMapping(KnxOptions options)
@@ -40,12 +47,12 @@ namespace SolaxHub.Knx.Requests.Handlers
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
                     groupAddressMapping => groupAddressMapping.Key);
 
-        private async Task ProcessCapabilityValueAsync(string capability, byte[] value, CancellationToken cancellationToken)
+        private async Task ProcessCapabilityValue(string capability, byte[] value)
         {
             switch (capability)
             {
-                case "InverterUseMode": 
-                    await _solaxControllerService.SetInverterUseModeAsync((SolaxInverterUseMode)BitConverter.ToInt16(value), cancellationToken);
+                case "RemoteControlMode": 
+                    await _solaxControllerService.SetRemoteControlPowerControlModeAsync((SolaxRemoteControlPowerControlMode)value[0]);
                     break;
 
                 default:

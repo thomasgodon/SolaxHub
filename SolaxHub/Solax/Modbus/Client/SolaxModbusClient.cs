@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Models;
 using SolaxHub.Solax.Notifications;
+using SolaxHub.Solax.Requests;
 
 namespace SolaxHub.Solax.Modbus.Client
 {
@@ -15,16 +16,19 @@ namespace SolaxHub.Solax.Modbus.Client
         private readonly ModbusTcpClient _modbusClient;
         private readonly ILogger<SolaxModbusClient> _logger;
         private readonly IPublisher _publisher;
+        private readonly ISender _sender;
         private const byte UnitIdentifier = 0x00;
 
         public SolaxModbusClient(
             ILogger<SolaxModbusClient> logger, 
             IOptions<SolaxModbusOptions> solaxModbusOptions,
-            IPublisher publisher)
+            IPublisher publisher,
+            ISender sender)
         {
             _solaxModbusOptions = solaxModbusOptions.Value;
             _logger = logger;
             _publisher = publisher;
+            _sender = sender;
             _modbusClient = new ModbusTcpClient();
         }
 
@@ -63,6 +67,11 @@ namespace SolaxHub.Solax.Modbus.Client
                     {
                         _lastReceivedData = await GetSolaxModbusData(cancellationToken);
                         _logger.LogTrace("{message}", JsonSerializer.Serialize(_lastReceivedData));
+
+                        // calculate remote control power control
+                        await CalculateRemotePowerControlAsync(_lastReceivedData, cancellationToken);
+
+                        // notify new solax data has arrived
                         await _publisher.Publish(new SolaxDataArrivedNotification(_lastReceivedData), cancellationToken);
                     }
                     catch (Exception e)
@@ -89,6 +98,16 @@ namespace SolaxHub.Solax.Modbus.Client
 
             parsedIp = hostEntry.AddressList[0].MapToIPv4();
             return new IPEndPoint(parsedIp, _solaxModbusOptions.Port);
+        }
+
+        private async Task CalculateRemotePowerControlAsync(SolaxData solaxData, CancellationToken cancellationToken)
+        {
+            var remotePowerControlValue =
+                await _sender.Send(new CalculatePowerControlRequest(_lastReceivedData), cancellationToken);
+            if (remotePowerControlValue != null)
+            {
+
+            }
         }
     }
 }
