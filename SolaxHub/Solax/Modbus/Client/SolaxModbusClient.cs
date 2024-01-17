@@ -103,7 +103,7 @@ namespace SolaxHub.Solax.Modbus.Client
         private async Task CalculateRemotePowerControlAsync(SolaxData solaxData, CancellationToken cancellationToken)
         {
             var remotePowerControlValue = await _sender.Send(new CalculatePowerControlRequest(solaxData), cancellationToken);
-            await SetModbusPowerControlAsync(
+            await SetPowerControlAsync(
                 remotePowerControlValue.ModbusPowerControl,
                 remotePowerControlValue.RemoteControlReactivePower, 
                 remotePowerControlValue.RemoteControlReactivePower,
