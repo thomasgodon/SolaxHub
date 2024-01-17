@@ -24,7 +24,6 @@ namespace SolaxHub.Knx.Services
             }
         }
 
-
         private KnxValue? UpdateValue(string capability, byte[] value)
         {
             if (_capabilityKnxValueMapping.TryGetValue(capability, out var knxSolaxValue) is false)
@@ -92,6 +91,8 @@ namespace SolaxHub.Knx.Services
             yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyToday));
             // PowerControl - 1.001 switch
             yield return UpdateValue(nameof(SolaxData.PowerControl), BitConverter.GetBytes(solaxData.PowerControl));
+            // LockState - 6.020 status with mode
+            yield return UpdateValue(nameof(SolaxData.LockState), new[] { (byte)solaxData.LockState.ToNormalizedLockState() });
         }
     }
 }

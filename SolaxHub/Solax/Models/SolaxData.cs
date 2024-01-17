@@ -25,5 +25,6 @@ namespace SolaxHub.Solax.Models
         public double BatteryInputEnergyToday { get; init; } = default!;
         public double HouseLoad => InverterPower - FeedInPower;
         public bool PowerControl { get; init; } = false;
+        public SolaxLockState LockState { get; init; } = SolaxLockState.Locked;
     }
 }

@@ -20,5 +20,13 @@ namespace SolaxHub.Solax.Extensions
                 3 => SolaxInverterUseMode.ForceTimeUse,
                 _ => SolaxInverterUseMode.Unknown
             };
+
+        public static SolaxLockState ToSolaxLockState(this ushort chargerUseMode)
+            => chargerUseMode switch
+            {
+                1 => SolaxLockState.Unlocked,
+                2 => SolaxLockState.UnlockedAdvanced,
+                _ => SolaxLockState.Locked
+            };
     }
 }
