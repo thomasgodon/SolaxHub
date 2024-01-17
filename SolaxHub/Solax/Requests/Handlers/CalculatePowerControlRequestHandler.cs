@@ -16,7 +16,7 @@ namespace SolaxHub.Solax.Requests.Handlers
         public Task<SolaxPowerControlCalculation> Handle(CalculatePowerControlRequest request, CancellationToken cancellationToken)
         {
             var result = new SolaxPowerControlCalculation(
-                modbusPowerControl: _solaxControllerService.PowerControlMode != SolaxRemoteControlPowerControlMode.Disabled,
+                modbusPowerControl: _solaxControllerService.PowerControlMode != SolaxPowerControlMode.Disabled,
                 remoteControlActivePower: 0,
                 remoteControlReactivePower: 0);
 

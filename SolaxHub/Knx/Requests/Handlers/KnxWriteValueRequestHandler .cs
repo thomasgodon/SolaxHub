@@ -52,7 +52,7 @@ namespace SolaxHub.Knx.Requests.Handlers
             switch (capability)
             {
                 case "RemoteControlMode": 
-                    await _solaxControllerService.SetRemoteControlPowerControlModeAsync((SolaxRemoteControlPowerControlMode)value[0]);
+                    await _solaxControllerService.SetRemoteControlPowerControlModeAsync((SolaxPowerControlMode)value[0]);
                     break;
 
                 default:

@@ -8,9 +8,9 @@ namespace SolaxHub.Solax.Services
         {
         }
 
-        public SolaxRemoteControlPowerControlMode PowerControlMode { get; private set; } = SolaxRemoteControlPowerControlMode.Disabled;
+        public SolaxPowerControlMode PowerControlMode { get; private set; } = SolaxPowerControlMode.Disabled;
 
-        public Task SetRemoteControlPowerControlModeAsync(SolaxRemoteControlPowerControlMode powerControlMode)
+        public Task SetRemoteControlPowerControlModeAsync(SolaxPowerControlMode powerControlMode)
         {
             PowerControlMode = powerControlMode;
             return Task.CompletedTask;

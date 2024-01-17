@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SolaxHub.Solax.Models
+﻿namespace SolaxHub.Solax.Models
 {
-    internal enum SolaxRemoteControlPowerControlMode
+    internal enum SolaxPowerControlMode
     {
         Disabled = 0,
         EnabledPowerControl = 1, // battery charge level in absence of PV
