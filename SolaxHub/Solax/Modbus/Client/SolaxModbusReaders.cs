@@ -30,7 +30,8 @@ internal partial class SolaxModbusClient
             ConsumeEnergy = await GetConsumeEnergyAsync(cancellationToken),
             FeedInEnergy = await GetFeedInEnergyAsync(cancellationToken),
             BatteryOutputEnergyToday = await GetTodayBatteryOutputEnergyAsync(cancellationToken),
-            BatteryInputEnergyToday = await GetTodayBatteryInputEnergyAsync(cancellationToken)
+            BatteryInputEnergyToday = await GetTodayBatteryInputEnergyAsync(cancellationToken),
+            PowerControl = await GetModbusPowerControlAsync(cancellationToken)
         };
 
     private async Task<string> GetSerialNumberAsync(CancellationToken cancellationToken)
@@ -175,5 +176,13 @@ internal partial class SolaxModbusClient
         const ushort count = 1;
         var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
         return Math.Round(data.ToArray()[0] * 0.1, 2);
+    }
+
+    private async Task<bool> GetModbusPowerControlAsync(CancellationToken cancellationToken)
+    {
+        const ushort startingAddress = 0x00A6;
+        const ushort count = 1;
+        var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        return data.ToArray()[0] > 1;
     }
 }

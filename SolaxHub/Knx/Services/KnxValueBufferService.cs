@@ -90,6 +90,8 @@ namespace SolaxHub.Knx.Services
             yield return UpdateValue(nameof(SolaxData.BatteryOutputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryOutputEnergyToday));
             // BatteryInputEnergyToday - 14
             yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyToday));
+            // PowerControl - 1.001 switch
+            yield return UpdateValue(nameof(SolaxData.PowerControl), BitConverter.GetBytes(solaxData.PowerControl));
         }
     }
 }

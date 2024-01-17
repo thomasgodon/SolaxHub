@@ -16,11 +16,30 @@ namespace SolaxHub.Solax.Requests.Handlers
         public Task<SolaxPowerControlCalculation> Handle(CalculatePowerControlRequest request, CancellationToken cancellationToken)
         {
             var result = new SolaxPowerControlCalculation(
-                modbusPowerControl: _solaxControllerService.PowerControlMode != SolaxPowerControlMode.Disabled,
-                remoteControlActivePower: 0,
+                modbusPowerControl: PowerControlModeEnabled(),
+                remoteControlActivePower: PowerControlModeEnabled()
+                    ? CalculateActivePower(_solaxControllerService.PowerControlMode, request.SolaxData)
+                    : 0,
                 remoteControlReactivePower: 0);
 
             return Task.FromResult(result);
         }
+
+        private bool PowerControlModeEnabled()
+            => _solaxControllerService.PowerControlMode != SolaxPowerControlMode.Disabled;
+
+        private static double CalculateActivePower(SolaxPowerControlMode mode, SolaxData data)
+            => mode switch
+            {
+                SolaxPowerControlMode.Disabled => 0,
+                SolaxPowerControlMode.EnabledPowerControl => 0,
+                SolaxPowerControlMode.EnabledGridControl => 1000,
+                SolaxPowerControlMode.EnabledBatteryControl => 0,
+                SolaxPowerControlMode.EnabledFeedInPriority => 0,
+                SolaxPowerControlMode.EnabledNoDischarge => 0,
+                SolaxPowerControlMode.EnabledQuantityControl => 0,
+                SolaxPowerControlMode.EnabledSocTargetControl => 0,
+                _ => 0,
+            };
     }
 }

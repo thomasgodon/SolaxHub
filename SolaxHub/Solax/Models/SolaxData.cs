@@ -24,5 +24,6 @@ namespace SolaxHub.Solax.Models
         public double BatteryOutputEnergyToday { get; init; } = default!;
         public double BatteryInputEnergyToday { get; init; } = default!;
         public double HouseLoad => InverterPower - FeedInPower;
+        public bool PowerControl { get; init; } = false;
     }
 }
