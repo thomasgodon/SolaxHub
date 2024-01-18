@@ -6,10 +6,15 @@ namespace SolaxHub.Solax.Requests.Handlers
 {
     internal class CalculatePowerControlRequestHandler : IRequestHandler<CalculatePowerControlRequest, SolaxPowerControlCalculation>
     {
+        private readonly ILogger<CalculatePowerControlRequestHandler> _logger;
         private readonly ISolaxControllerService _solaxControllerService;
 
-        public CalculatePowerControlRequestHandler(ISolaxControllerService solaxControllerService)
+        public CalculatePowerControlRequestHandler(
+            ILogger<CalculatePowerControlRequestHandler> logger,
+            ISolaxControllerService solaxControllerService
+            )
         {
+            _logger = logger;
             _solaxControllerService = solaxControllerService;
         }
 
@@ -22,6 +27,8 @@ namespace SolaxHub.Solax.Requests.Handlers
                     : 0,
                 remoteControlReactivePower: 0);
 
+            _logger.LogInformation("Enabled: {enabled}, active power: {activePower}", result.ModbusPowerControl, result.RemoteControlActivePower);
+
             return Task.FromResult(result);
         }
 
@@ -33,7 +40,7 @@ namespace SolaxHub.Solax.Requests.Handlers
             {
                 SolaxPowerControlMode.Disabled => 0,
                 SolaxPowerControlMode.EnabledPowerControl => 0,
-                SolaxPowerControlMode.EnabledGridControl => 1000,
+                SolaxPowerControlMode.EnabledGridControl => 2000,
                 SolaxPowerControlMode.EnabledBatteryControl => 0,
                 SolaxPowerControlMode.EnabledFeedInPriority => 0,
                 SolaxPowerControlMode.EnabledNoDischarge => 0,
