@@ -26,5 +26,6 @@ namespace SolaxHub.Solax.Models
         public double HouseLoad => InverterPower - FeedInPower;
         public bool PowerControl { get; init; } = false;
         public SolaxLockState LockState { get; init; } = SolaxLockState.Locked;
+        public TimeSpan PowerControlTimeout { get; init; } = TimeSpan.Zero;
     }
 }

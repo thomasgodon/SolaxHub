@@ -28,5 +28,8 @@ namespace SolaxHub.Solax.Extensions
                 2 => SolaxLockState.UnlockedAdvanced,
                 _ => SolaxLockState.Locked
             };
+
+        public static TimeSpan ToTimeSpan(this ushort time)
+            => TimeSpan.FromSeconds(time);
     }
 }

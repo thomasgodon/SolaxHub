@@ -107,6 +107,7 @@ namespace SolaxHub.Solax.Modbus.Client
                 remotePowerControlValue.ModbusPowerControl,
                 remotePowerControlValue.RemoteControlActivePower, 
                 remotePowerControlValue.RemoteControlReactivePower,
+                solaxData,
                 cancellationToken);
         }
     }
