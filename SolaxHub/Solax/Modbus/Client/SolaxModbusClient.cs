@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentModbus;
 using MediatR;
 using Microsoft.Extensions.Options;
+using SolaxHub.Solax.Extensions;
 using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Models;
 using SolaxHub.Solax.Notifications;
@@ -56,7 +57,14 @@ namespace SolaxHub.Solax.Modbus.Client
                         }
 
                         // unlock advanced inverter
-                        await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
+                        var lockState = (await GetLockStateAsync(cancellationToken)).ToSolaxLockState();
+                        if (lockState != SolaxLockState.UnlockedAdvanced)
+                        {
+                            _logger.LogWarning("Current lock state: '{currentState}. Unlocking...'", lockState);
+                            await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
+                        }
+
+                        _logger.LogInformation("Lock state: {lockState}", SolaxLockState.UnlockedAdvanced);
 
                         continue;
                     }
