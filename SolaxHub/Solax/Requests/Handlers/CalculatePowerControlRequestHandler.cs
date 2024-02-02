@@ -32,7 +32,7 @@ namespace SolaxHub.Solax.Requests.Handlers
             => mode switch
             {
                 SolaxPowerControlMode.Disabled => 0,
-                SolaxPowerControlMode.EnabledPowerControl => 1500,
+                SolaxPowerControlMode.EnabledPowerControl => 1000,
                 SolaxPowerControlMode.EnabledGridControl => 0,
                 SolaxPowerControlMode.EnabledBatteryControl => 0,
                 SolaxPowerControlMode.EnabledFeedInPriority => 0,

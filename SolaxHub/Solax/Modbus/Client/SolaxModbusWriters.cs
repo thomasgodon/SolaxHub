@@ -51,7 +51,7 @@ internal partial class SolaxModbusClient
             return true;
         }
 
-        if (_powerControlWatch.Elapsed >= TimeSpan.FromSeconds(120))
+        if (_powerControlWatch.Elapsed >= TimeSpan.FromSeconds(1))
         {
             _powerControlWatch.Restart();
             return true;
