@@ -1,25 +1,31 @@
 ﻿using Knx.Falcon.Configuration;
 using Knx.Falcon.Sdk;
 using Knx.Falcon;
+using MediatR;
 using Microsoft.Extensions.Options;
+using SolaxHub.Knx.Models;
+using SolaxHub.Knx.Requests;
 
 namespace SolaxHub.Knx.Client
 {
     internal class KnxClient : IKnxClient
     {
         private readonly ILogger<KnxClient> _logger;
+        private readonly ISender _sender;
         private readonly KnxOptions _options;
         private KnxBus? _bus;
-        private IKnxReadDelegate? _readDelegate;
-        private IKnxWriteDelegate? _writeDelegate;
 
-        public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options)
+        public KnxClient(
+            ILogger<KnxClient> logger, 
+            IOptions<KnxOptions> options,
+            ISender sender)
         {
             _logger = logger;
+            _sender = sender;
             _options = options.Value;
         }
 
-        public async Task SendValuesAsync(IEnumerable<KnxSolaxValue> values, CancellationToken cancellationToken)
+        public async Task SendValuesAsync(IEnumerable<KnxValue> values, CancellationToken cancellationToken)
         {
             if (_bus?.ConnectionState != BusConnectionState.Connected)
             {
@@ -52,7 +58,7 @@ namespace SolaxHub.Knx.Client
             }
         }
 
-        public async Task ConnectAsync(CancellationToken cancellationToken)
+        private async Task ConnectAsync(CancellationToken cancellationToken)
         {
             if (_bus?.ConnectionState == BusConnectionState.Connected)
             {
@@ -65,43 +71,46 @@ namespace SolaxHub.Knx.Client
                 await ProcessGroupMessageReceivedAsync(args, cancellationToken);
             };
             await _bus.ConnectAsync(cancellationToken);
-        }
-
-        public void SetReadDelegate(IKnxReadDelegate @delegate)
-        {
-            _readDelegate = @delegate;
-        }
-
-        public void SetWriteDelegate(IKnxWriteDelegate @delegate)
-        {
-            _writeDelegate = @delegate;
+            if (_bus.ConnectionState == BusConnectionState.Connected)
+            {
+                _logger.LogInformation("Connected to {host} at port: {port}", _options.Host, _options.Port);
+            }
+            else
+            {
+                _logger.LogError("Something went wrong when trying to connect to {host} at port: {port}", _options.Host, _options.Port);
+            }
         }
 
         private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
         {
             switch (e.EventType)
             {
-                // respond to read requests
                 case GroupEventType.ValueRead:
-                {
-                    var readValue = _readDelegate?.ReadValue(e.DestinationAddress);
-                    if (readValue == null)
+                    var readValueRequest = new KnxReadValueRequest()
+                    {
+                        GroupAddress = e.DestinationAddress
+                    };
+                    var readValue = await _sender.Send(readValueRequest, cancellationToken);
+                    if (readValue is null)
                     {
                         return;
                     }
 
                     await SendValuesAsync(new[] { readValue }, cancellationToken);
                     return;
-                }
-                // respond to write requests
-                case GroupEventType.ValueWrite:
-                    if (_writeDelegate is null)
-                    {
-                        return;
-                    }
 
-                    await _writeDelegate.ProcessWriteAsync(e.DestinationAddress, e.Value.Value, cancellationToken);
+                case GroupEventType.ValueWrite:
+                    var writeValueRequest = new KnxWriteValueRequest()
+                    {
+                        GroupAddress = e.DestinationAddress,
+                        Value = e.Value.Value
+                    };
+                    await _sender.Send(writeValueRequest, cancellationToken);
                     break;
+                
+                default:
+                    _logger.LogTrace("Message type'{type}' not implemented", e.EventType);
+                        break;
             }
         }
     }
