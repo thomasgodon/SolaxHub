@@ -158,7 +158,7 @@ internal partial class SolaxModbusClient
 
     private async Task<ushort> GetSolarChargerUseModeAsync(CancellationToken cancellationToken)
     {
-        const ushort startingAddress = 139;
+        const ushort startingAddress = 0x008B;
         const ushort count = 1;
         var data = await _modbusClient.ReadHoldingRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
         return data.ToArray()[0];
