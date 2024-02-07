@@ -7,6 +7,7 @@ namespace SolaxHub.Solax.Modbus.Client;
 internal partial class SolaxModbusClient
 {
     private readonly Stopwatch _powerControlWatch = new();
+    private static readonly TimeSpan PowerControlInterval = TimeSpan.FromSeconds(5);
 
     public async Task SetSolarChargerUseModeAsync(SolaxInverterUseMode useMode, CancellationToken cancellationToken)
     {
@@ -30,17 +31,18 @@ internal partial class SolaxModbusClient
         const ushort registerAddress = 0x7C;
 
         var dataSetEnabled = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(Convert.ToInt16(enabled)));
+        var dataSetType = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(Convert.ToUInt16(1)));
         var dataSetActivePower = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((int)activePower));
         var dataSetReactivePower = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((int)reactivePower));
+        var dataSetTimeout = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(Convert.ToUInt16(20)));
 
         var dataSet = dataSetEnabled
             .Concat(dataSetActivePower)
             .Concat(dataSetReactivePower)
+            .Concat(dataSetTimeout)
             .ToArray();
-
+        _logger.LogInformation(BitConverter.ToString(dataSet));
         await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, dataSet, cancellationToken);
-        _logger.LogInformation("Enabled: {enabled}, active power: {activePower}", enabled, activePower);
-        _logger.LogInformation("Timeout: {timeout}", data.PowerControlTimeout);
     }
 
     private bool ShouldSendPowerControl()
@@ -51,7 +53,7 @@ internal partial class SolaxModbusClient
             return true;
         }
 
-        if (_powerControlWatch.Elapsed >= TimeSpan.FromSeconds(1))
+        if (_powerControlWatch.Elapsed >= PowerControlInterval)
         {
             _powerControlWatch.Restart();
             return true;

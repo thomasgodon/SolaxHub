@@ -83,11 +83,7 @@ namespace SolaxHub.Knx.Client
             var values = await _sender.Send(new KnxInitialReadValueRequest(), cancellationToken);
             foreach (var knxValue in values)
             {
-                var result = await _bus.RequestGroupValueAsync(knxValue.Address, MessagePriority.Low, cancellationToken);
-                if (result is false)
-                {
-                    _logger.LogWarning("Couldn't resolve initial value for '{address}'", knxValue.Address);
-                }
+                await _bus.RequestGroupValueAsync(knxValue.Address, MessagePriority.Low, cancellationToken);
             }
         }
 

@@ -47,18 +47,28 @@ namespace SolaxHub.Knx.Requests.Handlers
                     groupAddressMapping => GroupAddress.Parse(groupAddressMapping.Value),
                     groupAddressMapping => groupAddressMapping.Key);
 
-        private async Task ProcessCapabilityValue(string capability, byte[] value)
+        private Task ProcessCapabilityValue(string capability, byte[] value)
         {
             switch (capability)
             {
                 case "RemoteControlMode": 
-                    await _solaxControllerService.SetRemoteControlPowerControlModeAsync((SolaxPowerControlMode)value[0]);
+                    _solaxControllerService.PowerControlMode = (SolaxPowerControlMode)value[0];
+                    break;
+
+                case "ImportLimit":
+                    _solaxControllerService.PowerControlImportLimit = BitConverter.ToSingle(value.Reverse().ToArray());
+                    break;
+
+                case "BatteryChargeLimit":
+                    _solaxControllerService.PowerControlBatteryChargeLimit = BitConverter.ToSingle(value.Reverse().ToArray());
                     break;
 
                 default:
                     _logger.LogWarning("Writing parameter '{parameter}' not implemented", capability);
                     break;
             }
+
+            return Task.CompletedTask;
         }
     }
 }

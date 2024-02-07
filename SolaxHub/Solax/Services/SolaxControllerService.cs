@@ -4,16 +4,9 @@ namespace SolaxHub.Solax.Services
 {
     internal class SolaxControllerService : ISolaxControllerService
     {
-        public SolaxControllerService()
-        {
-        }
+        public SolaxPowerControlMode PowerControlMode { get; set; } = SolaxPowerControlMode.Disabled;
+        public double PowerControlImportLimit { get; set; }
+        public double PowerControlBatteryChargeLimit { get; set; }
 
-        public SolaxPowerControlMode PowerControlMode { get; private set; } = SolaxPowerControlMode.Disabled;
-
-        public Task SetRemoteControlPowerControlModeAsync(SolaxPowerControlMode powerControlMode)
-        {
-            PowerControlMode = powerControlMode;
-            return Task.CompletedTask;
-        }
     }
 }

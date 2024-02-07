@@ -15,31 +15,33 @@ namespace SolaxHub.Solax.Requests.Handlers
 
         public Task<SolaxPowerControlCalculation> Handle(CalculatePowerControlRequest request, CancellationToken cancellationToken)
         {
+            var (enabled, activePower, reactivePower) = CalculateValues(_solaxControllerService.PowerControlMode, request.SolaxData);
             var result = new SolaxPowerControlCalculation(
-                modbusPowerControl: PowerControlModeEnabled(),
-                remoteControlActivePower: PowerControlModeEnabled()
-                    ? CalculateActivePower(_solaxControllerService.PowerControlMode, request.SolaxData)
-                    : 0,
-                remoteControlReactivePower: 0);
+                enabled,
+                activePower,
+                reactivePower);
 
             return Task.FromResult(result);
         }
 
-        private bool PowerControlModeEnabled()
-            => _solaxControllerService.PowerControlMode != SolaxPowerControlMode.Disabled;
-
-        private static double CalculateActivePower(SolaxPowerControlMode mode, SolaxData data)
+        private (bool Enabled, double ActivePower, double ReactivePower) CalculateValues(SolaxPowerControlMode mode, SolaxData data)
             => mode switch
             {
-                SolaxPowerControlMode.Disabled => 0,
-                SolaxPowerControlMode.EnabledPowerControl => 1000,
-                SolaxPowerControlMode.EnabledGridControl => 0,
-                SolaxPowerControlMode.EnabledBatteryControl => 0,
-                SolaxPowerControlMode.EnabledFeedInPriority => 0,
-                SolaxPowerControlMode.EnabledNoDischarge => 0,
-                SolaxPowerControlMode.EnabledQuantityControl => 0,
-                SolaxPowerControlMode.EnabledSocTargetControl => 0,
-                _ => 0,
+                // power control disabled
+                SolaxPowerControlMode.Disabled => (false, 0, 0),
+
+                // battery will be charged from the grid, grid import will be limited to import limit value
+                SolaxPowerControlMode.EnabledGridControl => (true, CalculateGridControlActivePower(data), 0),
+
+                // battery will be charged from the grid
+                SolaxPowerControlMode.EnabledBatteryControl => (true, _solaxControllerService.PowerControlBatteryChargeLimit, 0),
+                SolaxPowerControlMode.EnabledNoDischarge => (true, 0, 0),
+                _ => (false, 0, 0)
             };
+
+        private double CalculateGridControlActivePower(SolaxData data)
+            => _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.PvCurrent1) > 0
+                ? _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.PvCurrent1)
+                : 0;
     }
 }

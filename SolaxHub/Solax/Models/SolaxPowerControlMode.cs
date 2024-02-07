@@ -3,12 +3,8 @@
     internal enum SolaxPowerControlMode
     {
         Disabled = 0,
-        EnabledPowerControl = 1, // battery charge level in absence of PV
-        EnabledGridControl = 2, // computed variation of Power Control, grid import level in absence of PV
-        EnabledBatteryControl = 3, // computed variation of Power Control, battery import without of PV
-        EnabledFeedInPriority = 4, // variation of Battery Control with fixed target 0
-        EnabledNoDischarge = 5, // missing HL from grid
-        EnabledQuantityControl = 6,
-        EnabledSocTargetControl = 7
+        EnabledGridControl = 1,
+        EnabledBatteryControl = 2,
+        EnabledNoDischarge = 3
     }
 }
