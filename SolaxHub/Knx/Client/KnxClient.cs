@@ -79,12 +79,6 @@ namespace SolaxHub.Knx.Client
             {
                 _logger.LogError("Something went wrong when trying to connect to {host} at port: {port}", _options.Host, _options.Port);
             }
-
-            var values = await _sender.Send(new KnxInitialReadValueRequest(), cancellationToken);
-            foreach (var knxValue in values)
-            {
-                await _bus.RequestGroupValueAsync(knxValue.Address, MessagePriority.Low, cancellationToken);
-            }
         }
 
         private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
