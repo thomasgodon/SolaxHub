@@ -35,6 +35,8 @@ namespace SolaxHub.Solax.Requests.Handlers
 
                 // battery will be charged from the grid
                 SolaxPowerControlMode.EnabledBatteryControl => (true, _solaxControllerService.PowerControlBatteryChargeLimit, 0),
+
+                // battery doesn't discharge
                 SolaxPowerControlMode.EnabledNoDischarge => (true, 0, 0),
                 _ => (false, 0, 0)
             };

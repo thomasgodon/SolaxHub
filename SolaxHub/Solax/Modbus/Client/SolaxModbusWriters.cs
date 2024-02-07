@@ -41,7 +41,7 @@ internal partial class SolaxModbusClient
             .Concat(dataSetReactivePower)
             .Concat(dataSetTimeout)
             .ToArray();
-        _logger.LogInformation(BitConverter.ToString(dataSet));
+        _logger.LogTrace(BitConverter.ToString(dataSet));
         await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, dataSet, cancellationToken);
     }
 
