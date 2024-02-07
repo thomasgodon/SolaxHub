@@ -21,7 +21,7 @@ namespace SolaxHub.IotHub.Extensions
                 YieldToday = data.SolarEnergyToday,
                 YieldTotal = data.SolarEnergyTotal,
                 HouseLoad = data.HouseLoad,
-                InverterUseMode = data.SolaxInverterUseMode,
+                InverterUseMode = data.InverterUseMode,
                 ConsumeEnergy = data.ConsumeEnergy,
                 FeedInEnergy = data.FeedInEnergy,
                 BatteryOutputEnergyToday = data.BatteryOutputEnergyToday,

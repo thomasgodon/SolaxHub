@@ -26,7 +26,7 @@ internal partial class SolaxModbusClient
             PvPower1 = await GetPvPower1RAsync(cancellationToken),
             SolarEnergyToday = await GetSolarEnergyTodayAsync(cancellationToken),
             SolarEnergyTotal = await GetSolarEnergyTotalAsync(cancellationToken),
-            SolaxInverterUseMode = (await GetSolarChargerUseModeAsync(cancellationToken)).ToSolaxInverterUseMode(),
+            InverterUseMode = (await GetSolarChargerUseModeAsync(cancellationToken)).ToSolaxInverterUseMode(),
             ConsumeEnergy = await GetConsumeEnergyAsync(cancellationToken),
             FeedInEnergy = await GetFeedInEnergyAsync(cancellationToken),
             BatteryOutputEnergyToday = await GetTodayBatteryOutputEnergyAsync(cancellationToken),

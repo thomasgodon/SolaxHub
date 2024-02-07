@@ -20,7 +20,7 @@ namespace SolaxHub.Solax.Models
         public ushort PvCurrent1 { get; init; } = default!;
         public double SolarEnergyToday { get; init; } = default!;
         public double SolarEnergyTotal { get; init; } = default!;
-        public SolaxInverterUseMode SolaxInverterUseMode { get; init; } = default!;
+        public SolaxInverterUseMode InverterUseMode { get; init; } = default!;
         public double BatteryOutputEnergyToday { get; init; } = default!;
         public double BatteryInputEnergyToday { get; init; } = default!;
         public double HouseLoad => InverterPower - FeedInPower;

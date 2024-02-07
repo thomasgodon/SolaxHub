@@ -72,7 +72,7 @@ namespace SolaxHub.Knx.Services
             // BatteryPower - 14.056 power
             yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
             // SolarChargerUseMode - 6.020 status with mode
-            yield return UpdateValue(nameof(SolaxData.SolaxInverterUseMode), new[] { (byte)((int)solaxData.SolaxInverterUseMode * 2.55) });
+            yield return UpdateValue(nameof(SolaxData.InverterUseMode), new[] { (byte)((int)solaxData.InverterUseMode * 2.55) });
             // ConsumeEnergy - 14.* 4byte float value
             yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
             // BatteryCapacity - 5.001 percentage
