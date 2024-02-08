@@ -39,7 +39,6 @@ internal partial class SolaxModbusClient
         var dataSet = dataSetEnabled
             .Concat(dataSetActivePower)
             .Concat(dataSetReactivePower)
-            .Concat(dataSetTimeout)
             .ToArray();
         _logger.LogTrace(BitConverter.ToString(dataSet));
         await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, dataSet, cancellationToken);
@@ -53,12 +52,13 @@ internal partial class SolaxModbusClient
             return true;
         }
 
-        if (_powerControlWatch.Elapsed >= PowerControlInterval)
+        if (_powerControlWatch.Elapsed < PowerControlInterval)
         {
-            _powerControlWatch.Restart();
-            return true;
+            return false;
         }
 
-        return false;
+        _powerControlWatch.Restart();
+        return true;
+
     }
 }
