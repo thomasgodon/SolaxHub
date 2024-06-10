@@ -31,6 +31,8 @@ internal partial class SolaxModbusClient
             FeedInEnergy = await GetFeedInEnergyAsync(cancellationToken),
             BatteryOutputEnergyToday = await GetTodayBatteryOutputEnergyAsync(cancellationToken),
             BatteryInputEnergyToday = await GetTodayBatteryInputEnergyAsync(cancellationToken),
+            BatteryOutputEnergyTotal = await GetTotalBatteryOutputEnergyAsync(cancellationToken),
+            BatteryInputEnergyTotal = await GetTotalBatteryInputEnergyAsync(cancellationToken),
             PowerControl = await GetModbusPowerControlAsync(cancellationToken),
             LockState = (await GetLockStateAsync(cancellationToken)).ToSolaxLockState(),
             PowerControlTimeout = (await GetPowerControlTimeoutAsync(cancellationToken)).ToTimeSpan()
@@ -172,9 +174,25 @@ internal partial class SolaxModbusClient
         return Math.Round(data.ToArray()[0] * 0.1, 2);
     }
 
+    private async Task<double> GetTotalBatteryOutputEnergyAsync(CancellationToken cancellationToken)
+    {
+        const ushort startingAddress = 0x001D;
+        const ushort count = 1;
+        var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        return Math.Round(data.ToArray()[0] * 0.1, 2);
+    }
+
     private async Task<double> GetTodayBatteryInputEnergyAsync(CancellationToken cancellationToken)
     {
         const ushort startingAddress = 0x0023;
+        const ushort count = 1;
+        var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        return Math.Round(data.ToArray()[0] * 0.1, 2);
+    }
+
+    private async Task<double> GetTotalBatteryInputEnergyAsync(CancellationToken cancellationToken)
+    {
+        const ushort startingAddress = 0x0021;
         const ushort count = 1;
         var data = await _modbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
         return Math.Round(data.ToArray()[0] * 0.1, 2);

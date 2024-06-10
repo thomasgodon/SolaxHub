@@ -1,6 +1,6 @@
 ﻿{
   "profiles": {
-    "dsmrIotDevice": {
+    "SolaxHub": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {

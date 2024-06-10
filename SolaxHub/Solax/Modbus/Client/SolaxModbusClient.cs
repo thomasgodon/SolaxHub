@@ -53,18 +53,18 @@ namespace SolaxHub.Solax.Modbus.Client
                         }
                         else
                         {
-                            _logger.LogError("Something went wrong when trying to connect to {host} at port: {port}", endPoint.Address, endPoint.Port);
+                            _logger.LogError("Something went wrong when trying to connect to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
                         }
 
                         // unlock advanced inverter
                         var lockState = (await GetLockStateAsync(cancellationToken)).ToSolaxLockState();
                         if (lockState != SolaxLockState.UnlockedAdvanced)
                         {
-                            _logger.LogWarning("Current lock state: '{currentState}. Unlocking...'", lockState);
+                            _logger.LogWarning("Current lock state: '{CurrentState}. Unlocking...'", lockState);
                             await SetLockStateAsync(SolaxLockState.UnlockedAdvanced, cancellationToken);
                         }
 
-                        _logger.LogInformation("Lock state: {lockState}", SolaxLockState.UnlockedAdvanced);
+                        _logger.LogInformation("Lock state: {LockState}", SolaxLockState.UnlockedAdvanced);
 
                         continue;
                     }
@@ -74,7 +74,7 @@ namespace SolaxHub.Solax.Modbus.Client
                     try
                     {
                         _lastReceivedData = await GetSolaxModbusData(cancellationToken);
-                        _logger.LogTrace("{message}", JsonSerializer.Serialize(_lastReceivedData));
+                        _logger.LogTrace("{Message}", JsonSerializer.Serialize(_lastReceivedData));
 
                         // calculate & set remote control power control
                         await CalculateRemotePowerControlAsync(_lastReceivedData, cancellationToken);
@@ -84,7 +84,7 @@ namespace SolaxHub.Solax.Modbus.Client
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError(e, "{message}", e.Message);
+                        _logger.LogError(e, "{Message}", e.Message);
                     }
                 }
             }, cancellationToken);

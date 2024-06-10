@@ -89,6 +89,10 @@ namespace SolaxHub.Knx.Services
             yield return UpdateValue(nameof(SolaxData.BatteryOutputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryOutputEnergyToday));
             // BatteryInputEnergyToday - 14
             yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyToday), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyToday));
+            // BatteryOutputEnergyTotal - 14
+            yield return UpdateValue(nameof(SolaxData.BatteryOutputEnergyTotal), BitConverter.GetBytes((float)solaxData.BatteryOutputEnergyTotal));
+            // BatteryInputEnergyTotal - 14
+            yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyTotal), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyTotal));
             // PowerControl - 1.001 switch
             yield return UpdateValue(nameof(SolaxData.PowerControl), BitConverter.GetBytes(solaxData.PowerControl));
             // LockState - 6.020 status with mode
