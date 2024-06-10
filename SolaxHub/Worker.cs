@@ -1,33 +1,19 @@
-using Microsoft.Extensions.Options;
-using SolaxHub.Solax;
-using SolaxHub.Solax.Http;
+using SolaxHub.Solax.Modbus.Client;
 
 namespace SolaxHub
 {
     internal class Worker : BackgroundService
     {
-        private readonly ISolaxClientFactory _solaxClientFactory;
-        private readonly IEnumerable<ISolaxProcessor> _solaxProcessors;
-        private readonly ILogger<Worker> _logger;
+        private readonly ISolaxModbusClient _solaxModbusClient;
 
-        public Worker(ILogger<Worker> logger, ISolaxClientFactory solaxClientFactory, IOptions<SolaxHttpOptions> dsmrOptions, IEnumerable<ISolaxProcessor> solaxProcessors)
+        public Worker(ISolaxModbusClient solaxModbusClient)
         {
-            _logger = logger;
-            _solaxClientFactory = solaxClientFactory;
-            _solaxProcessors = solaxProcessors;
+            _solaxModbusClient = solaxModbusClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var client = _solaxClientFactory.CreateSolaxClient();
-
-            if (client == null)
-            {
-                _logger.LogError("No Solax Client was enabled");
-                return;
-            }
-
-            await client.Start(cancellationToken);
+            await _solaxModbusClient.Start(cancellationToken);
         }
     }
 }

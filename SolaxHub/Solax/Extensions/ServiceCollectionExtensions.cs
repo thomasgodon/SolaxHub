@@ -1,6 +1,7 @@
-﻿using System.IO.Ports;
-using SolaxHub.Solax.Http;
-using SolaxHub.Solax.Modbus;
+﻿using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Modbus.Models;
+using SolaxHub.Solax.Services;
+using SolaxModbusClient = SolaxHub.Solax.Modbus.Client.SolaxModbusClient;
 
 namespace SolaxHub.Solax.Extensions
 {
@@ -8,26 +9,16 @@ namespace SolaxHub.Solax.Extensions
     {
         public static IServiceCollection AddSolaxClients(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.AddSingleton<ISolaxClientFactory, SolaxClientFactory>();
-            serviceCollection.AddHttpClient(configuration);
             serviceCollection.AddModbusClient(configuration);
-            serviceCollection.AddSingleton<ISolaxProcessorService, SolaxProcessorService>();
+            serviceCollection.AddSingleton<ISolaxControllerService, SolaxControllerService>();
 
             return serviceCollection;
-        }
-
-        private static void AddHttpClient(this IServiceCollection serviceCollection, IConfiguration configuration)
-        {
-            serviceCollection.Configure<SolaxHttpOptions>(configuration.GetSection(nameof(SolaxHttpOptions)));
-            serviceCollection.AddSingleton<SolaxHttpClient>();
-            serviceCollection.AddSingleton<ISolaxClient>(m => m.GetRequiredService<SolaxHttpClient>());
         }
 
         private static void AddModbusClient(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.Configure<SolaxModbusOptions>(configuration.GetSection(nameof(SolaxModbusOptions)));
-            serviceCollection.AddSingleton<SolaxModbusClient>();
-            serviceCollection.AddSingleton<ISolaxClient>(m => m.GetRequiredService<SolaxModbusClient>());
+            serviceCollection.AddSingleton<ISolaxModbusClient, SolaxModbusClient>();
         }
     }
 }
