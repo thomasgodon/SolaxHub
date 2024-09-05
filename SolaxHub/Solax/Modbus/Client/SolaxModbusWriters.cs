@@ -23,7 +23,7 @@ internal partial class SolaxModbusClient
 
     public async Task SetPowerControlAsync(bool enabled, double activePower, double reactivePower, SolaxData data, CancellationToken cancellationToken)
     {
-        if (ShouldSendPowerControl() is false && enabled)
+        if (!ShouldSendPowerControl() && enabled && !data.PowerControl)
         {
             return;
         }
@@ -46,7 +46,7 @@ internal partial class SolaxModbusClient
 
     private bool ShouldSendPowerControl()
     {
-        if (_powerControlWatch.IsRunning is false)
+        if (!_powerControlWatch.IsRunning)
         {
             _powerControlWatch.Start();
             return true;

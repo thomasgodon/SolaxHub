@@ -7,6 +7,5 @@ namespace SolaxHub.Solax.Services
         public SolaxPowerControlMode PowerControlMode { get; set; } = SolaxPowerControlMode.Disabled;
         public double PowerControlImportLimit { get; set; }
         public double PowerControlBatteryChargeLimit { get; set; }
-
     }
 }

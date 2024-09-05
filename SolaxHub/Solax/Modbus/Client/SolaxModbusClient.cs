@@ -41,15 +41,15 @@ namespace SolaxHub.Solax.Modbus.Client
             await Task.Run(async () =>
             {
                 // Keep this task alive until it is cancelled
-                while (cancellationToken.IsCancellationRequested is false)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (_modbusClient.IsConnected is false)
+                    if (!_modbusClient.IsConnected)
                     {
                         _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
                         if (_modbusClient.IsConnected)
                         {
-                            _logger.LogInformation("Connected to {host} at port: {port}", endPoint.Address, endPoint.Port);
+                            _logger.LogInformation("Connected to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
                         }
                         else
                         {
