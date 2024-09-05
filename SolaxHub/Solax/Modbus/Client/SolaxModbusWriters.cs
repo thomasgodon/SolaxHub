@@ -23,7 +23,7 @@ internal partial class SolaxModbusClient
 
     public async Task SetPowerControlAsync(bool enabled, double activePower, double reactivePower, SolaxData data, CancellationToken cancellationToken)
     {
-        if (!ShouldSendPowerControl() && enabled && !data.PowerControl)
+        if (!ShouldSendPowerControl() || !enabled)
         {
             return;
         }
@@ -40,7 +40,7 @@ internal partial class SolaxModbusClient
             .Concat(dataSetActivePower)
             .Concat(dataSetReactivePower)
             .ToArray();
-        _logger.LogTrace(BitConverter.ToString(dataSet));
+        _logger.LogInformation(BitConverter.ToString(dataSet));
         await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, dataSet, cancellationToken);
     }
 
