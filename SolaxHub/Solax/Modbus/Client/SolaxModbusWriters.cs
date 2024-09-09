@@ -21,29 +21,17 @@ internal partial class SolaxModbusClient
         await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)lockState)), cancellationToken);
     }
 
-    public async Task SetPowerControlAsync(bool enabled, double activePower, double reactivePower, SolaxData data, CancellationToken cancellationToken)
+    public async Task SetPowerControlAsync(SolaxPowerControlMode mode, byte[] data, CancellationToken cancellationToken)
     {
-        if (!ShouldSendPowerControl() || !enabled)
+        if (!ShouldSendPowerControl() || mode == SolaxPowerControlMode.Disabled)
         {
             return;
         }
 
-        activePower = 1000;
-
         const ushort registerAddress = 0x7C;
-
-        var dataSetType = BitConverter.GetBytes(Convert.ToUInt16(0)).Reverse();
-        var dataSetEnabled = BitConverter.GetBytes(Convert.ToUInt16(enabled ? 16 : 0)).Reverse();
-        var dataSetActivePower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(activePower))).Reverse();
-        var dataSetReactivePower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(reactivePower))).Reverse();
-        var dataSetTimeout = BitConverter.GetBytes(Convert.ToUInt16(20)).Reverse();
-
-        var dataSet = dataSetEnabled
-            .Concat(dataSetActivePower)
-            .Concat(dataSetReactivePower)
-            .ToArray();
-        _logger.LogInformation(BitConverter.ToString(dataSet));
-        await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, dataSet, cancellationToken);
+        
+        _logger.LogTrace(BitConverter.ToString(data));
+        await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, data, cancellationToken);
     }
 
     private bool ShouldSendPowerControl()
@@ -61,18 +49,5 @@ internal partial class SolaxModbusClient
 
         _powerControlWatch.Restart();
         return true;
-
-    }
-
-    private static byte[] ReverseBits(byte[] data)
-    {
-        if (data.Length != 4)
-        {
-            return data;
-        }
-        var reversed = new byte[data.Length];
-        Buffer.BlockCopy(data, 0, reversed, 2, 2);
-        Buffer.BlockCopy(data, 2, reversed, 0, 2);
-        return reversed;
     }
 }
