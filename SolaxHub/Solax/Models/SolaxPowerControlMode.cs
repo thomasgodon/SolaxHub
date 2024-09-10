@@ -3,8 +3,12 @@
     internal enum SolaxPowerControlMode
     {
         Disabled = 0,
-        EnabledGridControl = 1,
-        EnabledBatteryControl = 2,
-        EnabledNoDischarge = 3
+        PowerControlMode = 1,
+        ElectricQuantityTargetControlMode = 2,
+        SocTargetControlMode = 3,
+        PushPowerPositiveNegativeMode = 4,
+        PushPowerZeroMode = 5,
+        SelfConsumeChargeDischargeMode = 6,
+        SelfConsumeChargeOnlyMode = 7
     }
 }

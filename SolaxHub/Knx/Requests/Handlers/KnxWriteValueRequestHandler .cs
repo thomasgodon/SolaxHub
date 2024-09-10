@@ -26,7 +26,7 @@ namespace SolaxHub.Knx.Requests.Handlers
 
         public async Task Handle(KnxWriteValueRequest request, CancellationToken cancellationToken)
         {
-            if (_writeGroupAddressCapabilityMapping.TryGetValue(request.GroupAddress, out var capability) is false)
+            if (!_writeGroupAddressCapabilityMapping.TryGetValue(request.GroupAddress, out var capability))
             {
                 return;
             }
@@ -37,7 +37,7 @@ namespace SolaxHub.Knx.Requests.Handlers
             }
             catch (Exception e)
             {
-                _logger.LogError("{message}", e.Message);
+                _logger.LogError(e, "{Message}", e.Message);
             }
         }
 
@@ -64,7 +64,7 @@ namespace SolaxHub.Knx.Requests.Handlers
                     break;
 
                 default:
-                    _logger.LogWarning("Writing parameter '{parameter}' not implemented", capability);
+                    _logger.LogWarning("Writing parameter '{Parameter}' not implemented", capability);
                     break;
             }
 

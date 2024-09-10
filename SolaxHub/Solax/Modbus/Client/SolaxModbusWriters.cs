@@ -21,32 +21,22 @@ internal partial class SolaxModbusClient
         await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)lockState)), cancellationToken);
     }
 
-    public async Task SetPowerControlAsync(bool enabled, double activePower, double reactivePower, SolaxData data, CancellationToken cancellationToken)
+    public async Task SetPowerControlAsync(SolaxPowerControlMode mode, byte[] data, CancellationToken cancellationToken)
     {
-        if (ShouldSendPowerControl() is false && enabled)
+        if (!ShouldSendPowerControl() || mode == SolaxPowerControlMode.Disabled)
         {
             return;
         }
 
         const ushort registerAddress = 0x7C;
-
-        var dataSetEnabled = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(Convert.ToInt16(enabled)));
-        var dataSetType = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(Convert.ToUInt16(1)));
-        var dataSetActivePower = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((int)activePower));
-        var dataSetReactivePower = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((int)reactivePower));
-        var dataSetTimeout = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(Convert.ToUInt16(20)));
-
-        var dataSet = dataSetEnabled
-            .Concat(dataSetActivePower)
-            .Concat(dataSetReactivePower)
-            .ToArray();
-        _logger.LogTrace(BitConverter.ToString(dataSet));
-        await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, dataSet, cancellationToken);
+        
+        _logger.LogTrace(BitConverter.ToString(data));
+        await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, data, cancellationToken);
     }
 
     private bool ShouldSendPowerControl()
     {
-        if (_powerControlWatch.IsRunning is false)
+        if (!_powerControlWatch.IsRunning)
         {
             _powerControlWatch.Start();
             return true;
@@ -59,6 +49,5 @@ internal partial class SolaxModbusClient
 
         _powerControlWatch.Restart();
         return true;
-
     }
 }

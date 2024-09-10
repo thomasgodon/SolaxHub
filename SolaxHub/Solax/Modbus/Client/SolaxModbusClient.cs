@@ -41,15 +41,15 @@ namespace SolaxHub.Solax.Modbus.Client
             await Task.Run(async () =>
             {
                 // Keep this task alive until it is cancelled
-                while (cancellationToken.IsCancellationRequested is false)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (_modbusClient.IsConnected is false)
+                    if (!_modbusClient.IsConnected)
                     {
                         _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
 
                         if (_modbusClient.IsConnected)
                         {
-                            _logger.LogInformation("Connected to {host} at port: {port}", endPoint.Address, endPoint.Port);
+                            _logger.LogInformation("Connected to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
                         }
                         else
                         {
@@ -73,11 +73,13 @@ namespace SolaxHub.Solax.Modbus.Client
 
                     try
                     {
+                        // get latest read values
                         _lastReceivedData = await GetSolaxModbusData(cancellationToken);
                         _logger.LogTrace("{Message}", JsonSerializer.Serialize(_lastReceivedData));
 
-                        // calculate & set remote control power control
-                        await CalculateRemotePowerControlAsync(_lastReceivedData, cancellationToken);
+                        // calculate & set power control mode
+                        var powerControlCalculation = await _sender.Send(new CalculatePowerControlRequest(_lastReceivedData), cancellationToken);
+                        await SetPowerControlAsync(powerControlCalculation.Mode, powerControlCalculation.Data, cancellationToken);
 
                         // notify new solax data has arrived
                         await _publisher.Publish(new SolaxDataArrivedNotification(_lastReceivedData), cancellationToken);
@@ -106,17 +108,6 @@ namespace SolaxHub.Solax.Modbus.Client
 
             parsedIp = hostEntry.AddressList[0].MapToIPv4();
             return new IPEndPoint(parsedIp, _solaxModbusOptions.Port);
-        }
-
-        private async Task CalculateRemotePowerControlAsync(SolaxData solaxData, CancellationToken cancellationToken)
-        {
-            var remotePowerControlValue = await _sender.Send(new CalculatePowerControlRequest(solaxData), cancellationToken);
-            await SetPowerControlAsync(
-                remotePowerControlValue.ModbusPowerControl,
-                remotePowerControlValue.RemoteControlActivePower, 
-                remotePowerControlValue.RemoteControlReactivePower,
-                solaxData,
-                cancellationToken);
         }
     }
 }
