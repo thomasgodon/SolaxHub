@@ -23,7 +23,7 @@ namespace SolaxHub.Solax.Requests.Handlers
             => _solaxControllerService.PowerControlMode switch
             {
                 SolaxPowerControlMode.PowerControlMode => Task.FromResult(CalculatePowerControlMode(request.SolaxData)),
-                SolaxPowerControlMode.ElectricQuantityTargetControlMode => Task.FromResult(CalculateElectricQuantityTargetControlMode(request.SolaxData)),
+                SolaxPowerControlMode.PushPowerPositiveNegativeMode => Task.FromResult(CalculatePushPowerPositiveNegativeMode()),
 
                 _ => Task.FromResult(SolaxPowerControlCalculation.Disabled())
             };
@@ -66,20 +66,25 @@ namespace SolaxHub.Solax.Requests.Handlers
         }
 
         /// <summary>
-        /// This mode controls the AC port of the inverter to input/output a certain amount of electric energy with a certain power. In this mode the PV runs at the highest possible power and the system can feed/take power to/from the grid.
+        /// This mode directly controls the battery charging/discharging power, the PV power is as high as possible and the system can feed/take power to/from the grid.
         /// </summary>
-        /// <param name="data"></param>
         /// <returns></returns>
-        private SolaxPowerControlCalculation CalculateElectricQuantityTargetControlMode(SolaxData data)
+        private SolaxPowerControlCalculation CalculatePushPowerPositiveNegativeMode()
         {
-            // This mode controls the AC port of the inverter to input/output a certain amount of electric energy with a certain power.
-            // In this mode the PV runs at the highest possible power and the system can feed/take power to/from the grid.
+            // The positive and negative values of the data in this model are defined as: positive means battery discharge, negative means battery charge.
 
-            // if the energy target value (0x0084 & 0x0085) is not updated within the set time (0x0088) after completing the commands,
-            // then this mode exits. When the energy target value is not reached, the mode runs until the next command is entered.
+            var pushPowerValue = _solaxControllerService.PowerControlBatteryChargeLimit > 0
+                ? _solaxControllerService.PowerControlBatteryChargeLimit
+                : 0;
 
+            var mode = BitConverter.GetBytes(Convert.ToUInt16(SolaxPowerControlMode.PushPowerPositiveNegativeMode)).Reverse();
+            var pushPower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(pushPowerValue))).Reverse();
 
-            return new SolaxPowerControlCalculation(SolaxPowerControlMode.ElectricQuantityTargetControlMode, [0, 0]);
+            var dataset = mode
+                .Concat(pushPower)
+                .ToArray();
+
+            return new SolaxPowerControlCalculation(SolaxPowerControlMode.PushPowerPositiveNegativeMode, dataset);
         }
 
         private static byte[] ReverseBits(byte[] data)
