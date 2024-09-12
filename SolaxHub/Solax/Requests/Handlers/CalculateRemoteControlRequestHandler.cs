@@ -9,13 +9,16 @@ namespace SolaxHub.Solax.Requests.Handlers
     internal class CalculateRemoteControlRequestHandler : IRequestHandler<CalculateRemoteControlRequest, SolaxPowerControlCalculation>
     {
         private readonly ISolaxControllerService _solaxControllerService;
+        private readonly ILogger<CalculateRemoteControlRequestHandler> _logger;
         private readonly SolaxModbusOptions _solaxModbusOptions;
 
         public CalculateRemoteControlRequestHandler(
             ISolaxControllerService solaxControllerService,
-            IOptions<SolaxModbusOptions> solaxModbusOptions)
+            IOptions<SolaxModbusOptions> solaxModbusOptions,
+            ILogger<CalculateRemoteControlRequestHandler> logger)
         {
             _solaxControllerService = solaxControllerService;
+            _logger = logger;
             _solaxModbusOptions = solaxModbusOptions.Value;
         }
 
@@ -54,6 +57,8 @@ namespace SolaxHub.Solax.Requests.Handlers
             var timeOfDuration = BitConverter.GetBytes(Convert.ToUInt16(_solaxModbusOptions.PollInterval.TotalSeconds + 3)).Reverse();
             var timeOut = BitConverter.GetBytes(Convert.ToUInt16(0)).Reverse();
 
+            _logger.LogTrace("mode: {Mode} - active power: {ActivePower} - duration: {Duration} - timeout: {Timeout}", SolaxPowerControlMode.PowerControlMode, activePowerValue, _solaxModbusOptions.PollInterval.TotalSeconds + 3, 0);
+
             var dataset = mode
                 .Concat(targetSetType)
                 .Concat(activePower)
@@ -79,6 +84,8 @@ namespace SolaxHub.Solax.Requests.Handlers
 
             var mode = BitConverter.GetBytes(Convert.ToUInt16(SolaxPowerControlMode.PushPowerPositiveNegativeMode)).Reverse();
             var pushPower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(pushPowerValue))).Reverse();
+
+            _logger.LogTrace("mode: {Mode} - push power: {PushPower}", SolaxPowerControlMode.PushPowerPositiveNegativeMode, pushPowerValue);
 
             var dataset = mode
                 .Concat(pushPower)
