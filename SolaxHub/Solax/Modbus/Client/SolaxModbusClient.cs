@@ -81,6 +81,14 @@ namespace SolaxHub.Solax.Modbus.Client
                         var powerControlCalculation = await _sender.Send(new CalculateRemoteControlRequest(_lastReceivedData), cancellationToken);
                         await SetPowerControlAsync(powerControlCalculation.Mode, powerControlCalculation.Data, cancellationToken);
 
+                        // set charger use mode
+                        var chargerUseMode = await _sender.Send(new GetChargerUseModeRequest(), cancellationToken);
+                        if (_lastReceivedData.InverterUseMode != chargerUseMode && chargerUseMode != SolaxInverterUseMode.Unknown)
+                        {
+                            // we only want to update if the use mode has changed!
+                            await SetSolarChargerUseModeAsync(chargerUseMode, cancellationToken);
+                        }
+
                         // notify new solax data has arrived
                         await _publisher.Publish(new SolaxDataArrivedNotification(_lastReceivedData), cancellationToken);
                     }

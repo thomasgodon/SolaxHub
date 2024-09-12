@@ -63,6 +63,10 @@ namespace SolaxHub.Knx.Requests.Handlers
                     _solaxControllerService.PowerControlBatteryChargeLimit = BitConverter.ToSingle(value.Reverse().ToArray());
                     break;
 
+                case "InverterUseMode":
+                    _solaxControllerService.InverterUseMode =  (SolaxInverterUseMode)value[0];
+                    break;
+
                 default:
                     _logger.LogWarning("Writing parameter '{Parameter}' not implemented", capability);
                     break;
