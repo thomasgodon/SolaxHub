@@ -3,9 +3,9 @@ using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Requests
 {
-    internal class CalculatePowerControlRequest : IRequest<SolaxPowerControlCalculation>
+    internal class CalculateRemoteControlRequest : IRequest<SolaxPowerControlCalculation>
     {
-        public CalculatePowerControlRequest(SolaxData solaxData)
+        public CalculateRemoteControlRequest(SolaxData solaxData)
         {
             SolaxData = solaxData;
         }

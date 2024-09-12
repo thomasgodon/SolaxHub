@@ -23,7 +23,7 @@ internal partial class SolaxModbusClient
 
     public async Task SetPowerControlAsync(SolaxPowerControlMode mode, byte[] data, CancellationToken cancellationToken)
     {
-        if (!ShouldSendPowerControl() || mode == SolaxPowerControlMode.Disabled)
+        if (!ShouldSendPowerControl())
         {
             return;
         }

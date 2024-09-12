@@ -12,5 +12,5 @@ internal class SolaxPowerControlCalculation
     public byte[] Data { get; }
 
     public static SolaxPowerControlCalculation Disabled()
-        => new(SolaxPowerControlMode.Disabled, [0]);
+        => new(SolaxPowerControlMode.Disabled, [0, 0]);
 }

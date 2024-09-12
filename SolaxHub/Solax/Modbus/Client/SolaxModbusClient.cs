@@ -78,7 +78,7 @@ namespace SolaxHub.Solax.Modbus.Client
                         _logger.LogTrace("{Message}", JsonSerializer.Serialize(_lastReceivedData));
 
                         // calculate & set power control mode
-                        var powerControlCalculation = await _sender.Send(new CalculatePowerControlRequest(_lastReceivedData), cancellationToken);
+                        var powerControlCalculation = await _sender.Send(new CalculateRemoteControlRequest(_lastReceivedData), cancellationToken);
                         await SetPowerControlAsync(powerControlCalculation.Mode, powerControlCalculation.Data, cancellationToken);
 
                         // notify new solax data has arrived

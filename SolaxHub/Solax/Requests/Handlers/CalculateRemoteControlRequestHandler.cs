@@ -6,12 +6,12 @@ using SolaxHub.Solax.Services;
 
 namespace SolaxHub.Solax.Requests.Handlers
 {
-    internal class CalculatePowerControlRequestHandler : IRequestHandler<CalculatePowerControlRequest, SolaxPowerControlCalculation>
+    internal class CalculateRemoteControlRequestHandler : IRequestHandler<CalculateRemoteControlRequest, SolaxPowerControlCalculation>
     {
         private readonly ISolaxControllerService _solaxControllerService;
         private readonly SolaxModbusOptions _solaxModbusOptions;
 
-        public CalculatePowerControlRequestHandler(
+        public CalculateRemoteControlRequestHandler(
             ISolaxControllerService solaxControllerService,
             IOptions<SolaxModbusOptions> solaxModbusOptions)
         {
@@ -19,7 +19,7 @@ namespace SolaxHub.Solax.Requests.Handlers
             _solaxModbusOptions = solaxModbusOptions.Value;
         }
 
-        public Task<SolaxPowerControlCalculation> Handle(CalculatePowerControlRequest request, CancellationToken cancellationToken)
+        public Task<SolaxPowerControlCalculation> Handle(CalculateRemoteControlRequest request, CancellationToken cancellationToken)
             => _solaxControllerService.PowerControlMode switch
             {
                 SolaxPowerControlMode.PowerControlMode => Task.FromResult(CalculatePowerControlMode(request.SolaxData)),
