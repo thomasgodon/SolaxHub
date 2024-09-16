@@ -46,8 +46,8 @@ namespace SolaxHub.Solax.Requests.Handlers
             // In this mode the AC port power target is positive for charging and negative for discharging
             // the battery input represents charging and the output represents discharging; the PV is always the input to the inverter.
 
-            var activePowerValue = _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.PvCurrent1) > 0
-                ? _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.PvCurrent1)
+            var activePowerValue = _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.BatteryPower - data.PvCurrent1) > 0
+                ? _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.BatteryPower - data.PvCurrent1)
                 : 0;
 
             var mode = BitConverter.GetBytes(Convert.ToUInt16(SolaxPowerControlMode.PowerControlMode)).Reverse();
