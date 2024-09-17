@@ -25,7 +25,7 @@ namespace SolaxHub.Solax.Requests.Handlers
         public Task<SolaxPowerControlCalculation> Handle(CalculateRemoteControlRequest request, CancellationToken cancellationToken)
             => _solaxControllerService.PowerControlMode switch
             {
-                SolaxPowerControlMode.PowerControlMode => Task.FromResult(CalculatePowerControlMode(request.SolaxData)),
+                SolaxPowerControlMode.PowerControlMode => Task.FromResult(CalculatePowerControlMode()),
                 SolaxPowerControlMode.PushPowerPositiveNegativeMode => Task.FromResult(CalculatePushPowerPositiveNegativeMode()),
 
                 _ => Task.FromResult(SolaxPowerControlCalculation.Disabled())
@@ -34,9 +34,8 @@ namespace SolaxHub.Solax.Requests.Handlers
         /// <summary>
         /// This mode controls the active and reactive power at the AC port of the inverter for a period of time. In this mode the PV runs at the highest possible power and the system can feed/take power to/from the grid.
         /// </summary>
-        /// <param name="data"></param>
         /// <returns></returns>
-        private SolaxPowerControlCalculation CalculatePowerControlMode(SolaxData data)
+        private SolaxPowerControlCalculation CalculatePowerControlMode()
         {
             // The exit of mode 1 based on the two limit values, “Time_of_Duration” and “RemoteCtrlTimeOut”. That is, the “Time_of_Duration” is judged first,
             // if during this period there is no new power target command, then continue to wait for the time of “RemoteCtrlTimeOut”, if “RemoteCtrlTimeOut” is satisfied,
@@ -46,18 +45,14 @@ namespace SolaxHub.Solax.Requests.Handlers
             // In this mode the AC port power target is positive for charging and negative for discharging
             // the battery input represents charging and the output represents discharging; the PV is always the input to the inverter.
 
-            var activePowerValue = _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.BatteryPower - data.PvCurrent1) > 0
-                ? _solaxControllerService.PowerControlImportLimit - (data.HouseLoad - data.BatteryPower - data.PvCurrent1)
-                : 0;
-
             var mode = BitConverter.GetBytes(Convert.ToUInt16(SolaxPowerControlMode.PowerControlMode)).Reverse();
             var targetSetType = BitConverter.GetBytes(Convert.ToUInt16(SolaxPowerControlTargetSetType.Set)).Reverse();
-            var activePower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(activePowerValue))).Reverse();
+            var activePower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(_solaxControllerService.PowerControlImportLimit))).Reverse();
             var reactivePower = ReverseBits(BitConverter.GetBytes(Convert.ToInt32(0))).Reverse();
             var timeOfDuration = BitConverter.GetBytes(Convert.ToUInt16(_solaxModbusOptions.PollInterval.TotalSeconds + 3)).Reverse();
             var timeOut = BitConverter.GetBytes(Convert.ToUInt16(0)).Reverse();
 
-            _logger.LogTrace("mode: {Mode} - active power: {ActivePower} - duration: {Duration} - timeout: {Timeout}", SolaxPowerControlMode.PowerControlMode, activePowerValue, _solaxModbusOptions.PollInterval.TotalSeconds + 3, 0);
+            _logger.LogTrace("mode: {Mode} - active power: {ActivePower} - duration: {Duration} - timeout: {Timeout}", SolaxPowerControlMode.PowerControlMode, _solaxControllerService.PowerControlImportLimit, _solaxModbusOptions.PollInterval.TotalSeconds + 3, 0);
 
             var dataset = mode
                 .Concat(targetSetType)
