@@ -89,6 +89,10 @@ namespace SolaxHub.Solax.Modbus.Client
                             //await SetSolarChargerUseModeAsync(chargerUseMode, cancellationToken);
                         }
 
+                        // set discharge limit
+                        //var dischargeMaxCurrent = await _sender.Send(new GetBatteryDischargeMaxCurrentRequest(), cancellationToken);
+                        //await SetBatteryDischargeMaxCurrent(dischargeMaxCurrent, cancellationToken);
+
                         // notify new solax data has arrived
                         await _publisher.Publish(new SolaxDataArrivedNotification(_lastReceivedData), cancellationToken);
                     }

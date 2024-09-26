@@ -34,6 +34,17 @@ internal partial class SolaxModbusClient
         await _modbusClient.WriteMultipleRegistersAsync(UnitIdentifier, registerAddress, data, cancellationToken);
     }
 
+    public async Task SetBatteryDischargeMaxCurrent(double maxCurrent, CancellationToken cancellationToken)
+    {
+        const ushort registerAddress = 0x0025;
+        
+        // Scale the double value to fit into an uint16 range
+        // Adjust the scale factor depending on the expected range
+        ushort scaledValue = (ushort)Math.Clamp(maxCurrent, 0, ushort.MaxValue); // Clamps between 0 and 65535
+
+        await _modbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, scaledValue, cancellationToken);
+    }
+
     private bool ShouldSendPowerControl()
     {
         if (!_powerControlWatch.IsRunning)

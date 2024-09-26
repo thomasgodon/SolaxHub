@@ -7,5 +7,6 @@ internal class SolaxControllerService : ISolaxControllerService
     public SolaxPowerControlMode PowerControlMode { get; set; } = SolaxPowerControlMode.Disabled;
     public double PowerControlImportLimit { get; set; }
     public double PowerControlBatteryChargeLimit { get; set; }
+    public double BatteryDischargeLimit { get; set; }
     public SolaxInverterUseMode InverterUseMode { get; set; }
 }
