@@ -35,7 +35,7 @@ namespace SolaxHub.Solax.Modbus.Client
 
         public async Task Start(CancellationToken cancellationToken)
         {
-            var endPoint = await GetEndPointAsync(cancellationToken);
+            IPEndPoint endPoint = await GetEndPointAsync(cancellationToken);
             _modbusClient.ReadTimeout = 1000;
 
             await Task.Run(async () =>
@@ -57,7 +57,7 @@ namespace SolaxHub.Solax.Modbus.Client
                         }
 
                         // unlock advanced inverter
-                        var lockState = (await GetLockStateAsync(cancellationToken)).ToSolaxLockState();
+                        SolaxLockState lockState = (await GetLockStateAsync(cancellationToken)).ToSolaxLockState();
                         if (lockState != SolaxLockState.UnlockedAdvanced)
                         {
                             _logger.LogWarning("Current lock state: '{CurrentState}. Unlocking...'", lockState);
@@ -78,11 +78,11 @@ namespace SolaxHub.Solax.Modbus.Client
                         _logger.LogTrace("{Message}", JsonSerializer.Serialize(_lastReceivedData));
 
                         // calculate & set power control mode
-                        var powerControlCalculation = await _sender.Send(new CalculateRemoteControlRequest(_lastReceivedData), cancellationToken);
+                        SolaxPowerControlCalculation powerControlCalculation = await _sender.Send(new CalculateRemoteControlRequest(_lastReceivedData), cancellationToken);
                         await SetPowerControlAsync(powerControlCalculation.Mode, powerControlCalculation.Data, cancellationToken);
 
                         // set charger use mode
-                        var chargerUseMode = await _sender.Send(new GetChargerUseModeRequest(), cancellationToken);
+                        SolaxInverterUseMode chargerUseMode = await _sender.Send(new GetChargerUseModeRequest(), cancellationToken);
                         if (_lastReceivedData.InverterUseMode != chargerUseMode && chargerUseMode != SolaxInverterUseMode.Unknown)
                         {
                             // we only want to update if the use mode has changed!
@@ -106,12 +106,12 @@ namespace SolaxHub.Solax.Modbus.Client
 
         private async Task<IPEndPoint> GetEndPointAsync(CancellationToken cancellationToken)
         {
-            if (IPAddress.TryParse(_solaxModbusOptions.Host, out var parsedIp))
+            if (IPAddress.TryParse(_solaxModbusOptions.Host, out IPAddress? parsedIp))
             {
                 return new IPEndPoint(parsedIp, _solaxModbusOptions.Port);
             }
 
-            var hostEntry = await Dns.GetHostEntryAsync(_solaxModbusOptions.Host, cancellationToken);
+            IPHostEntry hostEntry = await Dns.GetHostEntryAsync(_solaxModbusOptions.Host, cancellationToken);
 
             if (hostEntry.AddressList.Length == 0)
             {
