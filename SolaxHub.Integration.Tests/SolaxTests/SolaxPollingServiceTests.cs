@@ -69,7 +69,10 @@ public class SolaxPollingServiceTests : SolaxBaseTests
 
         Mock<IKnxClient> knxClientMock = Fixture.ConfigureMock<IKnxClient>(
             m => m.Setup(d => d.SendValuesAsync(
-                It.IsAny<IEnumerable<KnxValue>>(),
+                It.Is<IEnumerable<KnxValue>>(s => s.Any(x => 
+                    x.Value != null && 
+                    x.Address.Address == 2057 &&
+                    x.Value.SequenceEqual(new byte[]{ 101 }))),
                 It.IsAny<CancellationToken>())));
 
         // Act
