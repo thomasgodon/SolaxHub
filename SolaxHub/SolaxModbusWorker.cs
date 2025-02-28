@@ -8,12 +8,12 @@ namespace SolaxHub;
 internal class SolaxModbusWorker : BackgroundService
 {
     private readonly ISolaxModbusClient _solaxModbusClient;
-    private readonly ISolaxControllerService _solaxControllerService;
+    private readonly ISolaxPollingService _solaxControllerService;
     private readonly SolaxModbusOptions _solaxModbusOptions;
 
     public SolaxModbusWorker(
         ISolaxModbusClient solaxModbusClient,
-        ISolaxControllerService solaxControllerService,
+        ISolaxPollingService solaxControllerService,
         IOptions<SolaxModbusOptions> solaxModbusOptions)
     {
         _solaxModbusClient = solaxModbusClient;

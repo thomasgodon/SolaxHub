@@ -11,13 +11,13 @@ namespace SolaxHub.Knx.Requests.Handlers;
 internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueRequest>
 {
     private readonly ILogger<KnxWriteValueRequestHandler> _logger;
-    private readonly ISolaxControllerService _solaxControllerService;
+    private readonly ISolaxPollingService _solaxControllerService;
     private readonly Dictionary<GroupAddress, string> _writeGroupAddressCapabilityMapping;
 
     public KnxWriteValueRequestHandler(
         IOptions<KnxOptions> options,
         ILogger<KnxWriteValueRequestHandler> logger,
-        ISolaxControllerService solaxControllerService)
+        ISolaxPollingService solaxControllerService)
     {
         _logger = logger;
         _solaxControllerService = solaxControllerService;

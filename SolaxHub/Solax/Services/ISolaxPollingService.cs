@@ -1,6 +1,6 @@
 ﻿namespace SolaxHub.Solax.Services;
 
-public interface ISolaxControllerService
+public interface ISolaxPollingService
 {
     Task ProcessAsync(CancellationToken cancellationToken);
 }

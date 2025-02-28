@@ -10,7 +10,7 @@ internal static class ServiceCollectionExtensions
     public static IServiceCollection AddSolaxClients(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         serviceCollection.AddModbusClient(configuration);
-        serviceCollection.AddSingleton<ISolaxControllerService, SolaxControllerService>();
+        serviceCollection.AddSingleton<ISolaxPollingService, SolaxPollingService>();
 
         return serviceCollection;
     }

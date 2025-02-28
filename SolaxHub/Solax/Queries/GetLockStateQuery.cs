@@ -1,7 +1,8 @@
 using MediatR;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Queries;
 
-public class GetLockStateQuery : IRequest<ushort>
+public class GetLockStateQuery : IRequest<SolaxLockState>
 {
 }
