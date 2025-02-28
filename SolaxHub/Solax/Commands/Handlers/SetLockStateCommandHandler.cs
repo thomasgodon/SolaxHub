@@ -1,5 +1,6 @@
 using MediatR;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Registers;
 using System.Buffers.Binary;
 
 namespace SolaxHub.Solax.Commands.Handlers;
@@ -15,8 +16,8 @@ public class SetLockStateCommandHandler : IRequestHandler<SetLockStateCommand>
 
     public async Task Handle(SetLockStateCommand request, CancellationToken cancellationToken)
     {
-        const ushort registerAddress = 0x54;
-        await _solaxModbusClient.WriteSingleRegisterAsync(registerAddress, BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)request.LockState)), cancellationToken);
+        byte[] value = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)request.LockState));
+        await _solaxModbusClient.WriteSingleRegisterAsync(WriteSingleRegisters.UnlockPassword, value, cancellationToken);
     }
 }
 

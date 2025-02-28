@@ -16,7 +16,7 @@ public class GetBatteryPowerQueryHandler : IRequestHandler<GetBatteryPowerQuery,
     {
         const ushort startingAddress = 22;
         const ushort count = 1;
-        var data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
         return data.ToArray()[0];
     }
 }
