@@ -2,6 +2,7 @@ using Moq;
 using SolaxHub.Integration.Tests.Fixtures;
 using SolaxHub.Integration.Tests.SolaxTests.Base;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Registers;
 using Xunit;
 
 namespace SolaxHub.Integration.Tests.SolaxTests;
@@ -20,7 +21,7 @@ public class SolaxPollingServiceTests : SolaxBaseTests
             m =>
             {
                 m.Setup(d => d.ReadInputRegistersAsync(
-                        It.Is<ushort>(s => s == 0x54),
+                        It.Is<ushort>(s => s == ReadInputRegisters.LockState),
                         It.Is<ushort>(s => s == 1),
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new Memory<byte>([0, 2]));
