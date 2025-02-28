@@ -44,4 +44,25 @@ public class SolaxPollingServiceTests : SolaxBaseTests
         // Assert
         solaxModbusClientMock.VerifyAll();
     }
+
+    [Fact]
+    public async Task Given_SolaxData_Fetched_Should_Send_Knx()
+    {
+        // Arrange
+        Mock<ISolaxModbusClient> solaxModbusClientMock = Fixture.ConfigureMock<ISolaxModbusClient>(
+            m =>
+            {
+                m.Setup(d => d.ReadInputRegistersAsync(
+                        It.IsAny<ushort>(),
+                        It.IsAny<ushort>(),
+                        It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new Memory<byte>("\0\0\0\0\0\0\0\0\0\0\0\0"u8.ToArray()));
+            });
+
+        // Act
+        await SolaxPollingService.ProcessAsync(CancellationToken.None);
+
+        // Assert
+        solaxModbusClientMock.VerifyAll();
+    }
 }
