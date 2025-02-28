@@ -1,5 +1,6 @@
 using MediatR;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Registers;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
@@ -14,9 +15,8 @@ public class GetBatteryPowerQueryHandler : IRequestHandler<GetBatteryPowerQuery,
 
     public async Task<short> Handle(GetBatteryPowerQuery request, CancellationToken cancellationToken)
     {
-        const ushort startingAddress = 22;
-        const ushort count = 1;
-        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
+        const ushort quantity = 1;
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.BatPowerCharge1, quantity, cancellationToken);
         return data.ToArray()[0];
     }
 }
