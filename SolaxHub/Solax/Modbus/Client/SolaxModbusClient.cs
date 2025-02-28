@@ -52,8 +52,8 @@ internal class SolaxModbusClient : ISolaxModbusClient
     public async Task<Memory<byte>> ReadInputRegistersAsync(ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
         => await _modbusClient.ReadInputRegistersAsync(_solaxModbusOptions.UnitIdentifier, startingAddress, quantity, cancellationToken);
 
-    public async Task WriteSingleRegisterAsync(int registerAddress, byte[] value, CancellationToken cancellationToken)
-        => await _modbusClient.WriteSingleRegisterAsync(_solaxModbusOptions.UnitIdentifier, registerAddress, BitConverter.ToInt16(value), cancellationToken);
+    public async Task WriteSingleRegisterAsync(ushort startingAddress, byte[] value, CancellationToken cancellationToken)
+        => await _modbusClient.WriteSingleRegisterAsync(_solaxModbusOptions.UnitIdentifier, startingAddress, BitConverter.ToInt16(value), cancellationToken);
 
     public async Task WriteMultipleRegistersAsync(ushort startingAddress, byte[] value, CancellationToken cancellationToken)
         => await _modbusClient.WriteMultipleRegistersAsync(_solaxModbusOptions.UnitIdentifier, startingAddress, value, cancellationToken);
