@@ -114,14 +114,6 @@ internal class SolaxControllerService : ISolaxControllerService
 
     #region Read Methods
 
-    private async Task<string> GetRegistrationCodePocketAsync(CancellationToken cancellationToken)
-    {
-        const ushort startingAddress = 170;
-        const ushort count = 5;
-        var data = await _solaxModbusClient.ReadHoldingRegistersAsync(UnitIdentifier, startingAddress, count, cancellationToken);
-        return Encoding.ASCII.GetString(data.ToArray());
-    }
-
     private async Task<ushort> GetInverterVoltageAsync(CancellationToken cancellationToken)
     {
         const ushort startingAddress = 0;
