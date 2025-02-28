@@ -113,13 +113,6 @@ internal class SolaxControllerService : ISolaxControllerService
     #endregion
 
     #region Read Methods
-    private async Task<string> GetSerialNumberAsync(CancellationToken cancellationToken)
-    {
-        const ushort startingAddress = 0;
-        const ushort count = 7;
-        var data = await _solaxModbusClient.ReadHoldingRegistersAsync(UnitIdentifier, startingAddress, count, cancellationToken);
-        return Encoding.ASCII.GetString(data.ToArray());
-    }
 
     private async Task<string> GetRegistrationCodePocketAsync(CancellationToken cancellationToken)
     {
