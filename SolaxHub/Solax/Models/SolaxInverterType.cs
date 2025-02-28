@@ -1,6 +1,6 @@
 ﻿namespace SolaxHub.Solax.Models;
 
-internal enum SolaxInverterType
+public enum SolaxInverterType
 {
     Unknown = 0,
     X1LX = 1,

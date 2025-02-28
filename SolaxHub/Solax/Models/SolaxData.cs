@@ -2,7 +2,7 @@
 
 namespace SolaxHub.Solax.Models;
 
-internal class SolaxData
+public class SolaxData
 {
     public string InverterSerialNumber { get; init; } = default!;
     public SolaxInverterType InverterType => InverterSerialNumber.ToSolaxInverterType();

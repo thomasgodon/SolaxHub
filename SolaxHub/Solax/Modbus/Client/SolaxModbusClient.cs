@@ -46,17 +46,17 @@ internal partial class SolaxModbusClient : ISolaxModbusClient
         }
     }
 
-    public async Task<Memory<byte>> ReadHoldingRegistersAsync(byte unitIdentifier, ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
-        => await _modbusClient.ReadHoldingRegistersAsync(unitIdentifier, startingAddress, quantity, cancellationToken);
+    public async Task<Memory<byte>> ReadHoldingRegistersAsync(ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
+        => await _modbusClient.ReadHoldingRegistersAsync(_solaxModbusOptions.UnitIdentifier, startingAddress, quantity, cancellationToken);
 
-    public async Task<Memory<byte>> ReadInputRegistersAsync(byte unitIdentifier, ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
-        => await _modbusClient.ReadInputRegistersAsync(unitIdentifier, startingAddress, quantity, cancellationToken);
+    public async Task<Memory<byte>> ReadInputRegistersAsync(ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
+        => await _modbusClient.ReadInputRegistersAsync(_solaxModbusOptions.UnitIdentifier, startingAddress, quantity, cancellationToken);
 
-    public async Task WriteSingleRegisterAsync(int unitIdentifier, int registerAddress, ushort value, CancellationToken cancellationToken)
-        => await _modbusClient.WriteSingleRegisterAsync(unitIdentifier, registerAddress, value, cancellationToken);
+    public async Task WriteSingleRegisterAsync(int registerAddress, byte[] value, CancellationToken cancellationToken)
+        => await _modbusClient.WriteSingleRegisterAsync(_solaxModbusOptions.UnitIdentifier, registerAddress, BitConverter.ToInt16(value), cancellationToken);
 
-    public async Task WriteMultipleRegistersAsync(byte unitIdentifier, ushort startingAddress, byte[] dataset, CancellationToken cancellationToken)
-        => await _modbusClient.WriteMultipleRegistersAsync(unitIdentifier, startingAddress, dataset, cancellationToken);
+    public async Task WriteMultipleRegistersAsync(ushort startingAddress, byte[] value, CancellationToken cancellationToken)
+        => await _modbusClient.WriteMultipleRegistersAsync(_solaxModbusOptions.UnitIdentifier, startingAddress, value, cancellationToken);
 
     private async Task<IPEndPoint> GetEndPointAsync(CancellationToken cancellationToken)
     {

@@ -1,6 +1,6 @@
 ﻿namespace SolaxHub.Solax.Models;
 
-internal enum SolaxInverterStatus
+public enum SolaxInverterStatus
 {
     WaitMode = 100,
     CheckMode = 101,

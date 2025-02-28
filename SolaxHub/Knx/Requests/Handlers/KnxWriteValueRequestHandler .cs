@@ -51,21 +51,21 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
     {
         switch (capability)
         {
-            case "RemoteControlMode": 
-                _solaxControllerService.PowerControlMode = (SolaxPowerControlMode)value[0];
-                break;
+            //case "RemoteControlMode": 
+            //    _solaxControllerService.PowerControlMode = (SolaxPowerControlMode)value[0];
+            //    break;
 
-            case "ImportLimit":
-                _solaxControllerService.PowerControlImportLimit = BitConverter.ToSingle(value.Reverse().ToArray());
-                break;
+            //case "ImportLimit":
+            //    _solaxControllerService.PowerControlImportLimit = BitConverter.ToSingle(value.Reverse().ToArray());
+            //    break;
 
-            case "BatteryChargeLimit":
-                _solaxControllerService.PowerControlBatteryChargeLimit = BitConverter.ToSingle(value.Reverse().ToArray());
-                break;
+            //case "BatteryChargeLimit":
+            //    _solaxControllerService.PowerControlBatteryChargeLimit = BitConverter.ToSingle(value.Reverse().ToArray());
+            //    break;
 
-            case "InverterUseMode":
-                _solaxControllerService.InverterUseMode =  (SolaxInverterUseMode)value[0];
-                break;
+            //case "InverterUseMode":
+            //    _solaxControllerService.InverterUseMode =  (SolaxInverterUseMode)value[0];
+            //    break;
 
             default:
                 _logger.LogWarning("Writing parameter '{Parameter}' not implemented", capability);
