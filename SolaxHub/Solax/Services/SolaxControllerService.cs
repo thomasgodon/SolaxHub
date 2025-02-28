@@ -54,7 +54,7 @@ internal class SolaxControllerService : ISolaxControllerService
 
     private async Task SetLockStateAsync(SolaxLockState lockState, CancellationToken cancellationToken)
     {
-        const ushort registerAddress = 0x0000;
+        
         await _solaxModbusClient.WriteSingleRegisterAsync(UnitIdentifier, registerAddress, BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)lockState)), cancellationToken);
     }
 

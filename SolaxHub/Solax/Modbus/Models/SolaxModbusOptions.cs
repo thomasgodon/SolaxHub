@@ -5,4 +5,5 @@ public class SolaxModbusOptions
     public required string Host { get; init; }
     public required int Port { get; init; }
     public TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(1);
+    public required ushort Unit { get; init; }
 }
