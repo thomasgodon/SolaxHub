@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using SolaxHub.Solax.Requests.Commands;
+using SolaxHub.Solax.Commands;
 using SolaxHub.Solax.Services;
 
-namespace SolaxHub.Solax.Requests.Commands.Handlers;
+namespace SolaxHub.Solax.Commands.Handlers;
 
 internal class GetBatteryDischargeMaxCurrentRequestHandler : IRequestHandler<GetBatteryDischargeMaxCurrentRequest, double>
 {
