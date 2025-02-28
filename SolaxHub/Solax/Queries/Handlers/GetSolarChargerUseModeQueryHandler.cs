@@ -1,6 +1,7 @@
 using MediatR;
 using SolaxHub.Solax.Modbus.Client;
 using SolaxHub.Solax.Models;
+using SolaxHub.Solax.Registers;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
@@ -15,9 +16,8 @@ public class GetSolarChargerUseModeQueryHandler : IRequestHandler<GetSolarCharge
 
     public async Task<SolaxInverterUseMode> Handle(GetSolarChargerUseModeQuery request, CancellationToken cancellationToken)
     {
-        const ushort startingAddress = 0x008B;
-        const ushort count = 1;
-        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
+        const ushort quantity = 1;
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.SolarChargerUseMode, quantity, cancellationToken);
         return SolaxInverterUseMode.SelfUseMode; //data.ToArray()[0];
     }
 }

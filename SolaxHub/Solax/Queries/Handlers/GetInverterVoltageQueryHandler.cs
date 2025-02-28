@@ -1,5 +1,6 @@
 using MediatR;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Registers;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
@@ -14,9 +15,8 @@ public class GetInverterVoltageQueryHandler : IRequestHandler<GetInverterVoltage
 
     public async Task<ushort> Handle(GetInverterVoltageQuery request, CancellationToken cancellationToken)
     {
-        const ushort startingAddress = 0;
-        const ushort count = 1;
-        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
+        const ushort quantity = 1;
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.GridVoltage, quantity, cancellationToken);
         return data.ToArray()[0];
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Registers;
 using System.Text;
 
 namespace SolaxHub.Solax.Queries.Handlers;
@@ -15,9 +16,8 @@ internal class GetRegistrationCodePocketQueryHandler : IRequestHandler<GetRegist
 
     public async Task<string> Handle(GetRegistrationCodePocketQuery request, CancellationToken cancellationToken)
     {
-        const ushort startingAddress = 170;
-        const ushort count = 5;
-        Memory<byte> data = await _solaxModbusClient.ReadHoldingRegistersAsync(startingAddress, count, cancellationToken);
+        const ushort quantity = 5;
+        Memory<byte> data = await _solaxModbusClient.ReadHoldingRegistersAsync(ReadInputRegisters.RegistrationCodeLan, quantity, cancellationToken);
         return Encoding.ASCII.GetString(data.ToArray());
     }
 }
