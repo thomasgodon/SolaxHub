@@ -16,7 +16,7 @@ public class GetFeedInEnergyQueryHandler : IRequestHandler<GetFeedInEnergyQuery,
     public async Task<double> Handle(GetFeedInEnergyQuery request, CancellationToken cancellationToken)
     {
         const ushort quantity = 2;
-        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.FeedInPower, quantity, cancellationToken);
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.FeedInEnergy, quantity, cancellationToken);
         return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.01, 2);
     }
 }
