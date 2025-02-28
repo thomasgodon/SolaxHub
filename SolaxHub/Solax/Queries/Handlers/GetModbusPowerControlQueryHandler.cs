@@ -1,16 +1,23 @@
+using MediatR;
+using SolaxHub.Solax.Services;
+
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetModbusPowerControlQueryHandler : IRequestHandler<GetModbusPowerControlQuery, int>
 {
-    private readonly ISolaxControllerService _solaxControllerService;
+    private readonly ISolaxModbusClient _solaxModbusClient;
+    private const byte UnitIdentifier = 0x00;
 
-    public GetModbusPowerControlQueryHandler(ISolaxControllerService solaxControllerService)
+    public GetModbusPowerControlQueryHandler(ISolaxModbusClient solaxModbusClient)
     {
-        _solaxControllerService = solaxControllerService;
+        _solaxModbusClient = solaxModbusClient;
     }
 
     public async Task<int> Handle(GetModbusPowerControlQuery request, CancellationToken cancellationToken)
     {
-        return await _solaxControllerService.GetModbusPowerControlAsync(cancellationToken);
+        const ushort startingAddress = 0x0100;
+        const ushort count = 1;
+        var data = await _solaxModbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        return data.ToArray()[0];
     }
 }

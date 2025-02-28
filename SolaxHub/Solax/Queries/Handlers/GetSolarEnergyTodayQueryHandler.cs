@@ -1,16 +1,23 @@
+using MediatR;
+using SolaxHub.Solax.Services;
+
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetSolarEnergyTodayQueryHandler : IRequestHandler<GetSolarEnergyTodayQuery, double>
 {
-    private readonly ISolaxControllerService _solaxControllerService;
+    private readonly ISolaxModbusClient _solaxModbusClient;
+    private const byte UnitIdentifier = 0x00;
 
-    public GetSolarEnergyTodayQueryHandler(ISolaxControllerService solaxControllerService)
+    public GetSolarEnergyTodayQueryHandler(ISolaxModbusClient solaxModbusClient)
     {
-        _solaxControllerService = solaxControllerService;
+        _solaxModbusClient = solaxModbusClient;
     }
 
     public async Task<double> Handle(GetSolarEnergyTodayQuery request, CancellationToken cancellationToken)
     {
-        return await _solaxControllerService.GetSolarEnergyTodayAsync(cancellationToken);
+        const ushort startingAddress = 0x96;
+        const ushort count = 1;
+        var data = await _solaxModbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        return Math.Round(data.ToArray()[0] * 0.1, 2);
     }
 }

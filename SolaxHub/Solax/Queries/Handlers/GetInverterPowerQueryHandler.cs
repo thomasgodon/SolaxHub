@@ -1,16 +1,23 @@
+using MediatR;
+using SolaxHub.Solax.Services;
+
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetInverterPowerQueryHandler : IRequestHandler<GetInverterPowerQuery, short>
 {
-    private readonly ISolaxControllerService _solaxControllerService;
+    private readonly ISolaxModbusClient _solaxModbusClient;
+    private const byte UnitIdentifier = 0x00;
 
-    public GetInverterPowerQueryHandler(ISolaxControllerService solaxControllerService)
+    public GetInverterPowerQueryHandler(ISolaxModbusClient solaxModbusClient)
     {
-        _solaxControllerService = solaxControllerService;
+        _solaxModbusClient = solaxModbusClient;
     }
 
     public async Task<short> Handle(GetInverterPowerQuery request, CancellationToken cancellationToken)
     {
-        return await _solaxControllerService.GetInverterPowerAsync(cancellationToken);
+        const ushort startingAddress = 2;
+        const ushort count = 1;
+        var data = await _solaxModbusClient.ReadInputRegistersAsync<short>(UnitIdentifier, startingAddress, count, cancellationToken);
+        return data.ToArray()[0];
     }
 }
