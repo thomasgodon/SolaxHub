@@ -1,3 +1,6 @@
+using MediatR;
+using SolaxHub.Solax.Services;
+
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetInverterVoltageQueryHandler : IRequestHandler<GetInverterVoltageQuery, ushort>

@@ -1,12 +1,11 @@
 using MediatR;
-using SolaxHub.Solax.Services;
+using SolaxHub.Solax.Modbus.Client;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetPvCurrent1QueryHandler : IRequestHandler<GetPvCurrent1Query, ushort>
 {
     private readonly ISolaxModbusClient _solaxModbusClient;
-    private const byte UnitIdentifier = 0x00;
 
     public GetPvCurrent1QueryHandler(ISolaxModbusClient solaxModbusClient)
     {
@@ -17,7 +16,7 @@ public class GetPvCurrent1QueryHandler : IRequestHandler<GetPvCurrent1Query, ush
     {
         const ushort startingAddress = 6;
         const ushort count = 1;
-        var data = await _solaxModbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
         return data.ToArray()[0];
     }
 }

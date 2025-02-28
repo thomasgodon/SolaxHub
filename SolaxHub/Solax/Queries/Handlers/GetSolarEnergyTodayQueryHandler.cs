@@ -1,12 +1,11 @@
 using MediatR;
-using SolaxHub.Solax.Services;
+using SolaxHub.Solax.Modbus.Client;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetSolarEnergyTodayQueryHandler : IRequestHandler<GetSolarEnergyTodayQuery, double>
 {
     private readonly ISolaxModbusClient _solaxModbusClient;
-    private const byte UnitIdentifier = 0x00;
 
     public GetSolarEnergyTodayQueryHandler(ISolaxModbusClient solaxModbusClient)
     {
@@ -17,7 +16,7 @@ public class GetSolarEnergyTodayQueryHandler : IRequestHandler<GetSolarEnergyTod
     {
         const ushort startingAddress = 0x96;
         const ushort count = 1;
-        var data = await _solaxModbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
         return Math.Round(data.ToArray()[0] * 0.1, 2);
     }
 }

@@ -1,12 +1,11 @@
 using MediatR;
-using SolaxHub.Solax.Services;
+using SolaxHub.Solax.Modbus.Client;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
 public class GetBatteryPowerQueryHandler : IRequestHandler<GetBatteryPowerQuery, short>
 {
     private readonly ISolaxModbusClient _solaxModbusClient;
-    private const byte UnitIdentifier = 0x00;
 
     public GetBatteryPowerQueryHandler(ISolaxModbusClient solaxModbusClient)
     {
@@ -17,7 +16,7 @@ public class GetBatteryPowerQueryHandler : IRequestHandler<GetBatteryPowerQuery,
     {
         const ushort startingAddress = 22;
         const ushort count = 1;
-        var data = await _solaxModbusClient.ReadInputRegistersAsync<short>(UnitIdentifier, startingAddress, count, cancellationToken);
+        var data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
         return data.ToArray()[0];
     }
 }
