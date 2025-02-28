@@ -3,7 +3,7 @@ using SolaxHub.Integration.Tests.Fixtures;
 using SolaxHub.Solax.Services;
 using Xunit;
 
-namespace SolaxHub.Integration.Tests.Solax.Base;
+namespace SolaxHub.Integration.Tests.Solax;
 
 public abstract class SolaxBaseTests : IClassFixture<SolaxHubFixture>
 {
