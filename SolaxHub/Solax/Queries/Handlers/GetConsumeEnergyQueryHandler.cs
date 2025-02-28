@@ -17,6 +17,7 @@ public class GetConsumeEnergyQueryHandler : IRequestHandler<GetConsumeEnergyQuer
     {
         const ushort quantity = 2;
         Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.ConsumeEnergyTotal, quantity, cancellationToken);
-        return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.01, 2);
+        return BitConverter.ToInt32([data.Span[1], data.Span[0], data.Span[3], data.Span[2]]);
+        //return Math.Round((data.ToArray()[1] << 16 | data.ToArray()[0] & 0xffff) * 0.01, 2);
     }
 }

@@ -17,6 +17,6 @@ public class GetInverterPowerQueryHandler : IRequestHandler<GetInverterPowerQuer
     {
         const ushort quantity = 1;
         Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.GridPower, quantity, cancellationToken);
-        return data.ToArray()[0];
+        return BitConverter.ToInt16([data.Span[1], data.Span[0]]);
     }
 }

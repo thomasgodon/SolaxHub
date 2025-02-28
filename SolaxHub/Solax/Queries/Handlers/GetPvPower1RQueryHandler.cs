@@ -17,6 +17,6 @@ public class GetPvPower1RQueryHandler : IRequestHandler<GetPvPower1RQuery, ushor
     {
         const ushort quantity = 1;
         Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.PowerDc1, quantity, cancellationToken);
-        return data.ToArray()[0];
+        return BitConverter.ToUInt16([data.Span[1], data.Span[0]]);
     }
 }

@@ -16,8 +16,9 @@ public class GetInverterStatusQueryHandler : IRequestHandler<GetInverterStatusQu
 
     public async Task<SolaxInverterStatus> Handle(GetInverterStatusQuery request, CancellationToken cancellationToken)
     {
-        const ushort count = 1;
-        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.RunMode, count, cancellationToken);
-        return SolaxInverterStatus.CheckMode;
+        const ushort quantity = 1;
+        Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.RunMode, quantity, cancellationToken);
+        ushort status = BitConverter.ToUInt16([data.Span[1], data.Span[0]]);
+        return (SolaxInverterStatus)(status + 100);
     }
 }

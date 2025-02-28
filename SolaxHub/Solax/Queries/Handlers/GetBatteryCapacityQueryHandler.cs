@@ -17,6 +17,6 @@ public class GetBatteryCapacityQueryHandler : IRequestHandler<GetBatteryCapacity
     {
         const ushort quantity = 1;
         Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.BatteryCapacity, quantity, cancellationToken);
-        return data.ToArray()[0];
+        return BitConverter.ToUInt16([data.Span[1], data.Span[0]]);
     }
 }
