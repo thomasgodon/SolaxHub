@@ -2,7 +2,7 @@
 
 namespace SolaxHub.Solax.Extensions;
 
-internal static class SolaxExtensions
+public static class SolaxExtensions
 {
     public static SolaxInverterType ToSolaxInverterType(this string serialNumber) =>
         serialNumber switch
@@ -21,8 +21,8 @@ internal static class SolaxExtensions
             _ => SolaxInverterUseMode.Unknown
         };
 
-    public static SolaxLockState ToSolaxLockState(this ushort chargerUseMode)
-        => chargerUseMode switch
+    public static SolaxLockState ToSolaxLockState(this ushort lockState)
+        => lockState switch
         {
             1 => SolaxLockState.Unlocked,
             2 => SolaxLockState.UnlockedAdvanced,
