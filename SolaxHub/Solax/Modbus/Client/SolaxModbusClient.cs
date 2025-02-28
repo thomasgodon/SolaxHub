@@ -5,7 +5,7 @@ using SolaxHub.Solax.Modbus.Models;
 
 namespace SolaxHub.Solax.Modbus.Client;
 
-internal partial class SolaxModbusClient : ISolaxModbusClient
+internal class SolaxModbusClient : ISolaxModbusClient
 {
     private readonly SolaxModbusOptions _solaxModbusOptions;
     private readonly ModbusTcpClient _modbusClient;
