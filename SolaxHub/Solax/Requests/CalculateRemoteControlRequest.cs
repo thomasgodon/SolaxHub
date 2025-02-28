@@ -1,15 +1,14 @@
 ﻿using MediatR;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.Solax.Requests
-{
-    internal class CalculateRemoteControlRequest : IRequest<SolaxPowerControlCalculation>
-    {
-        public CalculateRemoteControlRequest(SolaxData solaxData)
-        {
-            SolaxData = solaxData;
-        }
+namespace SolaxHub.Solax.Requests;
 
-        public SolaxData SolaxData { get; init; }
+internal class CalculateRemoteControlRequest : IRequest<SolaxPowerControlCalculation>
+{
+    public CalculateRemoteControlRequest(SolaxData solaxData)
+    {
+        SolaxData = solaxData;
     }
+
+    public SolaxData SolaxData { get; init; }
 }

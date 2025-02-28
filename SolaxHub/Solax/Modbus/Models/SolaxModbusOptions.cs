@@ -1,9 +1,8 @@
-﻿namespace SolaxHub.Solax.Modbus.Models
+﻿namespace SolaxHub.Solax.Modbus.Models;
+
+public class SolaxModbusOptions
 {
-    public class SolaxModbusOptions
-    {
-        public string Host { get; init; } = default!;
-        public int Port { get; init; } = default!;
-        public TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(1);
-    }
+    public required string Host { get; init; }
+    public required int Port { get; init; }
+    public TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(1);
 }

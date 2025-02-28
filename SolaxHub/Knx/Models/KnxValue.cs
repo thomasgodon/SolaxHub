@@ -1,21 +1,20 @@
 ﻿using Knx.Falcon;
 
-namespace SolaxHub.Knx.Models
+namespace SolaxHub.Knx.Models;
+
+internal class KnxValue
 {
-    internal class KnxValue
+    public KnxValue(GroupAddress address)
     {
-        public KnxValue(GroupAddress address)
-        {
-            Address = address;
-        }
+        Address = address;
+    }
 
-        public GroupAddress Address { get; }
-        public byte[]? Value { get; internal set; }
+    public GroupAddress Address { get; }
+    public byte[]? Value { get; internal set; }
 
-        public override string ToString()
-        {
-            var value = Value is not null ? string.Join(",", Value.ToList()) : string.Empty;
-            return $"{Address} - {value}";
-        }
+    public override string ToString()
+    {
+        var value = Value is not null ? string.Join(",", Value.ToList()) : string.Empty;
+        return $"{Address} - {value}";
     }
 }

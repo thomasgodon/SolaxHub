@@ -1,9 +1,8 @@
-﻿namespace SolaxHub.Udp.Models
+﻿namespace SolaxHub.Udp.Models;
+
+internal class UdpOptions
 {
-    internal class UdpOptions
-    {
-        public bool Enabled { get; set; } = default!;
-        public string Host { get; set; } = default!;
-        public Dictionary<string, int> PortMapping { get; set; } = default!;
-    }
+    public bool Enabled { get; set; } = default!;
+    public string Host { get; set; } = default!;
+    public Dictionary<string, int> PortMapping { get; set; } = default!;
 }

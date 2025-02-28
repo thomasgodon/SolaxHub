@@ -2,10 +2,9 @@
 using MediatR;
 using SolaxHub.Knx.Models;
 
-namespace SolaxHub.Knx.Requests
+namespace SolaxHub.Knx.Requests;
+
+internal class KnxReadValueRequest : IRequest<KnxValue?>
 {
-    internal class KnxReadValueRequest : IRequest<KnxValue?>
-    {
-        public GroupAddress GroupAddress { get; init; }
-    }
+    public GroupAddress GroupAddress { get; init; }
 }

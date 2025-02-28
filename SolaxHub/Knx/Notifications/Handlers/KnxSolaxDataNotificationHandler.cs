@@ -5,33 +5,32 @@ using SolaxHub.Knx.Models;
 using SolaxHub.Knx.Services;
 using SolaxHub.Solax.Notifications;
 
-namespace SolaxHub.Knx.Notifications.Handlers
+namespace SolaxHub.Knx.Notifications.Handlers;
+
+internal class KnxSolaxDataNotificationHandler : INotificationHandler<SolaxDataArrivedNotification>
 {
-    internal class KnxSolaxDataNotificationHandler : INotificationHandler<SolaxDataArrivedNotification>
+    private readonly IKnxClient _knxClient;
+    private readonly KnxOptions _knxOptions;
+    private readonly IKnxValueBufferService _knxValueBufferService;
+
+    public KnxSolaxDataNotificationHandler(
+        IKnxClient knxClient,
+        IOptions<KnxOptions> options,
+        IKnxValueBufferService knxValueBufferService)
     {
-        private readonly IKnxClient _knxClient;
-        private readonly KnxOptions _knxOptions;
-        private readonly IKnxValueBufferService _knxValueBufferService;
+        _knxClient = knxClient;
+        _knxOptions = options.Value;
+        _knxValueBufferService = knxValueBufferService;
+    }
 
-        public KnxSolaxDataNotificationHandler(
-            IKnxClient knxClient,
-            IOptions<KnxOptions> options,
-            IKnxValueBufferService knxValueBufferService)
+    public async Task Handle(SolaxDataArrivedNotification notification, CancellationToken cancellationToken)
+    {
+        if (_knxOptions.Enabled is false)
         {
-            _knxClient = knxClient;
-            _knxOptions = options.Value;
-            _knxValueBufferService = knxValueBufferService;
+            return;
         }
 
-        public async Task Handle(SolaxDataArrivedNotification notification, CancellationToken cancellationToken)
-        {
-            if (_knxOptions.Enabled is false)
-            {
-                return;
-            }
-
-            var values = _knxValueBufferService.UpdateKnxValues(notification.Data);
-            await _knxClient.SendValuesAsync(values, cancellationToken);
-        }
+        var values = _knxValueBufferService.UpdateKnxValues(notification.Data);
+        await _knxClient.SendValuesAsync(values, cancellationToken);
     }
 }

@@ -1,19 +1,27 @@
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Services;
 
-namespace SolaxHub
+namespace SolaxHub;
+
+internal class Worker : BackgroundService
 {
-    internal class Worker : BackgroundService
+    private readonly ISolaxModbusClient _solaxModbusClient;
+    private readonly ISolaxControllerService _solaxControllerService;
+
+    public Worker(
+        ISolaxModbusClient solaxModbusClient,
+        ISolaxControllerService solaxControllerService)
     {
-        private readonly ISolaxModbusClient _solaxModbusClient;
+        _solaxModbusClient = solaxModbusClient;
+        _solaxControllerService = solaxControllerService;
+    }
 
-        public Worker(ISolaxModbusClient solaxModbusClient)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        while (cancellationToken.IsCancellationRequested is false)
         {
-            _solaxModbusClient = solaxModbusClient;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            await _solaxModbusClient.Start(cancellationToken);
+            await _solaxModbusClient.ConnectAsync(cancellationToken);
+            await _solaxControllerService.ProcessAsync(cancellationToken);
         }
     }
 }

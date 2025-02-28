@@ -1,9 +1,8 @@
-﻿namespace SolaxHub.Solax.Models
+﻿namespace SolaxHub.Solax.Models;
+
+public enum SolaxLockState
 {
-    public enum SolaxLockState
-    {
-        Locked = 0,
-        Unlocked = 2014,
-        UnlockedAdvanced = 6868
-    }
+    Locked = 0,
+    Unlocked = 2014,
+    UnlockedAdvanced = 6868
 }

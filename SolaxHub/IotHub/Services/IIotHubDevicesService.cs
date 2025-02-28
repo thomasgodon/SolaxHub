@@ -1,9 +1,8 @@
 ﻿using SolaxHub.Solax.Models;
 
-namespace SolaxHub.IotHub.Services
+namespace SolaxHub.IotHub.Services;
+
+public interface IIotHubDevicesService
 {
-    internal interface IIotHubDevicesService
-    {
-        Task Send(SolaxData data, CancellationToken cancellationToken);
-    }
+    Task SendAsync(SolaxData data, CancellationToken cancellationToken);
 }

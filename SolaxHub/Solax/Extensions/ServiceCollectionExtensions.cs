@@ -3,22 +3,21 @@ using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Services;
 using SolaxModbusClient = SolaxHub.Solax.Modbus.Client.SolaxModbusClient;
 
-namespace SolaxHub.Solax.Extensions
+namespace SolaxHub.Solax.Extensions;
+
+internal static class ServiceCollectionExtensions
 {
-    internal static class ServiceCollectionExtensions
+    public static IServiceCollection AddSolaxClients(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        public static IServiceCollection AddSolaxClients(this IServiceCollection serviceCollection, IConfiguration configuration)
-        {
-            serviceCollection.AddModbusClient(configuration);
-            serviceCollection.AddSingleton<ISolaxControllerService, SolaxControllerService>();
+        serviceCollection.AddModbusClient(configuration);
+        serviceCollection.AddSingleton<ISolaxControllerService, SolaxControllerService>();
 
-            return serviceCollection;
-        }
+        return serviceCollection;
+    }
 
-        private static void AddModbusClient(this IServiceCollection serviceCollection, IConfiguration configuration)
-        {
-            serviceCollection.Configure<SolaxModbusOptions>(configuration.GetSection(nameof(SolaxModbusOptions)));
-            serviceCollection.AddSingleton<ISolaxModbusClient, SolaxModbusClient>();
-        }
+    private static void AddModbusClient(this IServiceCollection serviceCollection, IConfiguration configuration)
+    {
+        serviceCollection.Configure<SolaxModbusOptions>(configuration.GetSection(nameof(SolaxModbusOptions)));
+        serviceCollection.AddSingleton<ISolaxModbusClient, SolaxModbusClient>();
     }
 }
