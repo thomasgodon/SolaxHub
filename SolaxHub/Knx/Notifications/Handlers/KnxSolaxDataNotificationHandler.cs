@@ -30,7 +30,7 @@ internal class KnxSolaxDataNotificationHandler : INotificationHandler<SolaxDataA
             return;
         }
 
-        var values = _knxValueBufferService.UpdateKnxValues(notification.Data);
+        IEnumerable<KnxValue> values = _knxValueBufferService.UpdateKnxValues(notification.Data);
         await _knxClient.SendValuesAsync(values, cancellationToken);
     }
 }

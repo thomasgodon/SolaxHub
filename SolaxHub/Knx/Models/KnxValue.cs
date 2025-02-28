@@ -2,7 +2,7 @@
 
 namespace SolaxHub.Knx.Models;
 
-internal class KnxValue
+public class KnxValue
 {
     public KnxValue(GroupAddress address)
     {
@@ -14,7 +14,7 @@ internal class KnxValue
 
     public override string ToString()
     {
-        var value = Value is not null ? string.Join(",", Value.ToList()) : string.Empty;
+        string value = Value is not null ? string.Join(",", Value.ToList()) : string.Empty;
         return $"{Address} - {value}";
     }
 }

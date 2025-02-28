@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SolaxHub.Extensions;
 using SolaxHub.Integration.Tests.Fixtures.Extensions;
+using SolaxHub.IotHub.Services;
+using SolaxHub.Knx.Client;
 using SolaxHub.Solax.Modbus.Client;
 
 namespace SolaxHub.Integration.Tests.Fixtures;
@@ -10,7 +12,8 @@ namespace SolaxHub.Integration.Tests.Fixtures;
 public class SolaxHubFixture
 {
     private readonly ServiceCollection _serviceCollection = [];
-    public ServiceProvider ServiceProvider { get; private set; }
+
+    public ServiceProvider ServiceProvider { get; }
 
     public SolaxHubFixture()
     {
@@ -25,6 +28,8 @@ public class SolaxHubFixture
         _serviceCollection.AddSolaxHub(configuration);
 
         _serviceCollection.ReplaceWithMock<ISolaxModbusClient>(ServiceLifetime.Singleton);
+        _serviceCollection.ReplaceWithMock<IKnxClient>(ServiceLifetime.Singleton);
+        _serviceCollection.ReplaceWithMock<IIotHubDevicesService>(ServiceLifetime.Singleton);
 
         ServiceProvider = _serviceCollection.BuildServiceProvider();
     }

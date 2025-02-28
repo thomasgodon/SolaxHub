@@ -2,7 +2,7 @@
 
 namespace SolaxHub.Knx.Client;
 
-internal interface IKnxClient
+public interface IKnxClient
 {
     Task SendValuesAsync(IEnumerable<KnxValue> values, CancellationToken cancellationToken);
     Task ConnectAsync(CancellationToken cancellationToken);

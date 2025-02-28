@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SolaxHub.Solax.Commands;
 using SolaxHub.Solax.Models;
+using SolaxHub.Solax.Notifications;
 using SolaxHub.Solax.Queries;
 
 namespace SolaxHub.Solax.Services;
@@ -50,5 +51,7 @@ internal class SolaxPollingService : ISolaxPollingService
             InverterUseMode = await _sender.Send(new GetSolarChargerUseModeQuery(), cancellationToken),
             PowerControlMode = await _sender.Send(new GetModbusPowerControlQuery(), cancellationToken)
         };
+
+        await _publisher.Publish(new SolaxDataArrivedNotification(data), cancellationToken);
     }
 }

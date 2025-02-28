@@ -8,7 +8,7 @@ namespace SolaxHub.Knx.Services;
 internal class KnxValueBufferService : IKnxValueBufferService
 {
     private readonly Dictionary<string, KnxValue> _capabilityKnxValueMapping;
-    private readonly object _mappingLock = new();
+    private readonly Lock _mappingLock = new();
 
     public KnxValueBufferService(IOptions<KnxOptions> options)
     {
@@ -26,7 +26,7 @@ internal class KnxValueBufferService : IKnxValueBufferService
 
     private KnxValue? UpdateValue(string capability, byte[] value)
     {
-        if (_capabilityKnxValueMapping.TryGetValue(capability, out var knxSolaxValue) is false)
+        if (_capabilityKnxValueMapping.TryGetValue(capability, out KnxValue? knxSolaxValue) is false)
         {
             return null;
         }
@@ -53,9 +53,9 @@ internal class KnxValueBufferService : IKnxValueBufferService
 
     private static Dictionary<string, KnxValue> BuildCapabilityKnxValueMapping(KnxOptions options)
     {
-        var solaxData = new Dictionary<string, KnxValue>(options.ReadGroupAddresses.Count);
+        Dictionary<string, KnxValue> solaxData = new(options.ReadGroupAddresses.Count);
 
-        foreach (var groupAddressMapping in options.GetReadGroupAddressesFromOptions())
+        foreach (KeyValuePair<string, string> groupAddressMapping in options.GetReadGroupAddressesFromOptions())
         {
             solaxData.Add(groupAddressMapping.Key, new KnxValue(groupAddressMapping.Value));
         }
@@ -72,15 +72,15 @@ internal class KnxValueBufferService : IKnxValueBufferService
         // BatteryPower - 14.056 power
         yield return UpdateValue(nameof(SolaxData.BatteryPower), BitConverter.GetBytes((float)solaxData.BatteryPower));
         // SolarChargerUseMode - 6.020 status with mode
-        yield return UpdateValue(nameof(SolaxData.InverterUseMode), new[] { (byte)((int)solaxData.InverterUseMode * 2.55) });
+        yield return UpdateValue(nameof(SolaxData.InverterUseMode), [(byte)((int)solaxData.InverterUseMode * 2.55)]);
         // ConsumeEnergy - 14.* 4byte float value
         yield return UpdateValue(nameof(SolaxData.ConsumeEnergy), BitConverter.GetBytes((float)solaxData.ConsumeEnergy));
         // BatteryCapacity - 5.001 percentage
-        yield return UpdateValue(nameof(SolaxData.BatteryCapacity), new[] { (byte)(solaxData.BatteryCapacity * 2.55) });
+        yield return UpdateValue(nameof(SolaxData.BatteryCapacity), [(byte)(solaxData.BatteryCapacity * 2.55)]);
         // EpsPower1 - 14.056 power
         yield return UpdateValue(nameof(SolaxData.PvPower1), BitConverter.GetBytes((float)solaxData.PvPower1));
         // InverterStatus - 6.020 status with mode
-        yield return UpdateValue(nameof(SolaxData.InverterStatus), new[] { (byte)solaxData.InverterStatus });
+        yield return UpdateValue(nameof(SolaxData.InverterStatus), [(byte)solaxData.InverterStatus]);
         // SolarEnergyToday - 14
         yield return UpdateValue(nameof(SolaxData.SolarEnergyToday), BitConverter.GetBytes((float)solaxData.SolarEnergyToday));
         // SolarEnergyTotal - 14
@@ -94,8 +94,8 @@ internal class KnxValueBufferService : IKnxValueBufferService
         // BatteryInputEnergyTotal - 14
         yield return UpdateValue(nameof(SolaxData.BatteryInputEnergyTotal), BitConverter.GetBytes((float)solaxData.BatteryInputEnergyTotal));
         // PowerControlMode - 6.020 status with mode
-        yield return UpdateValue(nameof(SolaxData.PowerControlMode), new[] { (byte)(int)solaxData.PowerControlMode });
+        yield return UpdateValue(nameof(SolaxData.PowerControlMode), [(byte)(int)solaxData.PowerControlMode]);
         // LockState - 6.020 status with mode
-        yield return UpdateValue(nameof(SolaxData.LockState), new[] { (byte)solaxData.LockState.ToNormalizedLockState() });
+        yield return UpdateValue(nameof(SolaxData.LockState), [(byte)solaxData.LockState.ToNormalizedLockState()]);
     }
 }
