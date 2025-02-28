@@ -116,8 +116,7 @@ internal class SolaxControllerService : ISolaxControllerService
 
     private async Task<ushort> GetInverterVoltageAsync(CancellationToken cancellationToken)
     {
-        const ushort startingAddress = 0;
-        const ushort count = 1;
+        const ushort startingAddress = 0; const ushort count = 1;
         var data = await _solaxModbusClient.ReadInputRegistersAsync<ushort>(UnitIdentifier, startingAddress, count, cancellationToken);
         return data.ToArray()[0];
     }
