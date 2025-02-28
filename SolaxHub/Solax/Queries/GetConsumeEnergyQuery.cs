@@ -1,6 +1,7 @@
-namespace SolaxHub.Solax.Queries
+using MediatR;
+
+namespace SolaxHub.Solax.Queries;
+
+public class GetConsumeEnergyQuery : IRequest<double>
 {
-    public class GetConsumeEnergyQuery : IRequest<double>
-    {
-    }
 }

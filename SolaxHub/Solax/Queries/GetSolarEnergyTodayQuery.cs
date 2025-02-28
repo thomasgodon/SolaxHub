@@ -1,6 +1,7 @@
-namespace SolaxHub.Solax.Queries
+using MediatR;
+
+namespace SolaxHub.Solax.Queries;
+
+public class GetSolarEnergyTodayQuery : IRequest<double>
 {
-    public class GetSolarEnergyTodayQuery : IRequest<double>
-    {
-    }
 }

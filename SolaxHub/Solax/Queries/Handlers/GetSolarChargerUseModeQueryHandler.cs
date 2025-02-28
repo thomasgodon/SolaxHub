@@ -1,17 +1,16 @@
-namespace SolaxHub.Solax.Queries.Handlers
+namespace SolaxHub.Solax.Queries.Handlers;
+
+public class GetSolarChargerUseModeQueryHandler : IRequestHandler<GetSolarChargerUseModeQuery, ushort>
 {
-    public class GetSolarChargerUseModeQueryHandler : IRequestHandler<GetSolarChargerUseModeQuery, ushort>
+    private readonly ISolaxControllerService _solaxControllerService;
+
+    public GetSolarChargerUseModeQueryHandler(ISolaxControllerService solaxControllerService)
     {
-        private readonly ISolaxControllerService _solaxControllerService;
+        _solaxControllerService = solaxControllerService;
+    }
 
-        public GetSolarChargerUseModeQueryHandler(ISolaxControllerService solaxControllerService)
-        {
-            _solaxControllerService = solaxControllerService;
-        }
-
-        public async Task<ushort> Handle(GetSolarChargerUseModeQuery request, CancellationToken cancellationToken)
-        {
-            return await _solaxControllerService.GetSolarChargerUseModeAsync(cancellationToken);
-        }
+    public async Task<ushort> Handle(GetSolarChargerUseModeQuery request, CancellationToken cancellationToken)
+    {
+        return await _solaxControllerService.GetSolarChargerUseModeAsync(cancellationToken);
     }
 }

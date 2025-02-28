@@ -1,17 +1,16 @@
-namespace SolaxHub.Solax.Queries.Handlers
+namespace SolaxHub.Solax.Queries.Handlers;
+
+public class GetInverterPowerQueryHandler : IRequestHandler<GetInverterPowerQuery, short>
 {
-    public class GetInverterPowerQueryHandler : IRequestHandler<GetInverterPowerQuery, short>
+    private readonly ISolaxControllerService _solaxControllerService;
+
+    public GetInverterPowerQueryHandler(ISolaxControllerService solaxControllerService)
     {
-        private readonly ISolaxControllerService _solaxControllerService;
+        _solaxControllerService = solaxControllerService;
+    }
 
-        public GetInverterPowerQueryHandler(ISolaxControllerService solaxControllerService)
-        {
-            _solaxControllerService = solaxControllerService;
-        }
-
-        public async Task<short> Handle(GetInverterPowerQuery request, CancellationToken cancellationToken)
-        {
-            return await _solaxControllerService.GetInverterPowerAsync(cancellationToken);
-        }
+    public async Task<short> Handle(GetInverterPowerQuery request, CancellationToken cancellationToken)
+    {
+        return await _solaxControllerService.GetInverterPowerAsync(cancellationToken);
     }
 }

@@ -1,6 +1,7 @@
-namespace SolaxHub.Solax.Queries
+using MediatR;
+
+namespace SolaxHub.Solax.Queries;
+
+public class GetInverterStatusQuery : IRequest<ushort>
 {
-    public class GetInverterStatusQuery : IRequest<ushort>
-    {
-    }
 }

@@ -1,17 +1,16 @@
-namespace SolaxHub.Solax.Queries.Handlers
+namespace SolaxHub.Solax.Queries.Handlers;
+
+public class GetBatteryPowerQueryHandler : IRequestHandler<GetBatteryPowerQuery, short>
 {
-    public class GetBatteryPowerQueryHandler : IRequestHandler<GetBatteryPowerQuery, short>
+    private readonly ISolaxControllerService _solaxControllerService;
+
+    public GetBatteryPowerQueryHandler(ISolaxControllerService solaxControllerService)
     {
-        private readonly ISolaxControllerService _solaxControllerService;
+        _solaxControllerService = solaxControllerService;
+    }
 
-        public GetBatteryPowerQueryHandler(ISolaxControllerService solaxControllerService)
-        {
-            _solaxControllerService = solaxControllerService;
-        }
-
-        public async Task<short> Handle(GetBatteryPowerQuery request, CancellationToken cancellationToken)
-        {
-            return await _solaxControllerService.GetBatteryPowerAsync(cancellationToken);
-        }
+    public async Task<short> Handle(GetBatteryPowerQuery request, CancellationToken cancellationToken)
+    {
+        return await _solaxControllerService.GetBatteryPowerAsync(cancellationToken);
     }
 }
