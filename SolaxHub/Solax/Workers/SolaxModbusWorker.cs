@@ -3,7 +3,7 @@ using SolaxHub.Solax.Modbus.Client;
 using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Services;
 
-namespace SolaxHub;
+namespace SolaxHub.Solax.Workers;
 
 internal class SolaxModbusWorker : BackgroundService
 {

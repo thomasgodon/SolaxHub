@@ -1,7 +1,7 @@
-using SolaxHub;
 using SolaxHub.IotHub.Extensions;
 using SolaxHub.Knx.Extensions;
 using SolaxHub.Solax.Extensions;
+using SolaxHub.Solax.Workers;
 using SolaxHub.Udp.Extensions;
 
 var host = Host.CreateDefaultBuilder(args)
