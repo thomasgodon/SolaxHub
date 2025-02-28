@@ -1,13 +1,13 @@
 using Moq;
 using SolaxHub.Integration.Tests.Fixtures;
-using SolaxHub.Integration.Tests.SolaxTests.Base;
+using SolaxHub.Integration.Tests.Solax.Base;
 using SolaxHub.Knx.Client;
 using SolaxHub.Knx.Models;
 using SolaxHub.Solax.Modbus.Client;
 using SolaxHub.Solax.Registers;
 using Xunit;
 
-namespace SolaxHub.Integration.Tests.SolaxTests;
+namespace SolaxHub.Integration.Tests.Solax;
 
 public class SolaxPollingServiceTests : SolaxBaseTests
 {
