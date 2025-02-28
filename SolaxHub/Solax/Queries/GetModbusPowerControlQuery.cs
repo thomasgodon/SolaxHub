@@ -1,7 +1,8 @@
 using MediatR;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Queries;
 
-public class GetModbusPowerControlQuery : IRequest<int>
+public class GetModbusPowerControlQuery : IRequest<SolaxPowerControlMode>
 {
 }

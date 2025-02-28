@@ -2,30 +2,30 @@
 
 namespace SolaxHub.Solax.Models;
 
-public class SolaxData
+public record SolaxData
 {
-    public string InverterSerialNumber { get; init; } = default!;
+    public required string InverterSerialNumber { get; init; }
     public SolaxInverterType InverterType => InverterSerialNumber.ToSolaxInverterType();
-    public string RegistrationCodePocket { get; init; } = default!;
-    public ushort BatteryCapacity { get; init; } = default!;
-    public short BatteryPower { get; init; } = default!;
-    public ushort InverterVoltage { get; init; } = default!;
-    public short InverterPower { get; init; } = default!;
-    public int FeedInPower { get; init; } = default!;
-    public double ConsumeEnergy { get; init; } = default!;
-    public double FeedInEnergy { get; init; } = default!;
-    public SolaxInverterStatus InverterStatus { get; init; } = default!;
-    public ushort PvPower1 { get; init; } = default!;
-    public ushort PvVolt1 { get; init; } = default!;
-    public ushort PvCurrent1 { get; init; } = default!;
-    public double SolarEnergyToday { get; init; } = default!;
-    public double SolarEnergyTotal { get; init; } = default!;
-    public SolaxInverterUseMode InverterUseMode { get; init; } = default!;
-    public double BatteryOutputEnergyToday { get; init; } = default!;
-    public double BatteryInputEnergyToday { get; init; } = default!;
-    public double BatteryOutputEnergyTotal { get; init; } = default!;
-    public double BatteryInputEnergyTotal { get; init; } = default!;
+    public required string RegistrationCodePocket { get; init; }
+    public required ushort BatteryCapacity { get; init; }
+    public required short BatteryPower { get; init; }
+    public required ushort InverterVoltage { get; init; }
+    public required short InverterPower { get; init; }
+    public required int FeedInPower { get; init; }
+    public required double ConsumeEnergy { get; init; }
+    public required double FeedInEnergy { get; init; }
+    public required SolaxInverterStatus InverterStatus { get; init; }
+    public required ushort PvPower1 { get; init; }
+    public required ushort PvVolt1 { get; init; }
+    public required ushort PvCurrent1 { get; init; }
+    public required double SolarEnergyToday { get; init; }
+    public required double SolarEnergyTotal { get; init; }
+    public required SolaxInverterUseMode InverterUseMode { get; init; }
+    public required double BatteryOutputEnergyToday { get; init; }
+    public required double BatteryInputEnergyToday { get; init; }
+    public required double BatteryOutputEnergyTotal { get; init; }
+    public required double BatteryInputEnergyTotal { get; init; }
     public double HouseLoad => InverterPower - FeedInPower;
-    public SolaxPowerControlMode PowerControlMode { get; init; } = SolaxPowerControlMode.Disabled;
-    public SolaxLockState LockState { get; init; } = SolaxLockState.Locked;
+    public required SolaxPowerControlMode PowerControlMode { get; init; }
+    public required SolaxLockState LockState { get; init; }
 }

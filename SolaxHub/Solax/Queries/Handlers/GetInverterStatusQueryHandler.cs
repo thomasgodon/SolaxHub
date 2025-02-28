@@ -1,9 +1,10 @@
 using MediatR;
 using SolaxHub.Solax.Modbus.Client;
+using SolaxHub.Solax.Models;
 
 namespace SolaxHub.Solax.Queries.Handlers;
 
-public class GetInverterStatusQueryHandler : IRequestHandler<GetInverterStatusQuery, ushort>
+public class GetInverterStatusQueryHandler : IRequestHandler<GetInverterStatusQuery, SolaxInverterStatus>
 {
     private readonly ISolaxModbusClient _solaxModbusClient;
 
@@ -12,11 +13,11 @@ public class GetInverterStatusQueryHandler : IRequestHandler<GetInverterStatusQu
         _solaxModbusClient = solaxModbusClient;
     }
 
-    public async Task<ushort> Handle(GetInverterStatusQuery request, CancellationToken cancellationToken)
+    public async Task<SolaxInverterStatus> Handle(GetInverterStatusQuery request, CancellationToken cancellationToken)
     {
         const ushort startingAddress = 9;
         const ushort count = 1;
         Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(startingAddress, count, cancellationToken);
-        return data.ToArray()[0];
+        return SolaxInverterStatus.CheckMode;
     }
 }
