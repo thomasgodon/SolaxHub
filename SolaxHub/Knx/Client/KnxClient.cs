@@ -29,24 +29,18 @@ internal class KnxClient : IKnxClient
     {
         if (_bus?.ConnectionState != BusConnectionState.Connected)
         {
-            await ConnectAsync(cancellationToken);
-        }
-
-        if (_bus == null)
-        {
-            _logger.LogError("Something went wrong after connecting to knx client");
+            _logger.LogError("client not connected");
             return;
         }
 
-        foreach (var knxSolaxValue in values)
+        foreach (KnxValue knxSolaxValue in values)
         {
             if (knxSolaxValue.Value is null)
             {
-                return;
-
+                continue;
             }
 
-            var writeCancellationToken = new CancellationTokenSource();
+            CancellationTokenSource writeCancellationToken = new();
 
             await Task.WhenAny(
                 _bus.WriteGroupValueAsync(knxSolaxValue.Address,
@@ -54,11 +48,11 @@ internal class KnxClient : IKnxClient
                     writeCancellationToken.Token),
                 Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken));
 
-            writeCancellationToken.Cancel();
+            await writeCancellationToken.CancelAsync();
         }
     }
 
-    private async Task ConnectAsync(CancellationToken cancellationToken)
+    public async Task ConnectAsync(CancellationToken cancellationToken)
     {
         if (_bus?.ConnectionState == BusConnectionState.Connected)
         {
