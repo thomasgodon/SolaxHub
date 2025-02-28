@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SolaxHub.Solax.Models;
 
-namespace SolaxHub.Solax.Requests;
+namespace SolaxHub.Solax.Requests.Commands;
 
 internal class CalculateRemoteControlRequest : IRequest<SolaxPowerControlCalculation>
 {

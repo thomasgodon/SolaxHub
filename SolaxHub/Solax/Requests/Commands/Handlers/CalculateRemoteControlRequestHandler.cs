@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Models;
+using SolaxHub.Solax.Requests.Commands;
 using SolaxHub.Solax.Services;
 
-namespace SolaxHub.Solax.Requests.Handlers;
+namespace SolaxHub.Solax.Requests.Commands.Handlers;
 
 internal class CalculateRemoteControlRequestHandler : IRequestHandler<CalculateRemoteControlRequest, SolaxPowerControlCalculation>
 {

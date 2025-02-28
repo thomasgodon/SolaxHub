@@ -39,6 +39,10 @@ internal class SolaxControllerService : ISolaxControllerService
         }
 
         await UnlockInverterAsync(cancellationToken);
+
+        // read registers
+
+
     }
 
     #region Write Methods

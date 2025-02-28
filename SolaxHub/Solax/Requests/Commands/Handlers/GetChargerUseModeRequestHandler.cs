@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using SolaxHub.Solax.Models;
+using SolaxHub.Solax.Requests.Commands;
 using SolaxHub.Solax.Services;
 
-namespace SolaxHub.Solax.Requests.Handlers;
+namespace SolaxHub.Solax.Requests.Commands.Handlers;
 
 internal class GetChargerUseModeRequestHandler : IRequestHandler<GetChargerUseModeRequest, SolaxInverterUseMode>
 {
