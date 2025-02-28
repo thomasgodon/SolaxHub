@@ -21,6 +21,12 @@ public class SolaxPollingServiceTests : SolaxBaseTests
             m =>
             {
                 m.Setup(d => d.ReadInputRegistersAsync(
+                        It.IsAny<ushort>(),
+                        It.IsAny<ushort>(),
+                        It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new Memory<byte>("\0\0\0\0\0\0\0\0\0\0\0\0"u8.ToArray()));
+
+                m.Setup(d => d.ReadInputRegistersAsync(
                         It.Is<ushort>(s => s == ReadInputRegisters.LockState),
                         It.Is<ushort>(s => s == 1),
                         It.IsAny<CancellationToken>()))
