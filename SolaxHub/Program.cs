@@ -24,7 +24,18 @@ IHost host = Host.CreateDefaultBuilder(args)
                     }))
                 .WithMetrics(metrics => metrics
                     .AddAspNetCoreInstrumentation());
-            
+    })
+    .ConfigureLogging((context, builder) =>
+    {
+        builder.AddOpenTelemetry(options =>
+        {
+            options.IncludeScopes = true;
+            options.ParseStateValues = true;
+            options.AddAzureMonitorLogExporter(exporterOptions =>
+            {
+                exporterOptions.ConnectionString = context.Configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
+            });
+        });
     })
     .Build();
 
