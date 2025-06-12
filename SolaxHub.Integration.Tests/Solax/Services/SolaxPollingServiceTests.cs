@@ -71,7 +71,7 @@ public class SolaxPollingServiceTests : SolaxBaseTests
                 It.Is<IEnumerable<KnxValue>>(s => s.Any(x => 
                     x.Value != null && 
                     x.Address.Address == 2057 &&
-                    x.Value.SequenceEqual(new byte[]{ 101 }))),
+                    x.Value.SequenceEqual(new byte[]{ 100 }))),
                 It.IsAny<CancellationToken>())));
 
         // Act
