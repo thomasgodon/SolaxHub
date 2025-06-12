@@ -3,24 +3,33 @@ using SolaxHub.Solax.Commands;
 using SolaxHub.Solax.Models;
 using SolaxHub.Solax.Notifications;
 using SolaxHub.Solax.Queries;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace SolaxHub.Solax.Services;
 
 internal class SolaxPollingService : ISolaxPollingService
 {
+    private static readonly ActivitySource ActivitySource = new(nameof(SolaxPollingService));
     private readonly ISender _sender;
     private readonly IPublisher _publisher;
+    private readonly ILogger<SolaxPollingService> _logger;
 
-    public SolaxPollingService(ISender sender,
-        IPublisher publisher)
+    public SolaxPollingService(
+        ISender sender,
+        IPublisher publisher,
+        ILogger<SolaxPollingService> logger)
     {
         _sender = sender;
         _publisher = publisher;
+        _logger = logger;
     }
 
     public async Task ProcessAsync(CancellationToken cancellationToken)
     {
-        SolaxLockState currentLockState = await _sender.Send(new GetLockStateQuery(), cancellationToken);
+        using (ActivitySource.StartActivity())
+        {
+            SolaxLockState currentLockState = await _sender.Send(new GetLockStateQuery(), cancellationToken);
         if (currentLockState != SolaxLockState.UnlockedAdvanced)
         {
             await _sender.Send(new SetLockStateCommand(SolaxLockState.UnlockedAdvanced), cancellationToken);
@@ -52,6 +61,12 @@ internal class SolaxPollingService : ISolaxPollingService
             PowerControlMode = await _sender.Send(new GetModbusPowerControlQuery(), cancellationToken)
         };
 
+        _logger.LogDebug(JsonSerializer.Serialize(data, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        }));
+
         await _publisher.Publish(new SolaxDataArrivedNotification(data), cancellationToken);
+        }
     }
 }

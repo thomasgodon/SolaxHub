@@ -1,12 +1,14 @@
-﻿using System.Net;
-using FluentModbus;
+﻿using FluentModbus;
 using Microsoft.Extensions.Options;
 using SolaxHub.Solax.Modbus.Models;
+using System.Diagnostics;
+using System.Net;
 
 namespace SolaxHub.Solax.Modbus.Client;
 
 internal class SolaxModbusClient : ISolaxModbusClient
 {
+    private static readonly ActivitySource ActivitySource = new(nameof(SolaxModbusClient));
     private readonly SolaxModbusOptions _solaxModbusOptions;
     private readonly ModbusTcpClient _modbusClient;
     private readonly ILogger<SolaxModbusClient> _logger;
@@ -26,23 +28,26 @@ internal class SolaxModbusClient : ISolaxModbusClient
 
     public async Task ConnectAsync(CancellationToken cancellationToken)
     {
-        IPEndPoint endPoint = await GetEndPointAsync(cancellationToken);
-
-        if (_modbusClient.IsConnected)
+        using(ActivitySource.StartActivity())
         {
-            _logger.LogDebug("Still connected to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
-            return;
-        }
+            IPEndPoint endPoint = await GetEndPointAsync(cancellationToken);
 
-        _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
+            if (_modbusClient.IsConnected)
+            {
+                _logger.LogTrace("Still connected to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
+                return;
+            }
 
-        if (_modbusClient.IsConnected)
-        {
-            _logger.LogInformation("Connected to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
-        }
-        else
-        {
-            _logger.LogError("Something went wrong when trying to connect to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
+            _modbusClient.Connect(endPoint, ModbusEndianness.BigEndian);
+
+            if (_modbusClient.IsConnected)
+            {
+                _logger.LogInformation("Connected to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
+            }
+            else
+            {
+                _logger.LogError("Something went wrong when trying to connect to {Host} at port: {Port}", endPoint.Address, endPoint.Port);
+            }
         }
     }
 

@@ -12,6 +12,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         IConfiguration configuration = hostContext.Configuration;
         services
             .AddHostedService<SolaxModbusWorker>()
+            .AddHostedService<KnxConnectionWorker>()
             .AddHostedService<KnxReceiverWorker>()
             .AddSolaxHub(configuration)
             .AddOpenTelemetry()
@@ -23,6 +24,10 @@ IHost host = Host.CreateDefaultBuilder(args)
                         options.ConnectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
                     }))
                 .WithMetrics(metrics => metrics
+                    .AddAzureMonitorMetricExporter(options =>
+                    {
+                        options.ConnectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
+                    })
                     .AddAspNetCoreInstrumentation());
     })
     .ConfigureLogging((context, builder) =>
