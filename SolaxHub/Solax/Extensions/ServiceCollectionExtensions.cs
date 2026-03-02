@@ -1,6 +1,7 @@
 ﻿using SolaxHub.Solax.Modbus.Client;
 using SolaxHub.Solax.Modbus.Models;
 using SolaxHub.Solax.Services;
+using SolaxHub.Solax.Workers;
 using SolaxModbusClient = SolaxHub.Solax.Modbus.Client.SolaxModbusClient;
 
 namespace SolaxHub.Solax.Extensions;
@@ -11,6 +12,7 @@ internal static class ServiceCollectionExtensions
     {
         serviceCollection.AddModbusClient(configuration);
         serviceCollection.AddSingleton<ISolaxPollingService, SolaxPollingService>();
+        serviceCollection.AddHostedService<SolaxModbusWorker>();
 
         return serviceCollection;
     }

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using SolaxHub.Solax.Models;
 using SolaxHub.Solax.Notifications;
 using System.Net.Sockets;
@@ -24,7 +24,6 @@ internal class UdpSolaxDataNotificationHandler : INotificationHandler<SolaxDataA
             return;
         }
 
-        // process solax data
         foreach (var (udpData, port) in GenerateUdpMessages(notification.Data, _options.PortMapping).ToList())
         {
             using var udpSender = new UdpClient();
@@ -35,34 +34,37 @@ internal class UdpSolaxDataNotificationHandler : INotificationHandler<SolaxDataA
 
     private static IEnumerable<(byte[] Data, int Port)> GenerateUdpMessages(SolaxData data, IReadOnlyDictionary<string, int> portMapping)
     {
-        foreach (var propertyInfo in data.GetType().GetProperties())
+        foreach (var (name, value) in GetMappableValues(data))
         {
-            dynamic propertyValue;
-            try
+            if (portMapping.TryGetValue(name, out var port))
             {
-                propertyValue = Convert.ChangeType(propertyInfo.GetValue(data, null)?.ToString(), propertyInfo.PropertyType)!;
+                yield return (Encoding.UTF8.GetBytes(value), port);
             }
-            catch (Exception)
-            {
-                continue;
-            }
-
-            if (propertyValue == null)
-            {
-                continue;
-            }
-
-            if (propertyValue is Enum)
-            {
-                propertyValue = (int)propertyValue;
-            }
-
-            if (portMapping.TryGetValue(propertyInfo.Name, out var port) is false)
-            {
-                continue;
-            }
-
-            yield return new ValueTuple<byte[], int>(Encoding.UTF8.GetBytes(propertyValue.ToString()), port);
         }
+    }
+
+    private static IEnumerable<(string Name, string Value)> GetMappableValues(SolaxData data)
+    {
+        yield return (nameof(SolaxData.BatteryCapacity), data.BatteryCapacity.ToString());
+        yield return (nameof(SolaxData.BatteryPower), data.BatteryPower.ToString());
+        yield return (nameof(SolaxData.InverterVoltage), data.InverterVoltage.ToString());
+        yield return (nameof(SolaxData.InverterPower), data.InverterPower.ToString());
+        yield return (nameof(SolaxData.FeedInPower), data.FeedInPower.ToString());
+        yield return (nameof(SolaxData.ConsumeEnergy), data.ConsumeEnergy.ToString());
+        yield return (nameof(SolaxData.FeedInEnergy), data.FeedInEnergy.ToString());
+        yield return (nameof(SolaxData.InverterStatus), ((int)data.InverterStatus).ToString());
+        yield return (nameof(SolaxData.PvPower1), data.PvPower1.ToString());
+        yield return (nameof(SolaxData.PvVolt1), data.PvVolt1.ToString());
+        yield return (nameof(SolaxData.PvCurrent1), data.PvCurrent1.ToString());
+        yield return (nameof(SolaxData.SolarEnergyToday), data.SolarEnergyToday.ToString());
+        yield return (nameof(SolaxData.SolarEnergyTotal), data.SolarEnergyTotal.ToString());
+        yield return (nameof(SolaxData.InverterUseMode), ((int)data.InverterUseMode).ToString());
+        yield return (nameof(SolaxData.BatteryOutputEnergyToday), data.BatteryOutputEnergyToday.ToString());
+        yield return (nameof(SolaxData.BatteryInputEnergyToday), data.BatteryInputEnergyToday.ToString());
+        yield return (nameof(SolaxData.BatteryOutputEnergyTotal), data.BatteryOutputEnergyTotal.ToString());
+        yield return (nameof(SolaxData.BatteryInputEnergyTotal), data.BatteryInputEnergyTotal.ToString());
+        yield return (nameof(SolaxData.HouseLoad), data.HouseLoad.ToString());
+        yield return (nameof(SolaxData.PowerControlMode), ((int)data.PowerControlMode).ToString());
+        yield return (nameof(SolaxData.LockState), ((int)data.LockState).ToString());
     }
 }

@@ -18,6 +18,7 @@ public class GetModbusPowerControlQueryHandler : IRequestHandler<GetModbusPowerC
     {
         const ushort quantity = 1;
         Memory<byte> data = await _solaxModbusClient.ReadInputRegistersAsync(ReadInputRegisters.ModbusPowerControl, quantity, cancellationToken);
-        return SolaxPowerControlMode.Disabled; //data.ToArray()[0];
+        ushort value = data.ToArray()[1];
+        return (SolaxPowerControlMode)value;
     }
 }
