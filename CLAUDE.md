@@ -1,4 +1,60 @@
-# SolaxHub Coding & Project Rules
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+# Build
+dotnet build SolaxHub.sln
+
+# Run all tests
+dotnet test SolaxHub.sln
+
+# Run a single test
+dotnet test SolaxHub.Integration.Tests/SolaxHub.Integration.Tests.csproj --filter "FullyQualifiedName~SolaxQueryTests"
+
+# Run the application
+dotnet run --project SolaxHub/SolaxHub.csproj
+
+# Publish (linux-arm64)
+dotnet publish SolaxHub/SolaxHub.csproj -r linux-arm64 -c Release
+```
+
+## Architecture Overview
+
+SolaxHub is a .NET 9 Worker Service that bridges a **Solax solar inverter** (via Modbus TCP) to multiple output integrations: **KNX** home automation, **Azure IoT Hub**, and **UDP**. The data flow is:
+
+```
+Solax Inverter (Modbus TCP)
+        ↓
+  SolaxModbusWorker  (polls on configurable interval)
+        ↓
+  SolaxPollingService  (sends Queries → builds SolaxData → publishes notification)
+        ↓
+  SolaxDataArrivedNotification  (MediatR INotification)
+        ↓
+  ┌─────────────────────────────────────┐
+  │ KnxSolaxDataNotificationHandler     │  → writes KNX group addresses via KnxClient
+  │ IotHubSolaxDataNotificationHandler  │  → sends telemetry to Azure IoT Hub
+  │ UdpSolaxDataNotificationHandler     │  → broadcasts UDP packets
+  └─────────────────────────────────────┘
+```
+
+**KNX integration** also has two background workers: `KnxConnectionWorker` (maintains connection) and `KnxReceiverWorker` (handles incoming KNX read requests). KNX group addresses are configured as `ReadGroupAddresses` (inverter data → KNX bus) and `WriteGroupAddresses` (KNX bus → inverter commands). Incoming KNX read requests are served from `KnxValueBufferService` (in-memory cache of latest values).
+
+**Projects:**
+- `SolaxHub/` — main Worker Service (entry point: `Program.cs`)
+- `SolaxHub.Integration.Tests/` — integration tests using `SolaxHubFixture` which wires real DI with mocked external clients (`ISolaxModbusClient`, `IKnxClient`, `IIotHubDevicesService`)
+
+**Domain folders** under `SolaxHub/`:
+- `Solax/` — Modbus client, queries/commands for all inverter registers, polling service, data models
+- `Knx/` — Falcon SDK client, value buffer service, notification/request handlers, workers
+- `IotHub/` — Azure DPS provisioning + device client, notification handler
+- `Udp/` — UDP sender, notification handler
+- `Extensions/` — root `AddSolaxHub()` composition root
+
+**Configuration** (`appsettings.json`): `SolaxModbusOptions` (host, port, poll interval), `KnxOptions` (enabled, host, port, group address mappings), `IotHubOptions` (array of IoT devices with DPS credentials), `UdpOptions` (enabled, host, port mapping). Features are gated by `Enabled` boolean flags — handlers return early when disabled.
 
 ## General
 - Target .NET 9.0 for all projects.
