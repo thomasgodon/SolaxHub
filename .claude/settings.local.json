@@ -9,7 +9,9 @@
       "mcp__filesystem__read_text_file",
       "Bash(xargs wc:*)",
       "mcp__filesystem__list_directory_with_sizes",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "mcp__filesystem__write_file",
+      "Bash(rm:*)"
     ]
   }
 }

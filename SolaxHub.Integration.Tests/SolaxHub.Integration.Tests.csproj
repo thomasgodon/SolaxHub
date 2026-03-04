@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SolaxHub\SolaxHub.csproj" />
+    <ProjectReference Include="..\SolaxHub.Infrastructure\SolaxHub.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

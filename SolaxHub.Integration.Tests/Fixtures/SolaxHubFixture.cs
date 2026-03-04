@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using SolaxHub.Domain.Inverter;
 using SolaxHub.Extensions;
+using SolaxHub.Infrastructure.Knx.Client;
 using SolaxHub.Integration.Tests.Fixtures.Extensions;
-using SolaxHub.Knx.Client;
-using SolaxHub.Solax.Modbus.Client;
 
 namespace SolaxHub.Integration.Tests.Fixtures;
 
@@ -16,7 +16,6 @@ public class SolaxHubFixture
 
     public SolaxHubFixture()
     {
-        // Build configuration
         IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -27,7 +26,7 @@ public class SolaxHubFixture
         _serviceCollection.AddSingleton(configuration);
         _serviceCollection.AddSolaxHub(configuration);
 
-        _serviceCollection.ReplaceWithMock<ISolaxModbusClient>(ServiceLifetime.Singleton);
+        _serviceCollection.ReplaceWithMock<IInverterRepository>(ServiceLifetime.Singleton);
         _serviceCollection.ReplaceWithMock<IKnxClient>(ServiceLifetime.Singleton);
 
         ServiceProvider = _serviceCollection.BuildServiceProvider();
