@@ -1,5 +1,3 @@
-using SolaxHub.Domain.Inverter;
-
 namespace SolaxHub.Application.Inverter.Services;
 
 public interface IInverterStateService
