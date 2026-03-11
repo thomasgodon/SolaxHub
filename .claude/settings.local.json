@@ -11,7 +11,11 @@
       "mcp__filesystem__list_directory_with_sizes",
       "Bash(python3:*)",
       "mcp__filesystem__write_file",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Skill(solax-power)",
+      "Skill(solax-power:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
     ]
   }
 }

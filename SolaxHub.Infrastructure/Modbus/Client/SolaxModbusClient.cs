@@ -20,7 +20,7 @@ internal class SolaxModbusClient : ISolaxModbusClient
     {
         _options = options.Value;
         _logger = logger;
-        _modbusClient = new ModbusTcpClient { ReadTimeout = 1000 };
+        _modbusClient = new ModbusTcpClient { ReadTimeout = 10000 };
     }
 
     public async Task ConnectAsync(CancellationToken cancellationToken)

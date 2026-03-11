@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using System.Text;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Modbus.Client;
@@ -123,7 +122,7 @@ internal sealed class InverterRepository : IInverterRepository
 
     public async Task SetLockStateAsync(LockState state, CancellationToken cancellationToken)
     {
-        byte[] value = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)state));
+        byte[] value = BitConverter.GetBytes((ushort)state);
         await _client.WriteSingleRegisterAsync(WriteRegisters.UnlockPassword, value, cancellationToken);
     }
 
