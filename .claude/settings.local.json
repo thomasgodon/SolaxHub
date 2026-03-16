@@ -15,7 +15,9 @@
       "Skill(solax-power)",
       "Skill(solax-power:*)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs"
+      "mcp__context7__query-docs",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r \"KnxReceiverWorker\\\\|AddKnx\\\\|KnxClient\\\\|KnxValueBuffer\" --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")"
     ]
   }
 }
