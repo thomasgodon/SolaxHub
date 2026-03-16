@@ -77,6 +77,23 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 _powerControlBuffer.SetChargeDischargePower(chargeDischargePower);
                 break;
 
+            case "BatteryMaxDischargePower":
+                var maxDischargePower = (int)BitConverter.ToSingle(request.Value);
+                if (maxDischargePower <= 0)
+                {
+                    _logger.LogInformation("Disabling battery discharge power limit");
+                    var disableData = _powerControlBuffer.BuildRegisterBlock(PowerControlMode.Disabled);
+                    await _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, disableData), cancellationToken);
+                }
+                else
+                {
+                    _logger.LogInformation("Setting battery max discharge power to {Watts}W", maxDischargePower);
+                    _powerControlBuffer.SetChargeDischargePower(maxDischargePower);
+                    var selfConsumeData = _powerControlBuffer.BuildRegisterBlock(PowerControlMode.SelfConsumeChargeDischargeMode);
+                    await _sender.Send(new SetPowerControlCommand(PowerControlMode.SelfConsumeChargeDischargeMode, selfConsumeData), cancellationToken);
+                }
+                break;
+
             default:
                 _logger.LogWarning("Writing parameter '{Parameter}' not implemented", capability);
                 break;
