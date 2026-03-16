@@ -18,7 +18,8 @@
       "mcp__context7__query-docs",
       "Bash(xargs grep:*)",
       "Bash(grep -r \"KnxReceiverWorker\\\\|AddKnx\\\\|KnxClient\\\\|KnxValueBuffer\" --include=\"*.cs\" ! -path \"*/bin/*\" ! -path \"*/obj/*\")",
-      "Bash(grep -r \"BatteryMaxDischarge\\\\|BatteryDischarge\" /c/Users/thoma/source/repos/thomasgodon/SolaxHub --include=*.json --include=*.cs)"
+      "Bash(grep -r \"BatteryMaxDischarge\\\\|BatteryDischarge\" /c/Users/thoma/source/repos/thomasgodon/SolaxHub --include=*.json --include=*.cs)",
+      "Bash(dotnet clean:*)"
     ]
   }
 }
