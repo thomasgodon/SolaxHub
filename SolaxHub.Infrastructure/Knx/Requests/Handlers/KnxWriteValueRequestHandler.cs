@@ -7,26 +7,24 @@ using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Knx.Extensions;
 using SolaxHub.Infrastructure.Knx.Options;
-using SolaxHub.Infrastructure.Knx.Services;
 
 namespace SolaxHub.Infrastructure.Knx.Requests.Handlers;
 
 internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueRequest>
 {
+    private const ushort DefaultDuration = 20;
+
     private readonly ILogger<KnxWriteValueRequestHandler> _logger;
     private readonly ISender _sender;
-    private readonly IPowerControlBufferService _powerControlBuffer;
     private readonly Dictionary<GroupAddress, string> _writeGroupAddressCapabilityMapping;
 
     public KnxWriteValueRequestHandler(
         IOptions<KnxOptions> options,
         ILogger<KnxWriteValueRequestHandler> logger,
-        ISender sender,
-        IPowerControlBufferService powerControlBuffer)
+        ISender sender)
     {
         _logger = logger;
         _sender = sender;
-        _powerControlBuffer = powerControlBuffer;
         _writeGroupAddressCapabilityMapping = options.Value.GetWriteGroupAddressesFromOptions()
             .ToDictionary(
                 m => GroupAddress.Parse(m.Value),
@@ -46,50 +44,18 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 await _sender.Send(new SetInverterUseModeCommand(useMode), cancellationToken);
                 break;
 
-            case "PowerControlMode":
-                var mode = (PowerControlMode)request.Value[0];
-                var data = _powerControlBuffer.BuildRegisterBlock(mode);
-                _logger.LogInformation("Setting power control mode to {Mode}", mode);
-                await _sender.Send(new SetPowerControlCommand(mode, data), cancellationToken);
-                break;
-
-            case "PowerControlActivePower":
-                var activePower = (int)BitConverter.ToSingle(request.Value);
-                _logger.LogInformation("Buffering power control active power: {Watts}W", activePower);
-                _powerControlBuffer.SetActivePower(activePower);
-                break;
-
-            case "PowerControlDuration":
-                var duration = BitConverter.ToUInt16(request.Value);
-                _logger.LogInformation("Buffering power control duration: {Seconds}s", duration);
-                _powerControlBuffer.SetDuration(duration);
-                break;
-
-            case "PowerControlTargetSoc":
-                var targetSoc = request.Value[0];
-                _logger.LogInformation("Buffering power control target SOC: {Percent}%", targetSoc);
-                _powerControlBuffer.SetTargetSoc(targetSoc);
-                break;
-
-            case "PowerControlChargeDischargePower":
-                var chargeDischargePower = (int)BitConverter.ToSingle(request.Value);
-                _logger.LogInformation("Buffering power control charge/discharge power: {Watts}W", chargeDischargePower);
-                _powerControlBuffer.SetChargeDischargePower(chargeDischargePower);
-                break;
-
             case "BatteryDischargePowerTarget":
                 var dischargePowerTarget = (int)BitConverter.ToSingle(request.Value);
                 if (dischargePowerTarget <= 0)
                 {
                     _logger.LogInformation("Disabling battery discharge power target");
-                    var disableData = _powerControlBuffer.BuildRegisterBlock(PowerControlMode.Disabled);
+                    var disableData = BuildRegisterBlock(PowerControlMode.Disabled, 0);
                     await _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, disableData), cancellationToken);
                 }
                 else
                 {
                     _logger.LogInformation("Setting battery discharge power target to {Watts}W", dischargePowerTarget);
-                    _powerControlBuffer.SetChargeDischargePower(dischargePowerTarget);
-                    var selfConsumeData = _powerControlBuffer.BuildRegisterBlock(PowerControlMode.SelfConsumeChargeDischargeMode);
+                    var selfConsumeData = BuildRegisterBlock(PowerControlMode.SelfConsumeChargeDischargeMode, dischargePowerTarget);
                     await _sender.Send(new SetPowerControlCommand(PowerControlMode.SelfConsumeChargeDischargeMode, selfConsumeData), cancellationToken);
                 }
                 break;
@@ -98,5 +64,46 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 _logger.LogWarning("Writing parameter '{Parameter}' not implemented", capability);
                 break;
         }
+    }
+
+    private static byte[] BuildRegisterBlock(PowerControlMode mode, int chargeDischargePower)
+    {
+        var data = new byte[30];
+
+        // 0x7C: Power Control Trigger (U16) - mode value
+        WriteU16BigEndian(data, 0, (ushort)mode);
+
+        // 0x7D: Reserved (U16) - 0
+        // 0x7E-0x7F: Active Power (S32) - 0
+        // 0x80-0x81: Reactive Power (S32) - 0
+
+        // 0x82: Duration (U16)
+        WriteU16BigEndian(data, 12, DefaultDuration);
+
+        // 0x83: Target SOC (U16) - 0
+        // 0x84-0x85: Target Energy (S32) - 0
+
+        // 0x86-0x87: Charge/Discharge Power (S32, swapped word order)
+        WriteS32SwappedWordOrder(data, 20, chargeDischargePower);
+
+        // 0x88: Timeout (U16) - 0
+        // 0x89-0x8A: Push Mode Power (S32) - 0
+
+        return data;
+    }
+
+    private static void WriteU16BigEndian(byte[] buffer, int offset, ushort value)
+    {
+        buffer[offset] = (byte)(value >> 8);
+        buffer[offset + 1] = (byte)(value & 0xFF);
+    }
+
+    private static void WriteS32SwappedWordOrder(byte[] buffer, int offset, int value)
+    {
+        // Low word first, then high word (each word is big-endian)
+        buffer[offset] = (byte)(value >> 8);
+        buffer[offset + 1] = (byte)(value & 0xFF);
+        buffer[offset + 2] = (byte)(value >> 24);
+        buffer[offset + 3] = (byte)(value >> 16);
     }
 }

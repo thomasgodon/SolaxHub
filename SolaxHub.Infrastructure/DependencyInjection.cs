@@ -27,7 +27,6 @@ public static class DependencyInjection
         services.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
         services.AddSingleton<IKnxClient, KnxClient>();
         services.AddSingleton<IKnxValueBufferService, KnxValueBufferService>();
-        services.AddSingleton<IPowerControlBufferService, PowerControlBufferService>();
         services.AddHostedService<KnxConnectionWorker>();
 
         // UDP
