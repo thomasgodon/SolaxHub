@@ -10,6 +10,7 @@ namespace SolaxHub.Infrastructure.Modbus.Client;
 internal class SolaxModbusClient : ISolaxModbusClient
 {
     private static readonly ActivitySource ActivitySource = new(nameof(SolaxModbusClient));
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly ModbusOptions _options;
     private readonly ModbusTcpClient _modbusClient;
     private readonly ILogger<SolaxModbusClient> _logger;
@@ -45,16 +46,32 @@ internal class SolaxModbusClient : ISolaxModbusClient
     }
 
     public async Task<Memory<byte>> ReadHoldingRegistersAsync(ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
-        => await _modbusClient.ReadHoldingRegistersAsync(_options.UnitIdentifier, startingAddress, quantity, cancellationToken);
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+        try { return await _modbusClient.ReadHoldingRegistersAsync(_options.UnitIdentifier, startingAddress, quantity, cancellationToken); }
+        finally { _semaphore.Release(); }
+    }
 
     public async Task<Memory<byte>> ReadInputRegistersAsync(ushort startingAddress, ushort quantity, CancellationToken cancellationToken)
-        => await _modbusClient.ReadInputRegistersAsync(_options.UnitIdentifier, startingAddress, quantity, cancellationToken);
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+        try { return await _modbusClient.ReadInputRegistersAsync(_options.UnitIdentifier, startingAddress, quantity, cancellationToken); }
+        finally { _semaphore.Release(); }
+    }
 
     public async Task WriteSingleRegisterAsync(ushort startingAddress, byte[] value, CancellationToken cancellationToken)
-        => await _modbusClient.WriteSingleRegisterAsync(_options.UnitIdentifier, startingAddress, BitConverter.ToInt16(value), cancellationToken);
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+        try { await _modbusClient.WriteSingleRegisterAsync(_options.UnitIdentifier, startingAddress, BitConverter.ToInt16(value), cancellationToken); }
+        finally { _semaphore.Release(); }
+    }
 
     public async Task WriteMultipleRegistersAsync(ushort startingAddress, byte[] value, CancellationToken cancellationToken)
-        => await _modbusClient.WriteMultipleRegistersAsync(_options.UnitIdentifier, startingAddress, value, cancellationToken);
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+        try { await _modbusClient.WriteMultipleRegistersAsync(_options.UnitIdentifier, startingAddress, value, cancellationToken); }
+        finally { _semaphore.Release(); }
+    }
 
     private async Task<IPEndPoint> GetEndPointAsync(CancellationToken cancellationToken)
     {

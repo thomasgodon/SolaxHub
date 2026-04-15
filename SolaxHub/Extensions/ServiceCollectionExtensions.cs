@@ -10,5 +10,6 @@ public static class ServiceCollectionExtensions
         => services
             .AddApplication()
             .AddInfrastructure(configuration)
-            .AddHostedService<InverterPollingWorker>();
+            .AddHostedService<InverterPollingWorker>()
+            .AddHostedService<ConsoleCommandWorker>();
 }

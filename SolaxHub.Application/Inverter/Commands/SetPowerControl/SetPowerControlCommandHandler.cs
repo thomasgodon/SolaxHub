@@ -13,5 +13,5 @@ internal sealed class SetPowerControlCommandHandler : IRequestHandler<SetPowerCo
     }
 
     public async Task Handle(SetPowerControlCommand request, CancellationToken cancellationToken)
-        => await _repository.SetPowerControlAsync(request.Mode, request.Data, cancellationToken);
+        => await _repository.SetPowerControlAsync(request.Mode, request.ChargeDischargePower, cancellationToken);
 }

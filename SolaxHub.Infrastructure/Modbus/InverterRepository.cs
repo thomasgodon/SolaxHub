@@ -132,9 +132,32 @@ internal sealed class InverterRepository : IInverterRepository
             BitConverter.GetBytes((ushort)mode), cancellationToken);
     }
 
-    public async Task SetPowerControlAsync(PowerControlMode mode, byte[] data, CancellationToken cancellationToken)
+    public async Task SetPowerControlAsync(PowerControlMode mode, int chargeDischargePower, CancellationToken cancellationToken)
     {
+        var data = BuildRegisterBlock(mode, chargeDischargePower);
         await _client.WriteMultipleRegistersAsync(WriteRegisters.PowerControl, data, cancellationToken);
+    }
+
+    private static byte[] BuildRegisterBlock(PowerControlMode mode, int chargeDischargePower)
+    {
+        const ushort defaultDuration = 20;
+        var data = new byte[30];
+
+        // 0x7C: Power Control Trigger (U16)
+        data[0] = (byte)((ushort)mode >> 8);
+        data[1] = (byte)((ushort)mode & 0xFF);
+
+        // 0x82: Duration (U16)
+        data[12] = (byte)(defaultDuration >> 8);
+        data[13] = (byte)(defaultDuration & 0xFF);
+
+        // 0x86-0x87: Charge/Discharge Power (S32, swapped word order)
+        data[20] = (byte)(chargeDischargePower >> 8);
+        data[21] = (byte)(chargeDischargePower & 0xFF);
+        data[22] = (byte)(chargeDischargePower >> 24);
+        data[23] = (byte)(chargeDischargePower >> 16);
+
+        return data;
     }
 
     public async Task SetBatteryMaxDischargeCurrentAsync(double amps, CancellationToken cancellationToken)

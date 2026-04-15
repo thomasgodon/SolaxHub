@@ -3,4 +3,4 @@ using SolaxHub.Domain.Inverter;
 
 namespace SolaxHub.Application.Inverter.Commands.SetPowerControl;
 
-public record SetPowerControlCommand(PowerControlMode Mode, byte[] Data) : IRequest;
+public record SetPowerControlCommand(PowerControlMode Mode, int ChargeDischargePower) : IRequest;

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SolaxHub.Application.Inverter.Services;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Knx.Client;
 using SolaxHub.Infrastructure.Knx.Options;
@@ -22,6 +23,7 @@ public static class DependencyInjection
         services.Configure<ModbusOptions>(configuration.GetSection("ModbusOptions"));
         services.AddSingleton<ISolaxModbusClient, SolaxModbusClient>();
         services.AddSingleton<IInverterRepository, InverterRepository>();
+        services.AddSingleton<IInverterCommandQueue, InverterCommandQueue>();
 
         // KNX
         services.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
