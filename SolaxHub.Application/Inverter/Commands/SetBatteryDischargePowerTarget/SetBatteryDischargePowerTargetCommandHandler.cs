@@ -18,6 +18,6 @@ internal sealed class SetBatteryDischargePowerTargetCommandHandler : IRequestHan
         if (request.Watts <= 0)
             await _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), cancellationToken);
         else
-            await _sender.Send(new SetPowerControlCommand(PowerControlMode.SelfConsumeChargeDischargeMode, request.Watts), cancellationToken);
+            await _sender.Send(new SetPowerControlCommand(PowerControlMode.PowerControlMode, -request.Watts), cancellationToken);
     }
 }

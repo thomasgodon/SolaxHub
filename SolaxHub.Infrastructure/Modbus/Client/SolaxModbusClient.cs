@@ -66,10 +66,10 @@ internal class SolaxModbusClient : ISolaxModbusClient
         finally { _semaphore.Release(); }
     }
 
-    public async Task WriteMultipleRegistersAsync(ushort startingAddress, byte[] value, CancellationToken cancellationToken)
+    public async Task WriteMultipleRegistersAsync(ushort startingAddress, ushort[] registers, CancellationToken cancellationToken)
     {
         await _semaphore.WaitAsync(cancellationToken);
-        try { await _modbusClient.WriteMultipleRegistersAsync(_options.UnitIdentifier, startingAddress, value, cancellationToken); }
+        try { await _modbusClient.WriteMultipleRegistersAsync(_options.UnitIdentifier, startingAddress, registers, cancellationToken); }
         finally { _semaphore.Release(); }
     }
 

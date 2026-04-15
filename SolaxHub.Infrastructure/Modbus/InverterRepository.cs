@@ -134,30 +134,33 @@ internal sealed class InverterRepository : IInverterRepository
 
     public async Task SetPowerControlAsync(PowerControlMode mode, int chargeDischargePower, CancellationToken cancellationToken)
     {
-        var data = BuildRegisterBlock(mode, chargeDischargePower);
-        await _client.WriteMultipleRegistersAsync(WriteRegisters.PowerControl, data, cancellationToken);
+        var registers = BuildRegisterBlock(mode, chargeDischargePower);
+        await _client.WriteMultipleRegistersAsync(WriteRegisters.PowerControl, registers, cancellationToken);
     }
 
-    private static byte[] BuildRegisterBlock(PowerControlMode mode, int chargeDischargePower)
+    private static ushort[] BuildRegisterBlock(PowerControlMode mode, int chargeDischargePower)
     {
-        const ushort defaultDuration = 20;
-        var data = new byte[30];
+        const ushort defaultDuration = 60;
 
-        // 0x7C: Power Control Trigger (U16)
-        data[0] = (byte)((ushort)mode >> 8);
-        data[1] = (byte)((ushort)mode & 0xFF);
+        // Mode 1 (PowerControlMode): use active power at 0x7E–0x7F (standard word order, low word first)
+        // Other modes: use battery power at 0x86–0x87 (swapped word order, high word first)
+        bool useActivePower = mode == PowerControlMode.PowerControlMode;
 
-        // 0x82: Duration (U16)
-        data[12] = (byte)(defaultDuration >> 8);
-        data[13] = (byte)(defaultDuration & 0xFF);
-
-        // 0x86-0x87: Charge/Discharge Power (S32, swapped word order)
-        data[20] = (byte)(chargeDischargePower >> 8);
-        data[21] = (byte)(chargeDischargePower & 0xFF);
-        data[22] = (byte)(chargeDischargePower >> 24);
-        data[23] = (byte)(chargeDischargePower >> 16);
-
-        return data;
+        return
+        [
+            (ushort)mode,                                                                                       // 0x7C: Power Control Mode
+            0,                                                                                                  // 0x7D: reserved
+            useActivePower ? (ushort)(chargeDischargePower & 0xFFFF) : (ushort)0,                              // 0x7E: active power (low word, standard)
+            useActivePower ? (ushort)((chargeDischargePower >> 16) & 0xFFFF) : (ushort)0,                      // 0x7F: active power (high word, standard)
+            0,                                                                                                  // 0x80: reactive power (high word)
+            0,                                                                                                  // 0x81: reactive power (low word)
+            defaultDuration,                                                                                    // 0x82: duration (seconds)
+            0,                                                                                                  // 0x83: target SOC
+            0,                                                                                                  // 0x84: target energy (high word)
+            0,                                                                                                  // 0x85: target energy (low word)
+            useActivePower ? (ushort)0 : (ushort)((chargeDischargePower >> 16) & 0xFFFF),                      // 0x86: battery power (high word, swapped)
+            useActivePower ? (ushort)0 : (ushort)(chargeDischargePower & 0xFFFF),                              // 0x87: battery power (low word)
+        ];
     }
 
     public async Task SetBatteryMaxDischargeCurrentAsync(double amps, CancellationToken cancellationToken)

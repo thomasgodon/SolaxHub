@@ -9,5 +9,6 @@ public enum PowerControlMode
     PushPowerPositiveNegativeMode = 4,
     PushPowerZeroMode = 5,
     SelfConsumeChargeDischargeMode = 6,
-    SelfConsumeChargeOnlyMode = 7
+    SelfConsumeChargeOnlyMode = 7,
+    PvBatIndividualDurationMode = 8
 }
