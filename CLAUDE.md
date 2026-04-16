@@ -57,7 +57,7 @@ Solax Inverter (Modbus TCP)
 **Configuration** (`appsettings.json`): `SolaxModbusOptions` (host, port, poll interval), `KnxOptions` (enabled, host, port, group address mappings), `IotHubOptions` (array of IoT devices with DPS credentials), `UdpOptions` (enabled, host, port mapping). Features are gated by `Enabled` boolean flags — handlers return early when disabled.
 
 ## General
-- Target .NET 9.0 for all projects.
+- Target .NET 10.0 for all projects.
 - Enable nullable reference types and implicit usings.
 - Use dependency injection for all services and clients.
 - Use MediatR for request/response and command/query patterns.
