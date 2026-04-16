@@ -17,18 +17,6 @@ All settings live in `appsettings.json`.
 }
 ```
 
-### Power control limits
-
-```json
-"PowerControlOptions": {
-  "MaxGridImportWatts": 4500
-}
-```
-
-`MaxGridImportWatts` is the hard cap on total grid draw. When charging the battery from the grid, SolaxHub automatically reduces the charge rate so that grid import (house load + battery charging) never exceeds this value.
-
----
-
 ## KNX Integration
 
 Enable KNX and fill in your tunnel connection details:
@@ -64,6 +52,7 @@ SolaxHub writes these values to the KNX bus every poll cycle (only when the valu
 | `BatteryInputEnergyTotal` | Total battery charge energy | 4-byte IEEE 754 float, kWh |
 | `PowerControl` | Active power control mode | 1-byte raw enum |
 | `LockState` | Inverter lock state | 1-byte |
+| `MaxGridImportWatts` | Current max grid import limit | 4-byte IEEE 754 float, W |
 
 Configure each key with a KNX group address string, or leave blank to skip it:
 
@@ -84,6 +73,7 @@ SolaxHub listens for KNX `ValueWrite` telegrams on these addresses and sends the
 | `InverterUseMode` | Set inverter use mode | 1-byte enum value (see table below) |
 | `BatteryDischargePowerTarget` | Set battery discharge power | 4-byte IEEE 754 float, W — send `0` to disable |
 | `BatteryChargePowerTarget` | Set battery charge power from grid | 4-byte IEEE 754 float, W — send `0` to disable |
+| `MaxGridImportWatts` | Set max grid import limit for battery charging | 4-byte IEEE 754 float, W — defaults to `0` at startup |
 
 ```json
 "WriteGroupAddresses": {
@@ -109,6 +99,9 @@ Puts the inverter into grid-target mode. SolaxHub calculates how much the batter
 
 **Charge (`BatteryChargePowerTarget`)**
 Puts the inverter into battery-target mode to pull power from the grid. The actual charge rate is capped so that total grid import (house load + charging) never exceeds `MaxGridImportWatts`. Sending `0` disables power control.
+
+**`MaxGridImportWatts`**
+Sets the hard cap on total grid draw used by the charge calculation. Defaults to `0` at startup (charging disabled until explicitly set). Configure the `MaxGridImportWatts` write group address and write the limit in watts before issuing charge commands.
 
 Both commands are adaptive — they re-calculate on the latest inverter snapshot each poll cycle.
 

@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddMediatR(m => m.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
         services.AddSingleton<IInverterStateService, InverterStateService>();
-        services.Configure<PowerControlOptions>(configuration.GetSection(nameof(PowerControlOptions)));
+        services.AddSingleton<IPowerControlStateService, PowerControlStateService>();
         return services;
     }
 }

@@ -32,6 +32,12 @@ internal class KnxValueBufferService : IKnxValueBufferService
         }
     }
 
+    public KnxValue? UpdateMaxGridImportWatts(int watts)
+    {
+        lock (_mappingLock)
+            return UpdateValue("MaxGridImportWatts", BitConverter.GetBytes((float)watts));
+    }
+
     private KnxValue? UpdateValue(string capability, byte[] value)
     {
         if (_capabilityKnxValueMapping.TryGetValue(capability, out KnxValue? knxValue) is false)

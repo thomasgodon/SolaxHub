@@ -26,8 +26,8 @@ public class SetBatteryChargePowerTargetTests
         int inverterPower, int feedInPower, int pvPower1, int commandWatts, int expectedGridWTarget)
     {
         // Arrange
-        var fixture = new SolaxHubFixture(services =>
-            services.Configure<PowerControlOptions>(opts => opts.MaxGridImportWatts = MaxGridImport));
+        var fixture = new SolaxHubFixture();
+        fixture.ServiceProvider.GetRequiredService<IPowerControlStateService>().SetMaxGridImportWatts(MaxGridImport);
         var repoMock = fixture.ServiceProvider.GetRequiredService<Mock<IInverterRepository>>();
         repoMock.Setup(r => r.ReadSnapshotAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateSnapshot(inverterPower, feedInPower, pvPower1));
@@ -49,8 +49,8 @@ public class SetBatteryChargePowerTargetTests
     public async Task Given_HouseLoad_Exceeds_MaxGrid_Should_Disable_PowerControl()
     {
         // Arrange — house=10000W pv=2500W → headroom = 4500+2500-10000 = -3000 → effective=0 → disable
-        var fixture = new SolaxHubFixture(services =>
-            services.Configure<PowerControlOptions>(opts => opts.MaxGridImportWatts = MaxGridImport));
+        var fixture = new SolaxHubFixture();
+        fixture.ServiceProvider.GetRequiredService<IPowerControlStateService>().SetMaxGridImportWatts(MaxGridImport);
         var repoMock = fixture.ServiceProvider.GetRequiredService<Mock<IInverterRepository>>();
         repoMock.Setup(r => r.ReadSnapshotAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(CreateSnapshot(inverterPower: 2500, feedInPower: -7500, pvPower1: 2500));

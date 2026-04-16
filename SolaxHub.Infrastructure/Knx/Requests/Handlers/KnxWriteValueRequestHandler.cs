@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using SolaxHub.Application.Inverter.Commands.SetBatteryChargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
+using SolaxHub.Application.PowerControl.Commands;
 using SolaxHub.Application.Inverter.Services;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Knx.Extensions;
@@ -57,6 +58,12 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 var chargeWatts = (int)BitConverter.ToSingle(request.Value);
                 _logger.LogInformation("Setting battery charge power target to {Watts}W", chargeWatts);
                 _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryChargePowerTargetCommand(chargeWatts), ct));
+                break;
+
+            case "MaxGridImportWatts":
+                var maxGridWatts = (int)BitConverter.ToSingle(request.Value);
+                _logger.LogInformation("Setting max grid import to {Watts}W", maxGridWatts);
+                _commandQueue.Enqueue(ct => _sender.Send(new SetMaxGridImportWattsCommand(maxGridWatts), ct));
                 break;
 
             default:

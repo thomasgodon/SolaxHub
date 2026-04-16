@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Application.Inverter.Services;
 using SolaxHub.Application.PowerControl;
@@ -12,18 +11,18 @@ internal sealed class SetBatteryChargePowerTargetCommandHandler : IRequestHandle
 {
     private readonly ISender _sender;
     private readonly IInverterStateService _stateService;
-    private readonly PowerControlOptions _options;
+    private readonly IPowerControlStateService _powerControlState;
     private readonly ILogger<SetBatteryChargePowerTargetCommandHandler> _logger;
 
     public SetBatteryChargePowerTargetCommandHandler(
         ISender sender,
         IInverterStateService stateService,
-        IOptions<PowerControlOptions> options,
+        IPowerControlStateService powerControlState,
         ILogger<SetBatteryChargePowerTargetCommandHandler> logger)
     {
         _sender = sender;
         _stateService = stateService;
-        _options = options.Value;
+        _powerControlState = powerControlState;
         _logger = logger;
     }
 
@@ -40,12 +39,12 @@ internal sealed class SetBatteryChargePowerTargetCommandHandler : IRequestHandle
         // effectiveCharge = min(Watts, MaxGridImport + PV − HouseLoad)
         // This keeps total grid import ≤ MaxGridImportWatts by reducing battery charging
         // when house load consumes grid headroom.
-        var gridHeadroom = _options.MaxGridImportWatts + (int)inverter.Solar.Power1 - inverter.HouseLoad;
+        var gridHeadroom = _powerControlState.MaxGridImportWatts + (int)inverter.Solar.Power1 - inverter.HouseLoad;
         var effectiveCharge = Math.Max(0, Math.Min(request.Watts, gridHeadroom));
 
         _logger.LogDebug(
             "Charge: requested={Requested}W houseLoad={HouseLoad}W pv={Pv}W maxGrid={MaxGrid}W effective={Effective}W",
-            request.Watts, inverter.HouseLoad, inverter.Solar.Power1, _options.MaxGridImportWatts, effectiveCharge);
+            request.Watts, inverter.HouseLoad, inverter.Solar.Power1, _powerControlState.MaxGridImportWatts, effectiveCharge);
 
         if (effectiveCharge == 0)
         {
