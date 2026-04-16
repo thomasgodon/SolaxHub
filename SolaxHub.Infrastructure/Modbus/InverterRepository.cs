@@ -141,6 +141,7 @@ internal sealed class InverterRepository : IInverterRepository
     private static ushort[] BuildRegisterBlock(PowerControlMode mode, int chargeDischargePower)
     {
         const ushort defaultDuration = 60;
+        const ushort waitTimeout = 90; // watchdog: inverter exits VPP if no new command arrives within this many seconds
 
         // Mode 1 (PowerControlMode): GridWTarget at 0x7E–0x7F (LSB first, standard word order).
         //   Positive = import from grid; battery adjusts to cover the gap.
@@ -154,12 +155,13 @@ internal sealed class InverterRepository : IInverterRepository
             useActivePower ? (ushort)((chargeDischargePower >> 16) & 0xFFFF) : (ushort)0,   // 0x7F: GridWTarget MSB (Mode 1)
             0,                                                                               // 0x80: reactive power LSB
             0,                                                                               // 0x81: reactive power MSB
-            defaultDuration,                                                                 // 0x82: duration (seconds)
+            defaultDuration,                                                                 // 0x82: ExecDuration (seconds)
             0,                                                                               // 0x83: target SOC
             0,                                                                               // 0x84: target energy LSB
             0,                                                                               // 0x85: target energy MSB
             0,                                                                               // 0x86: unused
             0,                                                                               // 0x87: unused
+            waitTimeout,                                                                     // 0x88: WaitTimeout (watchdog, seconds)
         ];
     }
 

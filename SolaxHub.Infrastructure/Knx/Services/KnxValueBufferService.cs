@@ -63,7 +63,7 @@ internal class KnxValueBufferService : IKnxValueBufferService
         yield return UpdateValue("HouseLoad", BitConverter.GetBytes((float)inverter.HouseLoad));
         yield return UpdateValue("InverterPower", BitConverter.GetBytes((float)inverter.InverterPower));
         yield return UpdateValue("BatteryPower", BitConverter.GetBytes((float)inverter.Battery.Power));
-        yield return UpdateValue("InverterUseMode", [(byte)((int)inverter.UseMode * 2.55)]);
+        yield return UpdateValue("InverterUseMode", [(byte)(int)inverter.UseMode]);
         yield return UpdateValue("ConsumeEnergy", BitConverter.GetBytes((float)inverter.Grid.ConsumeEnergy));
         yield return UpdateValue("BatteryCapacity", [(byte)(inverter.Battery.Capacity * 2.55)]);
         yield return UpdateValue("PvPower1", BitConverter.GetBytes((float)inverter.Solar.Power1));
