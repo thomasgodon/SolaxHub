@@ -73,9 +73,9 @@ internal sealed class InverterRepository : IInverterRepository
         var bidData = await _client.ReadInputRegistersAsync(InputRegisters.InputEnergyChargeToday, 1, cancellationToken);
         double batteryInputToday = Math.Round(bidData.ToArray()[0] * 0.1, 2);
 
-        // Feed-in power (2 registers, signed 32-bit)
+        // Feed-in power (2 registers, signed 32-bit, swapped word order: R0=low word, R1=high word)
         var fipData = await _client.ReadInputRegistersAsync(InputRegisters.FeedInPower, 2, cancellationToken);
-        int feedInPower = fipData.ToArray()[1] << 16 | fipData.ToArray()[0] & 0xffff;
+        int feedInPower = BitConverter.ToInt32([fipData.Span[1], fipData.Span[0], fipData.Span[3], fipData.Span[2]]);
 
         // Feed-in energy (2 registers, scaled ×0.01)
         var fieData = await _client.ReadInputRegistersAsync(InputRegisters.FeedInEnergy, 2, cancellationToken);
@@ -142,24 +142,24 @@ internal sealed class InverterRepository : IInverterRepository
     {
         const ushort defaultDuration = 60;
 
-        // Mode 1 (PowerControlMode): use active power at 0x7E–0x7F (standard word order, low word first)
-        // Other modes: use battery power at 0x86–0x87 (swapped word order, high word first)
+        // Mode 1 (PowerControlMode): GridWTarget at 0x7E–0x7F (LSB first, standard word order).
+        //   Positive = import from grid; battery adjusts to cover the gap.
         bool useActivePower = mode == PowerControlMode.PowerControlMode;
 
         return
         [
-            (ushort)mode,                                                                                       // 0x7C: Power Control Mode
-            0,                                                                                                  // 0x7D: reserved
-            useActivePower ? (ushort)(chargeDischargePower & 0xFFFF) : (ushort)0,                              // 0x7E: active power (low word, standard)
-            useActivePower ? (ushort)((chargeDischargePower >> 16) & 0xFFFF) : (ushort)0,                      // 0x7F: active power (high word, standard)
-            0,                                                                                                  // 0x80: reactive power (high word)
-            0,                                                                                                  // 0x81: reactive power (low word)
-            defaultDuration,                                                                                    // 0x82: duration (seconds)
-            0,                                                                                                  // 0x83: target SOC
-            0,                                                                                                  // 0x84: target energy (high word)
-            0,                                                                                                  // 0x85: target energy (low word)
-            useActivePower ? (ushort)0 : (ushort)((chargeDischargePower >> 16) & 0xFFFF),                      // 0x86: battery power (high word, swapped)
-            useActivePower ? (ushort)0 : (ushort)(chargeDischargePower & 0xFFFF),                              // 0x87: battery power (low word)
+            (ushort)mode,                                                                    // 0x7C: VPP mode
+            1,                                                                               // 0x7D: TargetSetType=Reset (0=invalid, 1=Reset, 2=Update cumulative)
+            useActivePower ? (ushort)(chargeDischargePower & 0xFFFF) : (ushort)0,           // 0x7E: GridWTarget LSB (Mode 1)
+            useActivePower ? (ushort)((chargeDischargePower >> 16) & 0xFFFF) : (ushort)0,   // 0x7F: GridWTarget MSB (Mode 1)
+            0,                                                                               // 0x80: reactive power LSB
+            0,                                                                               // 0x81: reactive power MSB
+            defaultDuration,                                                                 // 0x82: duration (seconds)
+            0,                                                                               // 0x83: target SOC
+            0,                                                                               // 0x84: target energy LSB
+            0,                                                                               // 0x85: target energy MSB
+            0,                                                                               // 0x86: unused
+            0,                                                                               // 0x87: unused
         ];
     }
 

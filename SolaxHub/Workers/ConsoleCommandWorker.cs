@@ -1,4 +1,5 @@
 using MediatR;
+using SolaxHub.Application.Inverter.Commands.SetBatteryChargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
 using SolaxHub.Application.Inverter.Commands.SetPowerControl;
@@ -51,6 +52,13 @@ internal class ConsoleCommandWorker : BackgroundService
                     : $"OK: discharge power target set to {watts}W (queued)");
                 break;
 
+            case ["set", "charge", var wattsStr] when int.TryParse(wattsStr, out var watts):
+                _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryChargePowerTargetCommand(watts), ct));
+                Console.WriteLine(watts <= 0
+                    ? "OK: power control disabled (queued)"
+                    : $"OK: charge power target set to {watts}W (queued)");
+                break;
+
             case ["set", "mode", "solar-only"]:
                 _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.SelfConsumeChargeOnlyMode, 0), ct));
                 Console.WriteLine("OK: use mode set to SelfConsumeChargeOnly (queued)");
@@ -87,6 +95,7 @@ internal class ConsoleCommandWorker : BackgroundService
     {
         Console.WriteLine("Commands:");
         Console.WriteLine("  set discharge <watts>   Set battery discharge power target (0 = disable)");
+        Console.WriteLine("  set charge <watts>      Set battery charge power target from grid (0 = disable)");
         Console.WriteLine("  set mode <name>         Set inverter mode: self-use | feed-in | backup | force-time | solar-only");
     }
 }

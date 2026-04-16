@@ -14,7 +14,7 @@ public class SolaxHubFixture
 
     public ServiceProvider ServiceProvider { get; }
 
-    public SolaxHubFixture()
+    public SolaxHubFixture(Action<IServiceCollection>? configure = null)
     {
         IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -25,6 +25,8 @@ public class SolaxHubFixture
         _serviceCollection.AddLogging();
         _serviceCollection.AddSingleton(configuration);
         _serviceCollection.AddSolaxHub(configuration);
+
+        configure?.Invoke(_serviceCollection);
 
         _serviceCollection.ReplaceWithMock<IInverterRepository>(ServiceLifetime.Singleton);
         _serviceCollection.ReplaceWithMock<IKnxClient>(ServiceLifetime.Singleton);
