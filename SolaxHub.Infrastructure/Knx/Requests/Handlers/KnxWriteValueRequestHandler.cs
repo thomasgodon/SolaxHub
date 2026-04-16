@@ -2,6 +2,7 @@ using Knx.Falcon;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SolaxHub.Application.Inverter.Commands.SetBatteryChargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
 using SolaxHub.Application.Inverter.Services;
@@ -50,6 +51,12 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 var watts = (int)BitConverter.ToSingle(request.Value);
                 _logger.LogInformation("Setting battery discharge power target to {Watts}W", watts);
                 _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryDischargePowerTargetCommand(watts), ct));
+                break;
+
+            case "BatteryChargePowerTarget":
+                var chargeWatts = (int)BitConverter.ToSingle(request.Value);
+                _logger.LogInformation("Setting battery charge power target to {Watts}W", chargeWatts);
+                _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryChargePowerTargetCommand(chargeWatts), ct));
                 break;
 
             default:
