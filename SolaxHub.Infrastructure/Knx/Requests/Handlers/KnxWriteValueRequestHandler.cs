@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using Knx.Falcon;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -59,7 +60,7 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 break;
 
             case "PowerControlPowerTarget":
-                var powerWatts = (int)BitConverter.ToSingle(request.Value);
+                var powerWatts = (int)BinaryPrimitives.ReadSingleBigEndian(request.Value);
                 _logger.LogInformation("Setting power control target to {Watts}W", powerWatts);
                 _powerControlState.SetPowerTarget(powerWatts);
                 _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(_powerControlState.ActiveMode, powerWatts), ct));
