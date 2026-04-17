@@ -1,6 +1,4 @@
 using MediatR;
-using SolaxHub.Application.Inverter.Commands.SetBatteryChargePowerTarget;
-using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
 using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Application.Inverter.Services;
@@ -48,46 +46,29 @@ internal class ConsoleCommandWorker : BackgroundService
 
         switch (parts)
         {
-            case ["set", "discharge", var wattsStr] when int.TryParse(wattsStr, out var watts):
-                _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryDischargePowerTargetCommand(watts), ct));
-                Console.WriteLine(watts <= 0
-                    ? "OK: power control disabled (queued)"
-                    : $"OK: discharge power target set to {watts}W (queued)");
+            case ["set", "power-control", var modeStr] when int.TryParse(modeStr, out var modeNum):
+                SetPowerControl(modeNum, 0);
                 break;
 
-            case ["set", "charge", var wattsStr] when int.TryParse(wattsStr, out var watts):
-                _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryChargePowerTargetCommand(watts), ct));
-                Console.WriteLine(watts <= 0
-                    ? "OK: power control disabled (queued)"
-                    : $"OK: charge power target set to {watts}W (queued)");
+            case ["set", "power-control", var modeStr, var wattsStr]
+                when int.TryParse(modeStr, out var modeNum) && int.TryParse(wattsStr, out var watts):
+                SetPowerControl(modeNum, watts);
                 break;
 
-            case ["set", "mode", "solar-only"]:
+            case ["set", "use-mode", "solar-only"]:
                 _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.SelfConsumeChargeOnlyMode, 0), ct));
                 Console.WriteLine("OK: use mode set to SelfConsumeChargeOnly (queued)");
                 break;
 
-            case ["set", "mode", var name]:
+            case ["set", "use-mode", var name]:
                 var useMode = ParseUseMode(name);
                 if (useMode is null)
                 {
-                    Console.WriteLine($"Unknown mode '{name}'. Valid modes: self-use, feed-in, backup, force-time, solar-only");
+                    Console.WriteLine($"Unknown mode '{name}'. Valid modes: self-use | feed-in | backup | force-time | solar-only");
                     break;
                 }
                 _commandQueue.Enqueue(ct => _sender.Send(new SetInverterUseModeCommand(useMode.Value), ct));
                 Console.WriteLine($"OK: inverter use mode set to {useMode.Value} (queued)");
-                break;
-
-            case ["set", "vpp", "off"]:
-                _powerControlState.SetActiveMode(PowerControlMode.Disabled);
-                _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), ct));
-                Console.WriteLine("OK: VPP power control disabled (queued)");
-                break;
-
-            case ["set", "vpp", var wattsStr] when int.TryParse(wattsStr, out var vppWatts):
-                _powerControlState.SetActiveMode(PowerControlMode.PowerControlMode);
-                _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.PowerControlMode, vppWatts), ct));
-                Console.WriteLine($"OK: VPP power control target set to {vppWatts}W (queued)");
                 break;
 
             default:
@@ -95,6 +76,24 @@ internal class ConsoleCommandWorker : BackgroundService
                 PrintHelp();
                 break;
         }
+    }
+
+    private void SetPowerControl(int modeNum, int watts)
+    {
+        var mode = (PowerControlMode)modeNum;
+
+        _powerControlState.SetActiveMode(mode);
+        _powerControlState.SetPowerTarget(watts);
+
+        if (mode == PowerControlMode.Disabled)
+        {
+            _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), ct));
+            Console.WriteLine("OK: power control disabled (queued, periodic sending stopped)");
+            return;
+        }
+
+        var wattsLabel = watts != 0 ? $", target={watts}W" : "";
+        Console.WriteLine($"OK: power control mode={modeNum}{wattsLabel} (re-sent every poll cycle)");
     }
 
     private static InverterUseMode? ParseUseMode(string name) => name switch
@@ -109,10 +108,8 @@ internal class ConsoleCommandWorker : BackgroundService
     private static void PrintHelp()
     {
         Console.WriteLine("Commands:");
-        Console.WriteLine("  set discharge <watts>   Set battery discharge power target (0 = disable)");
-        Console.WriteLine("  set charge <watts>      Set battery charge power target from grid (0 = disable)");
-        Console.WriteLine("  set mode <name>         Set inverter mode: self-use | feed-in | backup | force-time | solar-only");
-        Console.WriteLine("  set vpp <watts>         Set VPP power control target (arms mode + sends target)");
-        Console.WriteLine("  set vpp off             Disable VPP power control");
+        Console.WriteLine("  set power-control <mode> [watts]   Set VPP power control mode (re-sent every poll cycle)");
+        Console.WriteLine("                                       mode 0 = disable, mode 1 = GridWTarget, mode 5/6/7 = no watts needed");
+        Console.WriteLine("  set use-mode <name>                Set inverter use mode: self-use | feed-in | backup | force-time | solar-only");
     }
 }

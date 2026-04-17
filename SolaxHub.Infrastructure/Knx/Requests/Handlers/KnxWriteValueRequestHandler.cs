@@ -2,8 +2,6 @@ using Knx.Falcon;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SolaxHub.Application.Inverter.Commands.SetBatteryChargePowerTarget;
-using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
 using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Application.PowerControl.Commands;
@@ -53,18 +51,6 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 _commandQueue.Enqueue(ct => _sender.Send(new SetInverterUseModeCommand(useMode), ct));
                 break;
 
-            case "BatteryDischargePowerTarget":
-                var watts = (int)BitConverter.ToSingle(request.Value);
-                _logger.LogInformation("Setting battery discharge power target to {Watts}W", watts);
-                _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryDischargePowerTargetCommand(watts), ct));
-                break;
-
-            case "BatteryChargePowerTarget":
-                var chargeWatts = (int)BitConverter.ToSingle(request.Value);
-                _logger.LogInformation("Setting battery charge power target to {Watts}W", chargeWatts);
-                _commandQueue.Enqueue(ct => _sender.Send(new SetBatteryChargePowerTargetCommand(chargeWatts), ct));
-                break;
-
             case "MaxGridImportWatts":
                 var maxGridWatts = (int)BitConverter.ToSingle(request.Value);
                 _logger.LogInformation("Setting max grid import to {Watts}W", maxGridWatts);
@@ -81,15 +67,8 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
 
             case "PowerControlPowerTarget":
                 var powerWatts = (int)BitConverter.ToSingle(request.Value);
-                if (_powerControlState.ActiveMode == PowerControlMode.PowerControlMode)
-                {
-                    _logger.LogInformation("Setting power control target to {Watts}W", powerWatts);
-                    _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.PowerControlMode, powerWatts), ct));
-                }
-                else
-                {
-                    _logger.LogWarning("Received PowerControlPowerTarget ({Watts}W) but mode is {Mode}, ignoring", powerWatts, _powerControlState.ActiveMode);
-                }
+                _logger.LogInformation("Setting power control target to {Watts}W", powerWatts);
+                _powerControlState.SetPowerTarget(powerWatts);
                 break;
 
             default:

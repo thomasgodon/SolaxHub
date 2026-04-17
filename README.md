@@ -1,6 +1,6 @@
 # SolaxHub
 
-SolaxHub is a .NET 9 Worker Service that bridges a **Solax solar inverter** (via Modbus TCP) to **KNX** home automation, **Azure IoT Hub**, and **UDP**. It polls the inverter on a configurable interval, publishes the data to all enabled integrations, and accepts power-control commands from KNX or the console.
+SolaxHub is a .NET Worker Service that bridges a **Solax solar inverter** (via Modbus TCP) to **KNX** home automation, **Azure IoT Hub**, and **UDP**. It polls the inverter on a configurable interval, publishes the data to all enabled integrations, and accepts power-control commands from KNX or the console.
 
 ## Configuration
 
@@ -71,19 +71,16 @@ SolaxHub listens for KNX `ValueWrite` telegrams on these addresses and sends the
 | Key | Description | Encoding |
 |-----|-------------|----------|
 | `InverterUseMode` | Set inverter use mode | 1-byte enum value (see table below) |
-| `BatteryDischargePowerTarget` | Set battery discharge power | 4-byte IEEE 754 float, W — send `0` to disable |
-| `BatteryChargePowerTarget` | Set battery charge power from grid | 4-byte IEEE 754 float, W — send `0` to disable |
-| `MaxGridImportWatts` | Set max grid import limit for battery charging | 4-byte IEEE 754 float, W — defaults to `0` at startup |
-| `PowerControlMode` | Arm or disarm VPP power control | 1-byte enum: `0` = Disabled, `1` = PowerControl |
-| `PowerControlPowerTarget` | Set VPP power target (requires mode = `1`) | 4-byte IEEE 754 float, W (positive = export, negative = import) |
+| `MaxGridImportWatts` | Set max grid import limit | 4-byte IEEE 754 float, W — defaults to `0` at startup |
+| `PowerControlMode` | Set VPP power control mode | 1-byte integer: `0` = Disabled, `1`–`12` = VPP mode number |
+| `PowerControlPowerTarget` | Set VPP power target | 4-byte IEEE 754 float, W — stored in state; re-sent automatically each poll cycle |
 
 ```json
 "WriteGroupAddresses": {
   "InverterUseMode": "1/1/1",
-  "BatteryDischargePowerTarget": "1/1/2",
-  "BatteryChargePowerTarget": "1/1/3",
-  "PowerControlMode": "1/1/4",
-  "PowerControlPowerTarget": "1/1/5"
+  "MaxGridImportWatts": "1/1/2",
+  "PowerControlMode": "1/1/3",
+  "PowerControlPowerTarget": "1/1/4"
 }
 ```
 
@@ -98,25 +95,31 @@ SolaxHub listens for KNX `ValueWrite` telegrams on these addresses and sends the
 
 ### Power control behaviour
 
-**Discharge (`BatteryDischargePowerTarget`)**
-Puts the inverter into grid-target mode. SolaxHub calculates how much the battery actually needs to contribute given current solar production and house load, then adjusts the grid target accordingly. Sending `0` returns the inverter to its previous use mode.
+**VPP power control (`PowerControlMode` + `PowerControlPowerTarget`)**
 
-**Charge (`BatteryChargePowerTarget`)**
-Puts the inverter into battery-target mode to pull power from the grid. The actual charge rate is capped so that total grid import (house load + charging) never exceeds `MaxGridImportWatts`. Sending `0` disables power control.
+Direct VPP (Virtual Power Plant) control via Solax register block (0x7C–0x88). Commands are **not stored in EEPROM** — safe for frequent writes.
+
+Flow:
+1. Write a mode number (`1`–`12`) to `PowerControlMode` to arm the controller.
+2. Write the desired watt target (float) to `PowerControlPowerTarget` — stored in `IPowerControlStateService`.
+3. SolaxHub **automatically re-sends** the command every poll cycle. No client-side loop needed.
+4. Write `0` to `PowerControlMode` to disable — SolaxHub sends a Disabled command immediately and stops re-sending.
+
+Mode determines the meaning of the watt target:
+
+| Mode | Name | Target parameter |
+|------|------|-----------------|
+| 0 | Disabled | — |
+| 1 | Power Control Mode | `GridWTarget` — grid port active power (positive = import, negative = export) |
+| 5 | Push Power Zero Mode | *(no target needed)* |
+| 6 | Self-Consume Charge/Discharge | *(no target needed)* |
+| 7 | Self-Consume Charge Only | *(no target needed)* |
+| 12 | Max Output Mode | *(no target needed)* |
+
+Additional modes (4, 8, 9, 11) will be supported in future updates.
 
 **`MaxGridImportWatts`**
-Sets the hard cap on total grid draw used by the charge calculation. Defaults to `0` at startup (charging disabled until explicitly set). Configure the `MaxGridImportWatts` write group address and write the limit in watts before issuing charge commands.
-
-Both commands are adaptive — they re-calculate on the latest inverter snapshot each poll cycle.
-
-**VPP power control (`PowerControlMode` + `PowerControlPowerTarget`)**
-Direct VPP (Virtual Power Plant) mode control via Solax register block (0x7C–0x8A):
-1. Write `1` to `PowerControlMode` to arm the controller.
-2. Write the desired watt target (float) to `PowerControlPowerTarget` — the inverter executes immediately.
-3. Keep loop-sending the target. If no value arrives within 90 seconds the inverter automatically exits VPP mode (hardware watchdog at register 0x88).
-4. Write `0` to `PowerControlMode` to disable immediately — SolaxHub sends a Disabled command to the inverter right away without waiting for the watchdog.
-
-The active mode is stored in `IPowerControlStateService.ActiveMode`. Power target telegrams received while mode is `Disabled` are ignored.
+Sets the hard cap on total grid draw. Defaults to `0` at startup. Configure and write a watt value before relying on grid-import operations.
 
 ---
 
@@ -125,14 +128,32 @@ The active mode is stored in `IPowerControlStateService.ActiveMode`. Power targe
 When running interactively, SolaxHub accepts these commands:
 
 ```
-set discharge <watts>   Force battery discharge at target rate (0 = disable)
-set charge <watts>      Charge battery from grid at target rate (0 = disable)
-set mode <name>         Switch inverter mode: self-use | feed-in | backup | force-time | solar-only
-set vpp <watts>         Set VPP power control target (arms mode + sends target; inverter falls back after 90s)
-set vpp off             Disable VPP power control immediately
+set power-control <mode> [watts]   Set VPP power control mode (re-sent every poll cycle)
+set use-mode <name>                Set inverter use mode: self-use | feed-in | backup | force-time | solar-only
 ```
 
-`solar-only` is a special mode that disables grid charging and battery discharge simultaneously.
+### `set power-control`
+
+Sets the VPP mode and (for mode 1) the watt target. The command is re-sent to the inverter **every poll cycle** automatically — the inverter stays in the requested mode without any client-side keep-alive loop.
+
+```
+set power-control 0            Disable power control (immediate + stops periodic sending)
+set power-control 1 500        Mode 1: GridWTarget = 500W (import from grid)
+set power-control 1 -800       Mode 1: GridWTarget = -800W (export to grid)
+set power-control 7            Mode 7: Self-Consume Charge Only (no watts needed)
+```
+
+### `set use-mode`
+
+Sets the inverter's base use mode (stored in the inverter, persists across reboots).
+
+```
+set use-mode self-use      Self-consumption
+set use-mode feed-in       Feed-in priority
+set use-mode backup        Backup / reserve mode
+set use-mode force-time    Force time use (TOU scheduling)
+set use-mode solar-only    Self-consume charge only (no battery discharge)
+```
 
 ---
 

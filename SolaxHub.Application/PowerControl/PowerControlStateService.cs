@@ -6,6 +6,7 @@ internal sealed class PowerControlStateService : IPowerControlStateService
 {
     private int _maxGridImportWatts;
     private int _activeMode;
+    private int _powerTargetWatts;
 
     public int MaxGridImportWatts => _maxGridImportWatts;
 
@@ -19,5 +20,12 @@ internal sealed class PowerControlStateService : IPowerControlStateService
     public void SetActiveMode(PowerControlMode mode)
     {
         Interlocked.Exchange(ref _activeMode, (int)mode);
+    }
+
+    public int PowerTargetWatts => _powerTargetWatts;
+
+    public void SetPowerTarget(int watts)
+    {
+        Interlocked.Exchange(ref _powerTargetWatts, watts);
     }
 }
