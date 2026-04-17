@@ -1,19 +1,16 @@
-using SolaxHub;
-using SolaxHub.IotHub.Extensions;
-using SolaxHub.Knx.Extensions;
-using SolaxHub.Solax.Extensions;
-using SolaxHub.Udp.Extensions;
+using SolaxHub.Extensions;
 
-var host = Host.CreateDefaultBuilder(args)
+IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
-        var configuration = hostContext.Configuration;
-        services.AddHostedService<Worker>();
-        services.AddSolaxClients(configuration);
-        services.AddUdpSender(configuration);
-        services.AddIotCentral(configuration);
-        services.AddKnx(configuration);
-        services.AddMediatR(m => m.RegisterServicesFromAssembly(typeof(Program).Assembly));
+        IConfiguration configuration = hostContext.Configuration;
+        services
+            .AddSolaxHub(configuration)
+            .AddSolaxHubObservability(configuration);
+    })
+    .ConfigureLogging((context, builder) =>
+    {
+        builder.AddSolaxHubLogging(context.Configuration);
     })
     .Build();
 
