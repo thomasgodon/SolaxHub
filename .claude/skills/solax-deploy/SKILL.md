@@ -30,24 +30,31 @@ immediately with:
 > `.claude/skills/solax-deploy/deploy.config.json` and fill in
 > `ssh.host`, `ssh.user`, and `remote.service_name`, then try again.
 
-Build the SSH base command from the config:
+Build the SSH and SCP base commands from the config:
+
+- If `ssh.password` is set: prefix every `ssh` and `scp` call with `sshpass -p <password>`.
+- If `ssh.identity_file` is set: add `-i <identity_file>` to `ssh`/`scp`.
+- Omit `-p` / `-P` if `port` is 22.
+
 ```
-ssh -o StrictHostKeyChecking=accept-new [-i <identity_file>] [-p <port>] <user>@<host>
+[sshpass -p <password>] ssh -o StrictHostKeyChecking=accept-new [-i <identity_file>] [-p <port>] <user>@<host>
+[sshpass -p <password>] scp [-i <identity_file>] [-P <port>] ...
 ```
-Omit `-i` if `identity_file` is empty. Omit `-p` if `port` is 22.
 
 ---
 
 ## Step 1 — Build
 
-From `local.repo_root`, run:
+The repo root is the current working directory. Run:
 
 ```
 dotnet publish SolaxHub/SolaxHub.csproj -c Release -r linux-arm64 --no-self-contained
 ```
 
-Stop if exit code is non-zero. Publish output lands at:
-`<local.repo_root>/<local.publish_dir_relative>/`
+Stop if exit code is non-zero. Determine the publish output directory from the
+csproj's target framework (read `SolaxHub/SolaxHub.csproj` to get
+`<TargetFramework>`). The output lands at:
+`SolaxHub/bin/Release/<TargetFramework>/linux-arm64/publish/`
 
 ---
 
@@ -65,7 +72,7 @@ file not found), treat remote as an empty object `{}` and continue.
 
 ## Step 3 — Detect and handle new config keys
 
-Read both the local canonical appsettings (`<local.canonical_appsettings_relative>`)
+Read both the local canonical appsettings (`SolaxHub/appsettings.json`)
 and the remote JSON from Step 2.
 
 Recursively compare every key in the local file against the remote JSON. For
