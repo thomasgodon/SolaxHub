@@ -52,7 +52,6 @@ SolaxHub writes these values to the KNX bus every poll cycle (only when the valu
 | `BatteryInputEnergyTotal` | Total battery charge energy | 4-byte IEEE 754 float, kWh |
 | `PowerControl` | Active power control mode | 1-byte raw enum |
 | `LockState` | Inverter lock state | 1-byte |
-| `MaxGridImportWatts` | Current max grid import limit | 4-byte IEEE 754 float, W |
 
 Configure each key with a KNX group address string, or leave blank to skip it:
 
@@ -71,16 +70,14 @@ SolaxHub listens for KNX `ValueWrite` telegrams on these addresses and sends the
 | Key | Description | Encoding |
 |-----|-------------|----------|
 | `InverterUseMode` | Set inverter use mode | 1-byte enum value (see table below) |
-| `MaxGridImportWatts` | Set max grid import limit | 4-byte IEEE 754 float, W — defaults to `0` at startup |
 | `PowerControlMode` | Set VPP power control mode | 1-byte integer: `0` = Disabled, `1`–`12` = VPP mode number |
 | `PowerControlPowerTarget` | Set VPP power target | 4-byte IEEE 754 float, W — stored in state; re-sent automatically each poll cycle |
 
 ```json
 "WriteGroupAddresses": {
   "InverterUseMode": "1/1/1",
-  "MaxGridImportWatts": "1/1/2",
-  "PowerControlMode": "1/1/3",
-  "PowerControlPowerTarget": "1/1/4"
+  "PowerControlMode": "1/1/2",
+  "PowerControlPowerTarget": "1/1/3"
 }
 ```
 
@@ -117,9 +114,6 @@ Mode determines the meaning of the watt target:
 | 12 | Max Output Mode | *(no target needed)* |
 
 Additional modes (4, 8, 9, 11) will be supported in future updates.
-
-**`MaxGridImportWatts`**
-Sets the hard cap on total grid draw. Defaults to `0` at startup. Configure and write a watt value before relying on grid-import operations.
 
 ---
 

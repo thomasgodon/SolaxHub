@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
 using SolaxHub.Application.Inverter.Commands.SetPowerControl;
-using SolaxHub.Application.PowerControl.Commands;
+
 using SolaxHub.Application.Inverter.Services;
 using SolaxHub.Application.PowerControl;
 using SolaxHub.Domain.Inverter;
@@ -49,12 +49,6 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 var useMode = (InverterUseMode)request.Value[0];
                 _logger.LogInformation("Setting inverter use mode to {Mode}", useMode);
                 _commandQueue.Enqueue(ct => _sender.Send(new SetInverterUseModeCommand(useMode), ct));
-                break;
-
-            case "MaxGridImportWatts":
-                var maxGridWatts = (int)BitConverter.ToSingle(request.Value);
-                _logger.LogInformation("Setting max grid import to {Watts}W", maxGridWatts);
-                _commandQueue.Enqueue(ct => _sender.Send(new SetMaxGridImportWattsCommand(maxGridWatts), ct));
                 break;
 
             case "PowerControlMode":

@@ -7,5 +7,5 @@ internal interface IKnxValueBufferService
 {
     IEnumerable<KnxValue> UpdateKnxValues(Inverter inverter);
     IReadOnlyDictionary<string, KnxValue> GetKnxValues();
-    KnxValue? UpdateMaxGridImportWatts(int watts);
+
 }

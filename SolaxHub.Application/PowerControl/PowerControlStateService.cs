@@ -4,16 +4,8 @@ namespace SolaxHub.Application.PowerControl;
 
 internal sealed class PowerControlStateService : IPowerControlStateService
 {
-    private int _maxGridImportWatts;
     private int _activeMode;
     private int _powerTargetWatts;
-
-    public int MaxGridImportWatts => _maxGridImportWatts;
-
-    public void SetMaxGridImportWatts(int watts)
-    {
-        Interlocked.Exchange(ref _maxGridImportWatts, watts);
-    }
 
     public PowerControlMode ActiveMode => (PowerControlMode)_activeMode;
 
