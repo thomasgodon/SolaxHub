@@ -68,7 +68,7 @@ internal class KnxValueBufferService : IKnxValueBufferService
         yield return UpdateValue("BatteryInputEnergyToday", BitConverter.GetBytes((float)inverter.Battery.InputToday));
         yield return UpdateValue("BatteryOutputEnergyTotal", BitConverter.GetBytes((float)inverter.Battery.OutputTotal));
         yield return UpdateValue("BatteryInputEnergyTotal", BitConverter.GetBytes((float)inverter.Battery.InputTotal));
-        yield return UpdateValue("PowerControl", [(byte)(int)inverter.PowerControlMode]);
+        yield return UpdateValue("PowerControlMode", [(byte)(int)inverter.PowerControlMode]);
         yield return UpdateValue("LockState", [(byte)inverter.LockState.ToNormalizedLockState()]);
     }
 }

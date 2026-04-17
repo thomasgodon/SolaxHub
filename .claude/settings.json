@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Skill(solax-power)",
-      "Bash(dotnet **)"
+      "Bash(dotnet **)",
+      "Bash(plink **)"
     ]
   }
 }
