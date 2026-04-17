@@ -55,14 +55,14 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 var mode = (PowerControlMode)request.Value[0];
                 _logger.LogInformation("Setting power control mode to {Mode}", mode);
                 _powerControlState.SetActiveMode(mode);
-                if (mode == PowerControlMode.Disabled)
-                    _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), ct));
+                _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(mode, _powerControlState.PowerTargetWatts), ct));
                 break;
 
             case "PowerControlPowerTarget":
                 var powerWatts = (int)BitConverter.ToSingle(request.Value);
                 _logger.LogInformation("Setting power control target to {Watts}W", powerWatts);
                 _powerControlState.SetPowerTarget(powerWatts);
+                _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(_powerControlState.ActiveMode, powerWatts), ct));
                 break;
 
             default:

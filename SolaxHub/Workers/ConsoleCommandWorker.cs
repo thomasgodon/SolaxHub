@@ -85,15 +85,16 @@ internal class ConsoleCommandWorker : BackgroundService
         _powerControlState.SetActiveMode(mode);
         _powerControlState.SetPowerTarget(watts);
 
+        _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(mode, watts), ct));
+
         if (mode == PowerControlMode.Disabled)
         {
-            _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), ct));
-            Console.WriteLine("OK: power control disabled (queued, periodic sending stopped)");
+            Console.WriteLine("OK: power control disabled (queued)");
             return;
         }
 
         var wattsLabel = watts != 0 ? $", target={watts}W" : "";
-        Console.WriteLine($"OK: power control mode={modeNum}{wattsLabel} (re-sent every poll cycle)");
+        Console.WriteLine($"OK: power control mode={modeNum}{wattsLabel} (queued)");
     }
 
     private static InverterUseMode? ParseUseMode(string name) => name switch
@@ -108,7 +109,7 @@ internal class ConsoleCommandWorker : BackgroundService
     private static void PrintHelp()
     {
         Console.WriteLine("Commands:");
-        Console.WriteLine("  set power-control <mode> [watts]   Set VPP power control mode (re-sent every poll cycle)");
+        Console.WriteLine("  set power-control <mode> [watts]   Set VPP power control mode (sent once)");
         Console.WriteLine("                                       mode 0 = disable, mode 1 = GridWTarget, mode 5/6/7 = no watts needed");
         Console.WriteLine("  set use-mode <name>                Set inverter use mode: self-use | feed-in | backup | force-time | solar-only");
     }

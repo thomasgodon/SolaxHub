@@ -2,9 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using SolaxHub.Application.Inverter.Commands.RefreshInverterData;
 using SolaxHub.Application.Inverter.Commands.SetInverterLockState;
-using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Application.Inverter.Services;
-using SolaxHub.Application.PowerControl;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Modbus.Client;
 using SolaxHub.Infrastructure.Modbus.Options;
@@ -19,7 +17,6 @@ internal class InverterPollingWorker : BackgroundService
     private readonly ISolaxModbusClient _modbusClient;
     private readonly ISender _sender;
     private readonly IInverterCommandQueue _commandQueue;
-    private readonly IPowerControlStateService _powerControlState;
     private readonly ModbusOptions _options;
     private readonly ILogger<InverterPollingWorker> _logger;
 
@@ -27,14 +24,12 @@ internal class InverterPollingWorker : BackgroundService
         ISolaxModbusClient modbusClient,
         ISender sender,
         IInverterCommandQueue commandQueue,
-        IPowerControlStateService powerControlState,
         IOptions<ModbusOptions> options,
         ILogger<InverterPollingWorker> logger)
     {
         _modbusClient = modbusClient;
         _sender = sender;
         _commandQueue = commandQueue;
-        _powerControlState = powerControlState;
         _options = options.Value;
         _logger = logger;
     }
@@ -52,7 +47,6 @@ internal class InverterPollingWorker : BackgroundService
                     await _sender.Send(new RefreshInverterDataCommand(), cancellationToken);
                 }
 
-                await SendPowerControlIfActiveAsync(cancellationToken);
                 await DrainCommandQueueAsync(cancellationToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -63,16 +57,6 @@ internal class InverterPollingWorker : BackgroundService
 
             await Task.Delay(_options.PollInterval, cancellationToken);
         }
-    }
-
-    private async Task SendPowerControlIfActiveAsync(CancellationToken cancellationToken)
-    {
-        if (_powerControlState.ActiveMode == PowerControlMode.Disabled)
-            return;
-
-        await _sender.Send(
-            new SetPowerControlCommand(_powerControlState.ActiveMode, _powerControlState.PowerTargetWatts),
-            cancellationToken);
     }
 
     private async Task DrainCommandQueueAsync(CancellationToken cancellationToken)
