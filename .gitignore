@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 *.development.json
+
+# Deploy skill - config contains server credentials, keep local only
+.claude/skills/solax-deploy/deploy.config.json
