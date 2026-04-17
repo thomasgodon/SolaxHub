@@ -5,8 +5,10 @@ using Microsoft.Extensions.Options;
 using SolaxHub.Application.Inverter.Commands.SetBatteryChargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
+using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Application.PowerControl.Commands;
 using SolaxHub.Application.Inverter.Services;
+using SolaxHub.Application.PowerControl;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Knx.Extensions;
 using SolaxHub.Infrastructure.Knx.Options;
@@ -18,17 +20,20 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
     private readonly ILogger<KnxWriteValueRequestHandler> _logger;
     private readonly ISender _sender;
     private readonly IInverterCommandQueue _commandQueue;
+    private readonly IPowerControlStateService _powerControlState;
     private readonly Dictionary<GroupAddress, string> _writeGroupAddressCapabilityMapping;
 
     public KnxWriteValueRequestHandler(
         IOptions<KnxOptions> options,
         ILogger<KnxWriteValueRequestHandler> logger,
         ISender sender,
-        IInverterCommandQueue commandQueue)
+        IInverterCommandQueue commandQueue,
+        IPowerControlStateService powerControlState)
     {
         _logger = logger;
         _sender = sender;
         _commandQueue = commandQueue;
+        _powerControlState = powerControlState;
         _writeGroupAddressCapabilityMapping = options.Value.GetWriteGroupAddressesFromOptions()
             .ToDictionary(
                 m => GroupAddress.Parse(m.Value),
@@ -64,6 +69,27 @@ internal class KnxWriteValueRequestHandler : IRequestHandler<KnxWriteValueReques
                 var maxGridWatts = (int)BitConverter.ToSingle(request.Value);
                 _logger.LogInformation("Setting max grid import to {Watts}W", maxGridWatts);
                 _commandQueue.Enqueue(ct => _sender.Send(new SetMaxGridImportWattsCommand(maxGridWatts), ct));
+                break;
+
+            case "PowerControlMode":
+                var mode = (PowerControlMode)request.Value[0];
+                _logger.LogInformation("Setting power control mode to {Mode}", mode);
+                _powerControlState.SetActiveMode(mode);
+                if (mode == PowerControlMode.Disabled)
+                    _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), ct));
+                break;
+
+            case "PowerControlPowerTarget":
+                var powerWatts = (int)BitConverter.ToSingle(request.Value);
+                if (_powerControlState.ActiveMode == PowerControlMode.PowerControlMode)
+                {
+                    _logger.LogInformation("Setting power control target to {Watts}W", powerWatts);
+                    _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.PowerControlMode, powerWatts), ct));
+                }
+                else
+                {
+                    _logger.LogWarning("Received PowerControlPowerTarget ({Watts}W) but mode is {Mode}, ignoring", powerWatts, _powerControlState.ActiveMode);
+                }
                 break;
 
             default:

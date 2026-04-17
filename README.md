@@ -74,12 +74,16 @@ SolaxHub listens for KNX `ValueWrite` telegrams on these addresses and sends the
 | `BatteryDischargePowerTarget` | Set battery discharge power | 4-byte IEEE 754 float, W — send `0` to disable |
 | `BatteryChargePowerTarget` | Set battery charge power from grid | 4-byte IEEE 754 float, W — send `0` to disable |
 | `MaxGridImportWatts` | Set max grid import limit for battery charging | 4-byte IEEE 754 float, W — defaults to `0` at startup |
+| `PowerControlMode` | Arm or disarm VPP power control | 1-byte enum: `0` = Disabled, `1` = PowerControl |
+| `PowerControlPowerTarget` | Set VPP power target (requires mode = `1`) | 4-byte IEEE 754 float, W (positive = export, negative = import) |
 
 ```json
 "WriteGroupAddresses": {
   "InverterUseMode": "1/1/1",
   "BatteryDischargePowerTarget": "1/1/2",
-  "BatteryChargePowerTarget": "1/1/3"
+  "BatteryChargePowerTarget": "1/1/3",
+  "PowerControlMode": "1/1/4",
+  "PowerControlPowerTarget": "1/1/5"
 }
 ```
 
@@ -105,6 +109,15 @@ Sets the hard cap on total grid draw used by the charge calculation. Defaults to
 
 Both commands are adaptive — they re-calculate on the latest inverter snapshot each poll cycle.
 
+**VPP power control (`PowerControlMode` + `PowerControlPowerTarget`)**
+Direct VPP (Virtual Power Plant) mode control via Solax register block (0x7C–0x8A):
+1. Write `1` to `PowerControlMode` to arm the controller.
+2. Write the desired watt target (float) to `PowerControlPowerTarget` — the inverter executes immediately.
+3. Keep loop-sending the target. If no value arrives within 90 seconds the inverter automatically exits VPP mode (hardware watchdog at register 0x88).
+4. Write `0` to `PowerControlMode` to disable immediately — SolaxHub sends a Disabled command to the inverter right away without waiting for the watchdog.
+
+The active mode is stored in `IPowerControlStateService.ActiveMode`. Power target telegrams received while mode is `Disabled` are ignored.
+
 ---
 
 ## Console commands
@@ -115,6 +128,8 @@ When running interactively, SolaxHub accepts these commands:
 set discharge <watts>   Force battery discharge at target rate (0 = disable)
 set charge <watts>      Charge battery from grid at target rate (0 = disable)
 set mode <name>         Switch inverter mode: self-use | feed-in | backup | force-time | solar-only
+set vpp <watts>         Set VPP power control target (arms mode + sends target; inverter falls back after 90s)
+set vpp off             Disable VPP power control immediately
 ```
 
 `solar-only` is a special mode that disables grid charging and battery discharge simultaneously.

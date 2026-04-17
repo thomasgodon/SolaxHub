@@ -4,6 +4,7 @@ using SolaxHub.Application.Inverter.Commands.SetBatteryDischargePowerTarget;
 using SolaxHub.Application.Inverter.Commands.SetInverterUseMode;
 using SolaxHub.Application.Inverter.Commands.SetPowerControl;
 using SolaxHub.Application.Inverter.Services;
+using SolaxHub.Application.PowerControl;
 using SolaxHub.Domain.Inverter;
 
 namespace SolaxHub.Workers;
@@ -12,12 +13,14 @@ internal class ConsoleCommandWorker : BackgroundService
 {
     private readonly ISender _sender;
     private readonly IInverterCommandQueue _commandQueue;
+    private readonly IPowerControlStateService _powerControlState;
     private readonly ILogger<ConsoleCommandWorker> _logger;
 
-    public ConsoleCommandWorker(ISender sender, IInverterCommandQueue commandQueue, ILogger<ConsoleCommandWorker> logger)
+    public ConsoleCommandWorker(ISender sender, IInverterCommandQueue commandQueue, IPowerControlStateService powerControlState, ILogger<ConsoleCommandWorker> logger)
     {
         _sender = sender;
         _commandQueue = commandQueue;
+        _powerControlState = powerControlState;
         _logger = logger;
     }
 
@@ -75,6 +78,18 @@ internal class ConsoleCommandWorker : BackgroundService
                 Console.WriteLine($"OK: inverter use mode set to {useMode.Value} (queued)");
                 break;
 
+            case ["set", "vpp", "off"]:
+                _powerControlState.SetActiveMode(PowerControlMode.Disabled);
+                _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.Disabled, 0), ct));
+                Console.WriteLine("OK: VPP power control disabled (queued)");
+                break;
+
+            case ["set", "vpp", var wattsStr] when int.TryParse(wattsStr, out var vppWatts):
+                _powerControlState.SetActiveMode(PowerControlMode.PowerControlMode);
+                _commandQueue.Enqueue(ct => _sender.Send(new SetPowerControlCommand(PowerControlMode.PowerControlMode, vppWatts), ct));
+                Console.WriteLine($"OK: VPP power control target set to {vppWatts}W (queued)");
+                break;
+
             default:
                 Console.WriteLine($"Unknown command: {input}");
                 PrintHelp();
@@ -97,5 +112,7 @@ internal class ConsoleCommandWorker : BackgroundService
         Console.WriteLine("  set discharge <watts>   Set battery discharge power target (0 = disable)");
         Console.WriteLine("  set charge <watts>      Set battery charge power target from grid (0 = disable)");
         Console.WriteLine("  set mode <name>         Set inverter mode: self-use | feed-in | backup | force-time | solar-only");
+        Console.WriteLine("  set vpp <watts>         Set VPP power control target (arms mode + sends target)");
+        Console.WriteLine("  set vpp off             Disable VPP power control");
     }
 }
