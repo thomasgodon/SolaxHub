@@ -34,24 +34,24 @@ Enable KNX and fill in your tunnel connection details:
 
 SolaxHub writes these values to the KNX bus every poll cycle (only when the value has changed).
 
-| Key | Description | Encoding |
-|-----|-------------|----------|
-| `HouseLoad` | House power consumption | 4-byte IEEE 754 float, W |
-| `InverterPower` | Inverter AC output power | 4-byte IEEE 754 float, W |
-| `BatteryPower` | Battery power (positive = discharge) | 4-byte IEEE 754 float, W |
-| `BatteryCapacity` | State of charge | 1-byte scaled: `value × 2.55` → 0–255 (DPT 5.001) |
-| `InverterUseMode` | Current use mode | 1-byte scaled: `enum × 2.55` → 0–255 (DPT 5.001) |
-| `PvPower1` | Solar string 1 power | 4-byte IEEE 754 float, W |
-| `ConsumeEnergy` | Cumulative grid consumption | 4-byte IEEE 754 float, kWh |
-| `InverterStatus` | Inverter status code | 1-byte raw enum |
-| `SolarEnergyToday` | Solar energy generated today | 4-byte IEEE 754 float, kWh |
-| `SolarEnergyTotal` | Total solar energy generated | 4-byte IEEE 754 float, kWh |
-| `BatteryOutputEnergyToday` | Battery discharge energy today | 4-byte IEEE 754 float, kWh |
-| `BatteryInputEnergyToday` | Battery charge energy today | 4-byte IEEE 754 float, kWh |
-| `BatteryOutputEnergyTotal` | Total battery discharge energy | 4-byte IEEE 754 float, kWh |
-| `BatteryInputEnergyTotal` | Total battery charge energy | 4-byte IEEE 754 float, kWh |
-| `PowerControl` | Active power control mode | 1-byte raw enum |
-| `LockState` | Inverter lock state | 1-byte |
+| Key | Description | DPT | Encoding |
+|-----|-------------|-----|----------|
+| `HouseLoad` | House power consumption | 14.056 | 4-byte IEEE 754 float, W |
+| `InverterPower` | Inverter AC output power | 14.056 | 4-byte IEEE 754 float, W |
+| `BatteryPower` | Battery power (positive = discharge) | 14.056 | 4-byte IEEE 754 float, W |
+| `BatteryCapacity` | State of charge | 5.001 | 1-byte scaled: `value × 2.55` → 0–255 |
+| `InverterUseMode` | Current use mode | 5.010 | 1-byte raw enum (see table below) |
+| `PvPower1` | Solar string 1 power | 14.056 | 4-byte IEEE 754 float, W |
+| `ConsumeEnergy` | Cumulative grid consumption | 13.010 | 4-byte signed integer, Wh |
+| `InverterStatus` | Inverter status code | 5.010 | 1-byte raw enum |
+| `SolarEnergyToday` | Solar energy generated today | 13.010 | 4-byte signed integer, Wh |
+| `SolarEnergyTotal` | Total solar energy generated | 13.010 | 4-byte signed integer, Wh |
+| `BatteryOutputEnergyToday` | Battery discharge energy today | 13.010 | 4-byte signed integer, Wh |
+| `BatteryInputEnergyToday` | Battery charge energy today | 13.010 | 4-byte signed integer, Wh |
+| `BatteryOutputEnergyTotal` | Total battery discharge energy | 13.010 | 4-byte signed integer, Wh |
+| `BatteryInputEnergyTotal` | Total battery charge energy | 13.010 | 4-byte signed integer, Wh |
+| `PowerControlMode` | Active power control mode | 5.010 | 1-byte raw enum |
+| `LockState` | Inverter lock state (0 = locked, 1 = unlocked, 2 = unlocked advanced) | 5.010 | 1-byte |
 
 Configure each key with a KNX group address string, or leave blank to skip it:
 
@@ -67,11 +67,11 @@ Configure each key with a KNX group address string, or leave blank to skip it:
 
 SolaxHub listens for KNX `ValueWrite` telegrams on these addresses and sends the corresponding command to the inverter.
 
-| Key | Description | Encoding |
-|-----|-------------|----------|
-| `InverterUseMode` | Set inverter use mode | 1-byte enum value (see table below) |
-| `PowerControlMode` | Set VPP power control mode | 1-byte integer: `0` = Disabled, `1`–`12` = VPP mode number |
-| `PowerControlPowerTarget` | Set VPP power target | 4-byte IEEE 754 float, W — stored in state; re-sent automatically each poll cycle |
+| Key | Description | DPT | Encoding |
+|-----|-------------|-----|----------|
+| `InverterUseMode` | Set inverter use mode | 5.010 | 1-byte enum value (see table below) |
+| `PowerControlMode` | Set VPP power control mode | 5.010 | 1-byte integer: `0` = Disabled, `1`–`12` = VPP mode number |
+| `PowerControlPowerTarget` | Set VPP power target | 14.056 | 4-byte IEEE 754 float, W |
 
 ```json
 "WriteGroupAddresses": {

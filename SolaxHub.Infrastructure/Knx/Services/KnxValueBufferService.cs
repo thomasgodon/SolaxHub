@@ -58,16 +58,16 @@ internal class KnxValueBufferService : IKnxValueBufferService
         yield return UpdateValue("InverterPower", BitConverter.GetBytes((float)inverter.InverterPower));
         yield return UpdateValue("BatteryPower", BitConverter.GetBytes((float)inverter.Battery.Power));
         yield return UpdateValue("InverterUseMode", [(byte)(int)inverter.UseMode]);
-        yield return UpdateValue("ConsumeEnergy", BitConverter.GetBytes((float)inverter.Grid.ConsumeEnergy));
+        yield return UpdateValue("ConsumeEnergy", BitConverter.GetBytes((int)Math.Round(inverter.Grid.ConsumeEnergy * 1000.0)));
         yield return UpdateValue("BatteryCapacity", [(byte)(inverter.Battery.Capacity * 2.55)]);
         yield return UpdateValue("PvPower1", BitConverter.GetBytes((float)inverter.Solar.Power1));
         yield return UpdateValue("InverterStatus", [(byte)inverter.Status]);
-        yield return UpdateValue("SolarEnergyToday", BitConverter.GetBytes((float)inverter.Solar.EnergyToday));
-        yield return UpdateValue("SolarEnergyTotal", BitConverter.GetBytes((float)inverter.Solar.EnergyTotal));
-        yield return UpdateValue("BatteryOutputEnergyToday", BitConverter.GetBytes((float)inverter.Battery.OutputToday));
-        yield return UpdateValue("BatteryInputEnergyToday", BitConverter.GetBytes((float)inverter.Battery.InputToday));
-        yield return UpdateValue("BatteryOutputEnergyTotal", BitConverter.GetBytes((float)inverter.Battery.OutputTotal));
-        yield return UpdateValue("BatteryInputEnergyTotal", BitConverter.GetBytes((float)inverter.Battery.InputTotal));
+        yield return UpdateValue("SolarEnergyToday", BitConverter.GetBytes((int)Math.Round(inverter.Solar.EnergyToday * 1000.0)));
+        yield return UpdateValue("SolarEnergyTotal", BitConverter.GetBytes((int)Math.Round(inverter.Solar.EnergyTotal * 1000.0)));
+        yield return UpdateValue("BatteryOutputEnergyToday", BitConverter.GetBytes((int)Math.Round(inverter.Battery.OutputToday * 1000.0)));
+        yield return UpdateValue("BatteryInputEnergyToday", BitConverter.GetBytes((int)Math.Round(inverter.Battery.InputToday * 1000.0)));
+        yield return UpdateValue("BatteryOutputEnergyTotal", BitConverter.GetBytes((int)Math.Round(inverter.Battery.OutputTotal * 1000.0)));
+        yield return UpdateValue("BatteryInputEnergyTotal", BitConverter.GetBytes((int)Math.Round(inverter.Battery.InputTotal * 1000.0)));
         yield return UpdateValue("PowerControlMode", [(byte)(int)inverter.PowerControlMode]);
         yield return UpdateValue("LockState", [(byte)inverter.LockState.ToNormalizedLockState()]);
     }

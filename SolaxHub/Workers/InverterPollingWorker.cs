@@ -6,7 +6,6 @@ using SolaxHub.Application.Inverter.Services;
 using SolaxHub.Domain.Inverter;
 using SolaxHub.Infrastructure.Modbus.Client;
 using SolaxHub.Infrastructure.Modbus.Options;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace SolaxHub.Workers;
