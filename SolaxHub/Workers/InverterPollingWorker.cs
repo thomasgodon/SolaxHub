@@ -36,23 +36,21 @@ internal class InverterPollingWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        await ConnectAndUnlockAsync(cancellationToken);
-
         while (cancellationToken.IsCancellationRequested is false)
         {
             try
             {
+                if (_modbusClient.IsConnected is false)
+                    await ConnectAndUnlockAsync(cancellationToken);
+
                 using (ActivitySource.StartActivity())
-                {
                     await _sender.Send(new RefreshInverterDataCommand(), cancellationToken);
-                }
 
                 await DrainCommandQueueAsync(cancellationToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Polling cycle failed, retrying in {PollInterval}", _options.PollInterval);
-                await ConnectAndUnlockAsync(cancellationToken);
             }
 
             await Task.Delay(_options.PollInterval, cancellationToken);
