@@ -18,6 +18,7 @@ internal class KnxClient : IKnxClient
     private readonly ISender _sender;
     private readonly KnxOptions _options;
     private KnxBus? _bus;
+    private CancellationToken _cancellationToken;
 
     public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options, ISender sender)
     {
@@ -64,16 +65,32 @@ internal class KnxClient : IKnxClient
                 return;
             }
 
+            if (_bus is not null)
+            {
+                _bus.GroupMessageReceived -= OnGroupMessageReceived;
+                await _bus.DisposeAsync();
+                _bus = null;
+            }
+
+            _cancellationToken = cancellationToken;
             _bus = new KnxBus(new IpTunnelingConnectorParameters(_options.Host, _options.Port));
-            _bus.GroupMessageReceived += async (_, args) => await ProcessGroupMessageReceivedAsync(args, cancellationToken);
+            _bus.GroupMessageReceived += OnGroupMessageReceived;
             await _bus.ConnectAsync(cancellationToken);
 
             if (_bus.ConnectionState == BusConnectionState.Connected)
                 _logger.LogInformation("Connected to {host} at port: {port}", _options.Host, _options.Port);
             else
+            {
                 _logger.LogError("Something went wrong when trying to connect to {host} at port: {port}", _options.Host, _options.Port);
+                _bus.GroupMessageReceived -= OnGroupMessageReceived;
+                await _bus.DisposeAsync();
+                _bus = null;
+            }
         }
     }
+
+    private async void OnGroupMessageReceived(object? sender, GroupEventArgs e)
+        => await ProcessGroupMessageReceivedAsync(e, _cancellationToken);
 
     private async Task ProcessGroupMessageReceivedAsync(GroupEventArgs e, CancellationToken cancellationToken)
     {
