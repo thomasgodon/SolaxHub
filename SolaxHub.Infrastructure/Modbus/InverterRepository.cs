@@ -59,31 +59,33 @@ internal sealed class InverterRepository : IInverterRepository
 
         // Battery output energy total (LSB)
         var botData = await _client.ReadInputRegistersAsync(InputRegisters.OutputEnergyChargeLsb, 1, cancellationToken);
-        double batteryOutputTotal = Math.Round(botData.ToArray()[0] * 0.1, 2);
+        double batteryOutputTotal = Math.Round(BitConverter.ToUInt16([botData.Span[1], botData.Span[0]]) * 0.1, 2);
 
         // Battery output energy today
         var bodData = await _client.ReadInputRegistersAsync(InputRegisters.OutputEnergyChargeToday, 1, cancellationToken);
-        double batteryOutputToday = Math.Round(bodData.ToArray()[0] * 0.1, 2);
+        double batteryOutputToday = Math.Round(BitConverter.ToUInt16([bodData.Span[1], bodData.Span[0]]) * 0.1, 2);
 
         // Battery input energy total (LSB)
         var bitData = await _client.ReadInputRegistersAsync(InputRegisters.InputEnergyChargeLsb, 1, cancellationToken);
-        double batteryInputTotal = Math.Round(bitData.ToArray()[0] * 0.1, 2);
+        double batteryInputTotal = Math.Round(BitConverter.ToUInt16([bitData.Span[1], bitData.Span[0]]) * 0.1, 2);
 
         // Battery input energy today
         var bidData = await _client.ReadInputRegistersAsync(InputRegisters.InputEnergyChargeToday, 1, cancellationToken);
-        double batteryInputToday = Math.Round(bidData.ToArray()[0] * 0.1, 2);
+        double batteryInputToday = Math.Round(BitConverter.ToUInt16([bidData.Span[1], bidData.Span[0]]) * 0.1, 2);
 
         // Feed-in power (2 registers, signed 32-bit, swapped word order: R0=low word, R1=high word)
         var fipData = await _client.ReadInputRegistersAsync(InputRegisters.FeedInPower, 2, cancellationToken);
         int feedInPower = BitConverter.ToInt32([fipData.Span[1], fipData.Span[0], fipData.Span[3], fipData.Span[2]]);
 
-        // Feed-in energy (2 registers, scaled ×0.01)
+        // Feed-in energy (2 registers, U32 swapped word order, scaled ×0.01)
         var fieData = await _client.ReadInputRegistersAsync(InputRegisters.FeedInEnergy, 2, cancellationToken);
-        double feedInEnergy = Math.Round((fieData.ToArray()[1] << 16 | fieData.ToArray()[0] & 0xffff) * 0.01, 2);
+        uint feedInEnergyRaw = (uint)BitConverter.ToInt32([fieData.Span[1], fieData.Span[0], fieData.Span[3], fieData.Span[2]]);
+        double feedInEnergy = Math.Round(feedInEnergyRaw * 0.01, 2);
 
-        // Consume energy total (2 registers)
+        // Consume energy total (2 registers, U32 swapped word order, scaled ×0.01)
         var ceData = await _client.ReadInputRegistersAsync(InputRegisters.ConsumeEnergyTotal, 2, cancellationToken);
-        double consumeEnergy = BitConverter.ToInt32([ceData.Span[1], ceData.Span[0], ceData.Span[3], ceData.Span[2]]);
+        uint consumeEnergyRaw = (uint)BitConverter.ToInt32([ceData.Span[1], ceData.Span[0], ceData.Span[3], ceData.Span[2]]);
+        double consumeEnergy = Math.Round(consumeEnergyRaw * 0.01, 2);
 
         // Lock state
         var lsData = await _client.ReadInputRegistersAsync(InputRegisters.LockState, 1, cancellationToken);
@@ -93,13 +95,14 @@ internal sealed class InverterRepository : IInverterRepository
         var umData = await _client.ReadInputRegistersAsync(InputRegisters.SolarChargerUseMode, 1, cancellationToken);
         var useMode = ((ushort)umData.ToArray()[1]).ToInverterUseMode();
 
-        // Solar energy total (2 registers, scaled ×0.1)
+        // Solar energy total (2 registers, U32 swapped word order, scaled ×0.1)
         var setData = await _client.ReadInputRegistersAsync(InputRegisters.SolarEnergyTotal, 2, cancellationToken);
-        double solarEnergyTotal = Math.Round((setData.ToArray()[1] << 16 | setData.ToArray()[0] & 0xffff) * 0.1, 2);
+        uint solarEnergyTotalRaw = (uint)BitConverter.ToInt32([setData.Span[1], setData.Span[0], setData.Span[3], setData.Span[2]]);
+        double solarEnergyTotal = Math.Round(solarEnergyTotalRaw * 0.1, 2);
 
-        // Solar energy today (scaled ×0.1)
+        // Solar energy today (U16 big-endian, scaled ×0.1)
         var sedData = await _client.ReadInputRegistersAsync(InputRegisters.SolarEnergyToday, 1, cancellationToken);
-        double solarEnergyToday = Math.Round(sedData.ToArray()[0] * 0.1, 2);
+        double solarEnergyToday = Math.Round(BitConverter.ToUInt16([sedData.Span[1], sedData.Span[0]]) * 0.1, 2);
 
         // Modbus power control mode
         var pcData = await _client.ReadInputRegistersAsync(InputRegisters.ModbusPowerControl, 1, cancellationToken);

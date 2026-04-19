@@ -113,14 +113,16 @@ public class InverterRepositoryTests
         clientMock.VerifyAll();
     }
 
-    [Fact]
-    public async Task Given_SolarEnergyToday_Register_Should_Scale_By_0_1()
+    [Theory]
+    [InlineData(new byte[] { 0x00, 0x19 }, 2.5)]   // raw 25 → 2.5 kWh
+    [InlineData(new byte[] { 0x01, 0x2C }, 30.0)]  // raw 300 → 30.0 kWh (old code would return 0.1)
+    public async Task Given_SolarEnergyToday_Register_Should_Decode_BigEndian_U16_Scale_0_1(byte[] wireBytes, double expected)
     {
         // Arrange
         var clientMock = CreateClientMock(m =>
             m.Setup(c => c.ReadInputRegistersAsync(
                     It.Is<ushort>(a => a == InputRegisters.SolarEnergyToday), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Memory<byte>([25, 0])));
+                .ReturnsAsync(new Memory<byte>(wireBytes)));
 
         var repo = BuildRepository(clientMock);
 
@@ -128,7 +130,65 @@ public class InverterRepositoryTests
         var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
 
         // Assert
-        snapshot.Solar.EnergyToday.Should().Be(2.5);
+        snapshot.Solar.EnergyToday.Should().Be(expected);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_SolarEnergyTotal_Register_Should_Decode_SwappedWord_Scale_0_1()
+    {
+        // reg0 (low word) = 0xA37B, reg1 (high word) = 0x0001
+        // raw = 0x0001_A37B = 107387 → × 0.1 = 10738.7 kWh
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.SolarEnergyTotal), It.Is<ushort>(q => q == 2), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0xA3, 0x7B, 0x00, 0x01])));
+
+        var repo = BuildRepository(clientMock);
+
+        // Act
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        // Assert
+        snapshot.Solar.EnergyTotal.Should().Be(10738.7);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_FeedInEnergy_Register_Should_Decode_SwappedWord_Scale_0_01()
+    {
+        // reg0 (low word) = 0x2710, reg1 (high word) = 0x0000 → raw = 10000 → × 0.01 = 100.0 kWh
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.FeedInEnergy), It.Is<ushort>(q => q == 2), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x27, 0x10, 0x00, 0x00])));
+
+        var repo = BuildRepository(clientMock);
+
+        // Act
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        // Assert
+        snapshot.Grid.FeedInEnergy.Should().Be(100.0);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_ConsumeEnergyTotal_Register_Should_Decode_SwappedWord_Scale_0_01()
+    {
+        // reg0 (low word) = 0x86A0, reg1 (high word) = 0x0001 → raw = 0x0001_86A0 = 100000 → × 0.01 = 1000.0 kWh
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.ConsumeEnergyTotal), It.Is<ushort>(q => q == 2), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x86, 0xA0, 0x00, 0x01])));
+
+        var repo = BuildRepository(clientMock);
+
+        // Act
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        // Assert
+        snapshot.Grid.ConsumeEnergy.Should().Be(1000.0);
         clientMock.VerifyAll();
     }
 }
