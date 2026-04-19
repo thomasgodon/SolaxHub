@@ -50,7 +50,7 @@ internal class InverterPollingWorker : BackgroundService
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogWarning(ex, "Polling cycle failed, retrying in {PollInterval}", _options.PollInterval);
+                _logger.LogWarning("Polling cycle failed ({Message}), retrying in {PollInterval}", ex.Message, _options.PollInterval);
             }
 
             await Task.Delay(_options.PollInterval, cancellationToken);
