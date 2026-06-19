@@ -19,6 +19,8 @@ internal class KnxClient : IKnxClient
     private readonly KnxOptions _options;
     private KnxBus? _bus;
     private CancellationToken _cancellationToken;
+    private readonly Dictionary<GroupAddress, byte[]> _lastWriteValues = new();
+    private readonly Lock _lastWriteLock = new();
 
     public KnxClient(ILogger<KnxClient> logger, IOptions<KnxOptions> options, ISender sender)
     {
@@ -105,6 +107,10 @@ internal class KnxClient : IKnxClient
                     return;
 
                 case GroupEventType.ValueWrite:
+                    // KNX delivers repeated/echoed telegrams; drop a write whose bytes match the
+                    // last one seen on the same group address so it is neither logged nor re-enqueued.
+                    if (IsDuplicateWrite(e.DestinationAddress, e.Value.Value))
+                        break;
                     await _sender.Send(new KnxWriteValueRequest { GroupAddress = e.DestinationAddress, Value = e.Value.Value }, cancellationToken);
                     break;
 
@@ -112,6 +118,18 @@ internal class KnxClient : IKnxClient
                     _logger.LogTrace("Message type '{type}' not implemented", e.EventType);
                     break;
             }
+        }
+    }
+
+    private bool IsDuplicateWrite(GroupAddress address, byte[] value)
+    {
+        lock (_lastWriteLock)
+        {
+            if (_lastWriteValues.TryGetValue(address, out var previous) && previous.SequenceEqual(value))
+                return true;
+
+            _lastWriteValues[address] = value;
+            return false;
         }
     }
 }
