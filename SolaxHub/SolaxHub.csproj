@@ -20,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Never ship the dev settings file: it holds real IoT Hub / App Insights secrets. -->
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

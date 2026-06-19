@@ -9,35 +9,44 @@ internal static class ObservabilityExtensions
 {
     public static IServiceCollection AddSolaxHubObservability(this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
+        var azureMonitorEnabled = string.IsNullOrWhiteSpace(connectionString) is false;
+
         services
             .AddOpenTelemetry()
             .ConfigureResource(builder => builder.AddService(nameof(SolaxHub)))
-            .WithTracing(tracing => tracing
-                .AddAspNetCoreInstrumentation()
-                .AddAzureMonitorTraceExporter(options =>
+            .WithTracing(tracing =>
+            {
+                tracing.AddAspNetCoreInstrumentation();
+                if (azureMonitorEnabled)
                 {
-                    options.ConnectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
-                }))
-            .WithMetrics(metrics => metrics
-                .AddAzureMonitorMetricExporter(options =>
+                    tracing.AddAzureMonitorTraceExporter(options => options.ConnectionString = connectionString);
+                }
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics.AddAspNetCoreInstrumentation();
+                if (azureMonitorEnabled)
                 {
-                    options.ConnectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
-                })
-                .AddAspNetCoreInstrumentation());
+                    metrics.AddAzureMonitorMetricExporter(options => options.ConnectionString = connectionString);
+                }
+            });
 
         return services;
     }
 
     public static ILoggingBuilder AddSolaxHubLogging(this ILoggingBuilder builder, IConfiguration configuration)
     {
+        var connectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
+
         builder.AddOpenTelemetry(options =>
         {
             options.IncludeScopes = true;
             options.ParseStateValues = true;
-            options.AddAzureMonitorLogExporter(exporterOptions =>
+            if (string.IsNullOrWhiteSpace(connectionString) is false)
             {
-                exporterOptions.ConnectionString = configuration["OpenTelemetry:ApplicationInsights:ConnectionString"];
-            });
+                options.AddAzureMonitorLogExporter(exporterOptions => exporterOptions.ConnectionString = connectionString);
+            }
         });
 
         return builder;

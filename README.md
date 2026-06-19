@@ -160,3 +160,55 @@ dotnet run --project SolaxHub/SolaxHub.csproj
 # Publish for Raspberry Pi
 dotnet publish SolaxHub/SolaxHub.csproj -r linux-arm64 -c Release
 ```
+
+## Docker
+
+A `linux-amd64` Docker image is built by GitHub Actions and published to the GitHub Container Registry.
+
+### Configuration via environment variables
+
+The image ships with structural defaults only — **no secrets are baked in**. Provide all real settings as environment variables at run time using .NET's double-underscore (`__`) convention to map onto `appsettings.json` sections. Array elements use a numeric index (e.g. `IotHubOptions__IotDevices__0__...`).
+
+Only the Modbus connection is required. KNX, UDP, IoT Hub, and Application Insights are all optional — when disabled or left blank they are skipped at startup:
+
+```bash
+# Minimal run — just the inverter connection
+docker run --rm \
+  -e ModbusOptions__Host=192.168.1.100 \
+  -e ModbusOptions__Port=502 \
+  -e ModbusOptions__UnitIdentifier=1 \
+  ghcr.io/thomasgodon/solaxhub:latest
+```
+
+Add optional integrations as needed:
+
+```bash
+  -e KnxOptions__Enabled=true \
+  -e KnxOptions__Host=192.168.1.10 \
+  -e KnxOptions__IndividualAddress=1.1.100 \
+  -e IotHubOptions__IotDevices__0__DeviceId=my-device \
+  -e IotHubOptions__IotDevices__0__IdScope=0ne00000000 \
+  -e IotHubOptions__IotDevices__0__PrimaryKey=*** \
+  -e IotHubOptions__IotDevices__0__SecondaryKey=*** \
+  -e OpenTelemetry__ApplicationInsights__ConnectionString="InstrumentationKey=..."
+```
+
+The container runs with `ASPNETCORE_ENVIRONMENT` unset, so it loads the Production config layer plus these environment overrides; `appsettings.Development.json` is never present in the image.
+
+### Building locally
+
+```bash
+docker build -t solaxhub:test .
+```
+
+### Cutting a release
+
+Pushing a `v*` tag triggers the `Docker Publish` workflow, which builds and pushes to `ghcr.io/thomasgodon/solaxhub`:
+
+```bash
+git tag v1.2.3
+git push --tags
+# -> ghcr.io/thomasgodon/solaxhub:1.2.3 (and :1.2, :latest)
+```
+
+> The `linux-arm64` publish above and the `solax-deploy` skill remain the deployment path for the Raspberry Pi. The Docker image targets x86-64 hosts.

@@ -17,9 +17,14 @@ dotnet test SolaxHub.Integration.Tests/SolaxHub.Integration.Tests.csproj --filte
 # Run the application
 dotnet run --project SolaxHub/SolaxHub.csproj
 
-# Publish (linux-arm64)
+# Publish (linux-arm64, Raspberry Pi)
 dotnet publish SolaxHub/SolaxHub.csproj -r linux-arm64 -c Release
+
+# Build Docker image (linux-amd64); published to ghcr.io on v* tags via .github/workflows/docker-publish.yml
+docker build -t solaxhub:test .
 ```
+
+Docker config is supplied via environment variables (`Section__Key`, e.g. `ModbusOptions__Host`); no secrets are baked into the image. See README "Docker" section.
 
 ## Architecture Overview
 

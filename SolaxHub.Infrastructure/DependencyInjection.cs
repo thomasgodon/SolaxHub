@@ -29,7 +29,13 @@ public static class DependencyInjection
         services.Configure<KnxOptions>(configuration.GetSection(nameof(KnxOptions)));
         services.AddSingleton<IKnxClient, KnxClient>();
         services.AddSingleton<IKnxValueBufferService, KnxValueBufferService>();
-        services.AddHostedService<KnxConnectionWorker>();
+
+        // Only run the connection worker when KNX is enabled; otherwise an unset Host crashes the host.
+        var knxOptions = configuration.GetSection(nameof(KnxOptions)).Get<KnxOptions>();
+        if (knxOptions?.Enabled is true)
+        {
+            services.AddHostedService<KnxConnectionWorker>();
+        }
 
         // UDP
         services.Configure<UdpOptions>(configuration.GetSection(nameof(UdpOptions)));
