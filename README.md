@@ -1,6 +1,6 @@
 # SolaxHub
 
-SolaxHub is a .NET Worker Service that bridges a **Solax solar inverter** (via Modbus TCP) to **KNX** home automation, **Azure IoT Hub**, and **UDP**. It polls the inverter on a configurable interval, publishes the data to all enabled integrations, and accepts power-control commands from KNX or the console.
+SolaxHub is a .NET Worker Service that bridges a **Solax solar inverter** (via Modbus TCP) to **KNX** home automation, **Azure IoT Hub**, and **UDP**. It polls the inverter on a configurable interval, publishes the data to all enabled integrations, and accepts power-control commands from KNX or the console. It can also serve a **built-in live web dashboard** showing all values in real time.
 
 ## Configuration
 
@@ -117,6 +117,28 @@ Additional modes (4, 8, 9, 11) will be supported in future updates.
 
 ---
 
+## Live dashboard
+
+SolaxHub can host a single-page web dashboard that shows all inverter values (solar, battery, grid, inverter status) plus each integration's connection state, updating **live on every poll** — no manual refresh. The host pushes updates to the browser over **Server-Sent Events**, so the page reflects each poll cycle (~1 s) the moment it lands.
+
+```json
+"DashboardOptions": {
+  "Enabled": true,
+  "Port": 8080
+}
+```
+
+When enabled, the host binds Kestrel to the configured port and serves:
+
+| Path | Purpose |
+|------|---------|
+| `/` | The dashboard page (dark, responsive — phone to desktop) |
+| `/events` | Server-Sent Events stream of the latest snapshot JSON |
+
+Open `http://<host>:8080/` on the LAN. The dashboard is **read-only** and has **no authentication** — intended for trusted local networks only. When `Enabled` is `false`, no web server is started and the host behaves as a plain worker service.
+
+---
+
 ## Console commands
 
 When running interactively, SolaxHub accepts these commands:
@@ -186,12 +208,16 @@ Add optional integrations as needed:
   -e KnxOptions__Enabled=true \
   -e KnxOptions__Host=192.168.1.10 \
   -e KnxOptions__IndividualAddress=1.1.100 \
+  -e DashboardOptions__Enabled=true \
+  -e DashboardOptions__Port=8080 \
   -e IotHubOptions__IotDevices__0__DeviceId=my-device \
   -e IotHubOptions__IotDevices__0__IdScope=0ne00000000 \
   -e IotHubOptions__IotDevices__0__PrimaryKey=*** \
   -e IotHubOptions__IotDevices__0__SecondaryKey=*** \
   -e OpenTelemetry__ApplicationInsights__ConnectionString="InstrumentationKey=..."
 ```
+
+To reach the live dashboard from outside the container, publish its port: add `-p 8080:8080` to the `docker run` command (the image `EXPOSE`s `8080`).
 
 The container runs with `ASPNETCORE_ENVIRONMENT` unset, so it loads the Production config layer plus these environment overrides; `appsettings.Development.json` is never present in the image.
 

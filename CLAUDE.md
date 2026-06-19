@@ -48,6 +48,8 @@ Solax Inverter (Modbus TCP)
 
 **KNX integration** also has two background workers: `KnxConnectionWorker` (maintains connection) and `KnxReceiverWorker` (handles incoming KNX read requests). KNX group addresses are configured as `ReadGroupAddresses` (inverter data → KNX bus) and `WriteGroupAddresses` (KNX bus → inverter commands). Incoming KNX read requests are served from `KnxValueBufferService` (in-memory cache of latest values).
 
+**Live dashboard:** the host project uses the `Microsoft.NET.Sdk.Web` SDK (`WebApplication` host) so it can optionally serve a single-page web dashboard. When `DashboardOptions.Enabled` is true, `Program.cs` binds Kestrel to `DashboardOptions.Port` and `MapDashboard()` (`SolaxHub/Dashboard/DashboardEndpoints.cs`) serves `wwwroot/index.html` plus a `/events` Server-Sent Events stream. A MediatR notification handler — `InverterDataRefreshedDashboardHandler` in `SolaxHub.Infrastructure/Dashboard/Notifications/` (Infrastructure, because it reads connection state from `ISolaxModbusClient.IsConnected` / `IKnxClient.IsConnected`) — projects each refresh into a `DashboardSnapshot` (Application layer) and publishes it via `IInverterSnapshotBroadcaster` (Application singleton), which fans the JSON out to all SSE subscribers. When disabled, no port is bound and the host behaves as a plain worker service.
+
 **Projects:**
 - `SolaxHub/` — main Worker Service (entry point: `Program.cs`)
 - `SolaxHub.Integration.Tests/` — integration tests using `SolaxHubFixture` which wires real DI with mocked external clients (`ISolaxModbusClient`, `IKnxClient`, `IIotHubDevicesService`)

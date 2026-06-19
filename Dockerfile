@@ -29,6 +29,9 @@ USER $APP_UID
 
 COPY --from=build /app/publish .
 
+# Live overview dashboard (DashboardOptions.Port; override with -e DashboardOptions__Port=...).
+EXPOSE 8080
+
 # No ASPNETCORE_ENVIRONMENT set => defaults to Production, so the dev secrets
 # file is never loaded. Supply real config via environment variables, e.g.
 #   -e ModbusOptions__Host=192.168.1.100 -e KnxOptions__Enabled=false

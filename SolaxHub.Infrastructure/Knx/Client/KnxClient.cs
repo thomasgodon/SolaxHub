@@ -29,6 +29,8 @@ internal class KnxClient : IKnxClient
         _options = options.Value;
     }
 
+    public bool IsConnected => _bus?.ConnectionState == BusConnectionState.Connected;
+
     public async Task SendValuesAsync(IEnumerable<KnxValue> values, CancellationToken cancellationToken)
     {
         using (ActivitySource.StartActivity())

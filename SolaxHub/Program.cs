@@ -1,17 +1,27 @@
+using SolaxHub.Application.Dashboard.Options;
+using SolaxHub.Dashboard;
 using SolaxHub.Extensions;
 
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
-    {
-        IConfiguration configuration = hostContext.Configuration;
-        services
-            .AddSolaxHub(configuration)
-            .AddSolaxHubObservability(configuration);
-    })
-    .ConfigureLogging((context, builder) =>
-    {
-        builder.AddSolaxHubLogging(context.Configuration);
-    })
-    .Build();
+var builder = WebApplication.CreateBuilder(args);
 
-await host.RunAsync();
+builder.Services
+    .AddSolaxHub(builder.Configuration)
+    .AddSolaxHubObservability(builder.Configuration);
+
+builder.Logging.AddSolaxHubLogging(builder.Configuration);
+
+var dashboardEnabled = builder.Configuration.GetSection(nameof(DashboardOptions)).Get<DashboardOptions>()?.Enabled is true;
+var dashboardPort = builder.Configuration.GetSection(nameof(DashboardOptions)).Get<DashboardOptions>()?.Port ?? 8080;
+
+// Bind Kestrel to the dashboard port when enabled; otherwise bind no endpoints so the host
+// behaves like the original worker service (no listening port).
+builder.WebHost.UseUrls(dashboardEnabled ? $"http://*:{dashboardPort}" : string.Empty);
+
+var app = builder.Build();
+
+if (dashboardEnabled)
+{
+    app.MapDashboard();
+}
+
+await app.RunAsync();

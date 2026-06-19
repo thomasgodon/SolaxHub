@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SolaxHub.Application.Dashboard;
+using SolaxHub.Application.Dashboard.Options;
 using SolaxHub.Application.Inverter.Services;
 using SolaxHub.Application.PowerControl;
 
@@ -12,6 +14,11 @@ public static class DependencyInjection
         services.AddMediatR(m => m.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
         services.AddSingleton<IInverterStateService, InverterStateService>();
         services.AddSingleton<IPowerControlStateService, PowerControlStateService>();
+
+        // Dashboard
+        services.Configure<DashboardOptions>(configuration.GetSection(nameof(DashboardOptions)));
+        services.AddSingleton<IInverterSnapshotBroadcaster, InverterSnapshotBroadcaster>();
+
         return services;
     }
 }
