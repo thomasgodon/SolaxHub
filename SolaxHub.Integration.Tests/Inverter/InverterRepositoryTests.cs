@@ -191,4 +191,143 @@ public class InverterRepositoryTests
         snapshot.Grid.ConsumeEnergy.Should().Be(1000.0);
         clientMock.VerifyAll();
     }
+
+    [Fact]
+    public async Task Given_PvPower2_Register_Should_Decode_BigEndian_U16()
+    {
+        // raw 0x0BB8 = 3000 W
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.PowerDc2), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x0B, 0xB8])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Solar.Power2.Should().Be(3000);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_BatteryVoltage_Register_Should_Decode_S16_Scale_0_01()
+    {
+        // raw 0x1400 = 5120 → /100 = 51.20 V (handler scales; repo stores raw 0.01V units)
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.BatteryVoltage), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x14, 0x00])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Battery.Voltage.Should().Be(5120);
+        clientMock.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData(0x00, 0x32, (short)50)]    // raw 50 → 5.0 A
+    [InlineData(0xFF, 0x9C, (short)-100)]  // raw -100 → -10.0 A (discharging)
+    public async Task Given_BatteryCurrent_Register_Should_Decode_S16(byte hi, byte lo, short expected)
+    {
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.BatteryCurrent), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([hi, lo])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Battery.Current.Should().Be(expected);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_BatteryTemperature_Register_Should_Decode_U16()
+    {
+        // raw 0x00FA = 250 → /10 = 25.0 °C (handler scales; repo stores raw 0.1°C units)
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.BatteryTemperature), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x00, 0xFA])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Battery.Temperature.Should().Be(250);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_GridFrequency_Register_Should_Decode_U16()
+    {
+        // raw 0x1388 = 5000 → /100 = 50.00 Hz (handler scales; repo stores raw 0.01Hz units)
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.GridFrequency), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x13, 0x88])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Grid.Frequency.Should().Be(5000);
+        clientMock.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData(0x00, 0x28, (short)40)]    // raw 40 → 40 °C
+    [InlineData(0xFF, 0xFB, (short)-5)]    // raw -5 → -5 °C
+    public async Task Given_InverterTemperature_Register_Should_Decode_Signed(byte hi, byte lo, short expected)
+    {
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.InverterTemperature), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([hi, lo])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.InverterTemperature.Should().Be(expected);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_EpsFrequency_Register_Should_Decode_U16()
+    {
+        // raw 0x1388 = 5000 → /100 = 50.00 Hz
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.EpsFrequency), It.Is<ushort>(q => q == 1), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x13, 0x88])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Eps.Frequency.Should().Be(5000);
+        clientMock.VerifyAll();
+    }
+
+    [Fact]
+    public async Task Given_InverterFault_Register_Should_Decode_SwappedWord_U32()
+    {
+        // reg0 (low word) = 0x0002, reg1 (high word) = 0x0001 → raw = 0x0001_0002 = 65538
+        var clientMock = CreateClientMock(m =>
+            m.Setup(c => c.ReadInputRegistersAsync(
+                    It.Is<ushort>(a => a == InputRegisters.InverterFault), It.Is<ushort>(q => q == 2), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Memory<byte>([0x00, 0x02, 0x00, 0x01])));
+
+        var repo = BuildRepository(clientMock);
+
+        var snapshot = await repo.ReadSnapshotAsync(CancellationToken.None);
+
+        snapshot.Faults.InverterFault.Should().Be(65538u);
+        snapshot.Faults.HasFault.Should().BeTrue();
+        clientMock.VerifyAll();
+    }
 }

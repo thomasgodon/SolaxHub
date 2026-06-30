@@ -62,6 +62,8 @@ internal sealed class InverterDataRefreshedDashboardHandler : INotificationHandl
             InverterPower = inverter.InverterPower,
             InverterVoltage = inverter.InverterVoltage,
             HouseLoad = inverter.HouseLoad,
+            InverterTemperature = inverter.InverterTemperature,
+            RadiatorTemperature = inverter.RadiatorTemperature,
             Solar = new SolarDto
             {
                 // Raw registers are in 0.1 V / 0.1 A units.
@@ -69,7 +71,11 @@ internal sealed class InverterDataRefreshedDashboardHandler : INotificationHandl
                 Current = inverter.Solar.Current1 / 10.0,
                 Power = inverter.Solar.Power1,
                 EnergyToday = inverter.Solar.EnergyToday,
-                EnergyTotal = inverter.Solar.EnergyTotal
+                EnergyTotal = inverter.Solar.EnergyTotal,
+                Voltage2 = inverter.Solar.Voltage2 / 10.0,
+                Current2 = inverter.Solar.Current2 / 10.0,
+                Power2 = inverter.Solar.Power2,
+                PowerTotal = inverter.Solar.Power1 + inverter.Solar.Power2
             },
             Battery = new BatteryDto
             {
@@ -78,13 +84,28 @@ internal sealed class InverterDataRefreshedDashboardHandler : INotificationHandl
                 OutputToday = inverter.Battery.OutputToday,
                 InputToday = inverter.Battery.InputToday,
                 OutputTotal = inverter.Battery.OutputTotal,
-                InputTotal = inverter.Battery.InputTotal
+                InputTotal = inverter.Battery.InputTotal,
+                Voltage = inverter.Battery.Voltage / 100.0,
+                Current = inverter.Battery.Current / 10.0,
+                Temperature = inverter.Battery.Temperature / 10.0
             },
             Grid = new GridDto
             {
                 FeedInPower = inverter.Grid.FeedInPower,
                 FeedInEnergy = inverter.Grid.FeedInEnergy,
-                ConsumeEnergy = inverter.Grid.ConsumeEnergy
+                ConsumeEnergy = inverter.Grid.ConsumeEnergy,
+                Frequency = inverter.Grid.Frequency / 100.0,
+                Current = inverter.Grid.Current / 10.0,
+                Phases = MapPhases(inverter.Grid)
+            },
+            Eps = MapEps(inverter.Eps),
+            Faults = new FaultsDto
+            {
+                InverterFault = inverter.Faults.InverterFault,
+                ChargerFault = inverter.Faults.ChargerFault,
+                ManagerFault = inverter.Faults.ManagerFault,
+                BmsWarning = inverter.Faults.BmsWarning,
+                HasFault = inverter.Faults.HasFault
             },
             Connections = new ConnectionsDto
             {
@@ -97,5 +118,33 @@ internal sealed class InverterDataRefreshedDashboardHandler : INotificationHandl
         _broadcaster.Publish(JsonSerializer.Serialize(snapshot, JsonOptions));
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>Projects per-phase grid data (three-phase only); returns null when no phase data is present.</summary>
+    private static GridPhaseDto[]? MapPhases(Domain.Inverter.GridState grid)
+    {
+        if (grid.PhaseR is null && grid.PhaseS is null && grid.PhaseT is null)
+            return null;
+
+        var phases = new List<GridPhaseDto>(3);
+        if (grid.PhaseR is { } r) phases.Add(new GridPhaseDto { Name = "L1", Current = r.Current / 10.0, Power = r.Power });
+        if (grid.PhaseS is { } s) phases.Add(new GridPhaseDto { Name = "L2", Current = s.Current / 10.0, Power = s.Power });
+        if (grid.PhaseT is { } t) phases.Add(new GridPhaseDto { Name = "L3", Current = t.Current / 10.0, Power = t.Power });
+        return phases.ToArray();
+    }
+
+    /// <summary>Projects EPS output; returns null when the inverter reports no backup output.</summary>
+    private static EpsDto? MapEps(Domain.Inverter.EpsState eps)
+    {
+        if (eps.Voltage == 0 && eps.Power == 0 && eps.Current == 0)
+            return null;
+
+        return new EpsDto
+        {
+            Voltage = eps.Voltage / 10.0,
+            Current = eps.Current / 10.0,
+            Power = eps.Power,
+            Frequency = eps.Frequency / 100.0
+        };
     }
 }

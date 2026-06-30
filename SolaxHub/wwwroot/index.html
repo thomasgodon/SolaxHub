@@ -135,6 +135,14 @@
     .card.c-battery { --accent: var(--battery); }
     .card.c-grid    { --accent: var(--grid-export); }
     .card.c-inv     { --accent: var(--house); }
+    .card.c-eps     { --accent: var(--grid-import); }
+    .card.c-temp    { --accent: var(--solar); }
+    .card.c-diag    { --accent: var(--grid-import); }
+
+    .row .v.code { font-variant-numeric: tabular-nums; color: var(--text-dim); }
+    .badge.ok  { background: rgba(62,207,142,.14); color: var(--ok);  border-color: rgba(62,207,142,.4); }
+    .badge.bad { background: rgba(239,83,80,.14);  color: var(--bad); border-color: rgba(239,83,80,.4); }
+    .phase-head { color: var(--text-faint); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding-top: 10px; }
     .row {
       display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
       padding: 7px 0; border-top: 1px solid rgba(255,255,255,.04);
@@ -203,10 +211,13 @@
 
     <section class="cards">
       <div class="card c-solar">
-        <h2><span class="bar"></span>Solar (PV1)</h2>
-        <div class="row"><span class="k">Voltage</span><span class="v"><span id="pv-v">0</span><small>V</small></span></div>
-        <div class="row"><span class="k">Current</span><span class="v"><span id="pv-a">0</span><small>A</small></span></div>
-        <div class="row"><span class="k">Power</span><span class="v"><span id="pv-w">0</span><small>W</small></span></div>
+        <h2><span class="bar"></span>Solar</h2>
+        <div class="row"><span class="k">PV1 voltage</span><span class="v"><span id="pv-v">0</span><small>V</small></span></div>
+        <div class="row"><span class="k">PV1 current</span><span class="v"><span id="pv-a">0</span><small>A</small></span></div>
+        <div class="row"><span class="k">PV1 power</span><span class="v"><span id="pv-w">0</span><small>W</small></span></div>
+        <div class="row"><span class="k">PV2 voltage</span><span class="v"><span id="pv2-v">0</span><small>V</small></span></div>
+        <div class="row"><span class="k">PV2 current</span><span class="v"><span id="pv2-a">0</span><small>A</small></span></div>
+        <div class="row"><span class="k">PV2 power</span><span class="v"><span id="pv2-w">0</span><small>W</small></span></div>
         <div class="row"><span class="k">Energy today</span><span class="v"><span id="pv-today">0</span><small>kWh</small></span></div>
         <div class="row"><span class="k">Energy total</span><span class="v"><span id="pv-total">0</span><small>kWh</small></span></div>
       </div>
@@ -215,6 +226,9 @@
         <h2><span class="bar"></span>Battery</h2>
         <div class="row"><span class="k">State of charge</span><span class="v"><span id="b-soc">0</span><small>%</small></span></div>
         <div class="row"><span class="k">Power</span><span class="v"><span id="b-power">0</span><small>W</small></span></div>
+        <div class="row"><span class="k">Voltage</span><span class="v"><span id="b-voltage">0</span><small>V</small></span></div>
+        <div class="row"><span class="k">Current</span><span class="v"><span id="b-current">0</span><small>A</small></span></div>
+        <div class="row"><span class="k">Temperature</span><span class="v"><span id="b-temp">0</span><small>°C</small></span></div>
         <div class="row"><span class="k">Charged today</span><span class="v"><span id="b-in-today">0</span><small>kWh</small></span></div>
         <div class="row"><span class="k">Discharged today</span><span class="v"><span id="b-out-today">0</span><small>kWh</small></span></div>
         <div class="row"><span class="k">Charged total</span><span class="v"><span id="b-in-total">0</span><small>kWh</small></span></div>
@@ -224,8 +238,35 @@
       <div class="card c-grid">
         <h2><span class="bar"></span>Grid</h2>
         <div class="row"><span class="k">Feed-in power</span><span class="v"><span id="g-power">0</span><small>W</small></span></div>
+        <div class="row"><span class="k">Frequency</span><span class="v"><span id="g-freq">0</span><small>Hz</small></span></div>
+        <div class="row"><span class="k">Current</span><span class="v"><span id="g-current">0</span><small>A</small></span></div>
         <div class="row"><span class="k">Exported total</span><span class="v"><span id="g-export">0</span><small>kWh</small></span></div>
         <div class="row"><span class="k">Imported total</span><span class="v"><span id="g-import">0</span><small>kWh</small></span></div>
+        <div id="g-phases"></div>
+      </div>
+
+      <div class="card c-eps" id="card-eps" style="display:none">
+        <h2><span class="bar"></span>EPS / Backup</h2>
+        <div class="row"><span class="k">Power</span><span class="v"><span id="eps-power">0</span><small>VA</small></span></div>
+        <div class="row"><span class="k">Voltage</span><span class="v"><span id="eps-voltage">0</span><small>V</small></span></div>
+        <div class="row"><span class="k">Current</span><span class="v"><span id="eps-current">0</span><small>A</small></span></div>
+        <div class="row"><span class="k">Frequency</span><span class="v"><span id="eps-freq">0</span><small>Hz</small></span></div>
+      </div>
+
+      <div class="card c-temp">
+        <h2><span class="bar"></span>Temperatures</h2>
+        <div class="row"><span class="k">Inverter</span><span class="v"><span id="t-inv">0</span><small>°C</small></span></div>
+        <div class="row"><span class="k">Radiator</span><span class="v"><span id="t-rad">0</span><small>°C</small></span></div>
+        <div class="row"><span class="k">Battery</span><span class="v"><span id="t-bat">0</span><small>°C</small></span></div>
+      </div>
+
+      <div class="card c-diag">
+        <h2><span class="bar"></span>Diagnostics</h2>
+        <div class="row"><span class="k">Health</span><span class="v"><span class="badge" id="d-health">—</span></span></div>
+        <div class="row"><span class="k">Inverter fault</span><span class="v" id="d-inv-fault">—</span></div>
+        <div class="row"><span class="k">Charger fault</span><span class="v" id="d-chg-fault">—</span></div>
+        <div class="row"><span class="k">Manager fault</span><span class="v" id="d-mgr-fault">—</span></div>
+        <div class="row"><span class="k">BMS warning</span><span class="v" id="d-bms-warn">—</span></div>
       </div>
 
       <div class="card c-inv">
@@ -271,12 +312,15 @@
       setConn("dot-udp", "st-udp", d.connections.udp.enabled
         ? { cls: "ok", text: "enabled" } : { cls: "off", text: "disabled" });
 
-      // solar
-      $("solar-power").textContent = fmt(d.solar.power);
-      $("solar-state").textContent = d.solar.power > 0 ? "producing" : "idle";
+      // solar (hero shows combined PV power across both strings)
+      $("solar-power").textContent = fmt(d.solar.powerTotal);
+      $("solar-state").textContent = d.solar.powerTotal > 0 ? "producing" : "idle";
       $("pv-v").textContent = fmt(d.solar.voltage, 1);
       $("pv-a").textContent = fmt(d.solar.current, 1);
       $("pv-w").textContent = fmt(d.solar.power);
+      $("pv2-v").textContent = fmt(d.solar.voltage2, 1);
+      $("pv2-a").textContent = fmt(d.solar.current2, 1);
+      $("pv2-w").textContent = fmt(d.solar.power2);
       $("pv-today").textContent = fmt(d.solar.energyToday, 1);
       $("pv-total").textContent = fmt(d.solar.energyTotal, 1);
 
@@ -289,8 +333,20 @@
       else if (g < 0) { gv.classList.add("accent-import"); gs.className = "flowstate accent-import"; gs.textContent = "importing"; }
       else { gs.className = "flowstate"; gs.textContent = "idle"; }
       $("g-power").textContent = fmt(g);
+      $("g-freq").textContent = fmt(d.grid.frequency, 2);
+      $("g-current").textContent = fmt(d.grid.current, 1);
       $("g-export").textContent = fmt(d.grid.feedInEnergy, 1);
       $("g-import").textContent = fmt(d.grid.consumeEnergy, 1);
+
+      // per-phase grid (three-phase inverters only)
+      const phasesEl = $("g-phases");
+      if (d.grid.phases && d.grid.phases.length) {
+        phasesEl.innerHTML = '<div class="phase-head">Per phase</div>' + d.grid.phases.map(p =>
+          `<div class="row"><span class="k">${p.name}</span><span class="v">${fmt(p.power)}<small>W</small> · ${fmt(p.current, 1)}<small>A</small></span></div>`
+        ).join("");
+      } else {
+        phasesEl.innerHTML = "";
+      }
 
       // house
       $("house-power").textContent = fmt(d.houseLoad);
@@ -306,10 +362,38 @@
       $("bat-ring").style.setProperty("--pct", d.battery.capacity);
       $("b-soc").textContent = fmt(d.battery.capacity);
       $("b-power").textContent = fmt(b);
+      $("b-voltage").textContent = fmt(d.battery.voltage, 1);
+      $("b-current").textContent = fmt(d.battery.current, 1);
+      $("b-temp").textContent = fmt(d.battery.temperature, 1);
       $("b-in-today").textContent = fmt(d.battery.inputToday, 1);
       $("b-out-today").textContent = fmt(d.battery.outputToday, 1);
       $("b-in-total").textContent = fmt(d.battery.inputTotal, 1);
       $("b-out-total").textContent = fmt(d.battery.outputTotal, 1);
+
+      // eps / backup (shown only when the inverter reports backup output)
+      if (d.eps) {
+        $("card-eps").style.display = "";
+        $("eps-power").textContent = fmt(d.eps.power);
+        $("eps-voltage").textContent = fmt(d.eps.voltage, 1);
+        $("eps-current").textContent = fmt(d.eps.current, 1);
+        $("eps-freq").textContent = fmt(d.eps.frequency, 2);
+      } else {
+        $("card-eps").style.display = "none";
+      }
+
+      // temperatures
+      $("t-inv").textContent = fmt(d.inverterTemperature);
+      $("t-rad").textContent = fmt(d.radiatorTemperature);
+      $("t-bat").textContent = fmt(d.battery.temperature, 1);
+
+      // diagnostics
+      const hb = $("d-health");
+      hb.className = "badge " + (d.faults.hasFault ? "bad" : "ok");
+      hb.textContent = d.faults.hasFault ? "Fault" : "Healthy";
+      $("d-inv-fault").textContent = fmt(d.faults.inverterFault);
+      $("d-chg-fault").textContent = fmt(d.faults.chargerFault);
+      $("d-mgr-fault").textContent = fmt(d.faults.managerFault);
+      $("d-bms-warn").textContent = fmt(d.faults.bmsWarning);
 
       // inverter
       $("i-power").textContent = fmt(d.inverterPower);

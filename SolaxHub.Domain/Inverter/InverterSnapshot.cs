@@ -11,5 +11,9 @@ public record InverterSnapshot(
     GridState Grid,
     int InverterPower,
     ushort InverterVoltage,
-    string RegistrationCode
+    string RegistrationCode,
+    short InverterTemperature,
+    short RadiatorTemperature,
+    EpsState Eps,
+    FaultState Faults
 );

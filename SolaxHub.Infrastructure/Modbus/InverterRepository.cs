@@ -40,6 +40,30 @@ internal sealed class InverterRepository : IInverterRepository
         var pvc1Data = await _client.ReadInputRegistersAsync(InputRegisters.PvCurrent1, 1, cancellationToken);
         ushort pvCurrent1 = pvc1Data.ToArray()[0];
 
+        // PV voltage 2
+        var pvv2Data = await _client.ReadInputRegistersAsync(InputRegisters.PvVoltage2, 1, cancellationToken);
+        ushort pvVoltage2 = pvv2Data.ToArray()[0];
+
+        // PV current 2
+        var pvc2Data = await _client.ReadInputRegistersAsync(InputRegisters.PvCurrent2, 1, cancellationToken);
+        ushort pvCurrent2 = pvc2Data.ToArray()[0];
+
+        // Grid current (phase R / single phase)
+        var gcData = await _client.ReadInputRegistersAsync(InputRegisters.GridCurrent, 1, cancellationToken);
+        short gridCurrent = BitConverter.ToInt16([gcData.Span[1], gcData.Span[0]]);
+
+        // Grid frequency
+        var gfData = await _client.ReadInputRegistersAsync(InputRegisters.GridFrequency, 1, cancellationToken);
+        ushort gridFrequency = BitConverter.ToUInt16([gfData.Span[1], gfData.Span[0]]);
+
+        // Inverter temperature
+        var itData = await _client.ReadInputRegistersAsync(InputRegisters.InverterTemperature, 1, cancellationToken);
+        short inverterTemperature = BitConverter.ToInt16([itData.Span[1], itData.Span[0]]);
+
+        // Radiator temperature
+        var rtData = await _client.ReadInputRegistersAsync(InputRegisters.RadiatorTemperature, 1, cancellationToken);
+        short radiatorTemperature = BitConverter.ToInt16([rtData.Span[1], rtData.Span[0]]);
+
         // Run mode (InverterStatus)
         var rmData = await _client.ReadInputRegistersAsync(InputRegisters.RunMode, 1, cancellationToken);
         ushort statusRaw = BitConverter.ToUInt16([rmData.Span[1], rmData.Span[0]]);
@@ -48,6 +72,18 @@ internal sealed class InverterRepository : IInverterRepository
         // PV power 1
         var pvp1Data = await _client.ReadInputRegistersAsync(InputRegisters.PowerDc1, 1, cancellationToken);
         ushort pvPower1 = BitConverter.ToUInt16([pvp1Data.Span[1], pvp1Data.Span[0]]);
+
+        // PV power 2
+        var pvp2Data = await _client.ReadInputRegistersAsync(InputRegisters.PowerDc2, 1, cancellationToken);
+        ushort pvPower2 = BitConverter.ToUInt16([pvp2Data.Span[1], pvp2Data.Span[0]]);
+
+        // Battery voltage
+        var bvData = await _client.ReadInputRegistersAsync(InputRegisters.BatteryVoltage, 1, cancellationToken);
+        short batteryVoltage = BitConverter.ToInt16([bvData.Span[1], bvData.Span[0]]);
+
+        // Battery current
+        var bcurData = await _client.ReadInputRegistersAsync(InputRegisters.BatteryCurrent, 1, cancellationToken);
+        short batteryCurrent = BitConverter.ToInt16([bcurData.Span[1], bcurData.Span[0]]);
 
         // Battery power
         var bpData = await _client.ReadInputRegistersAsync(InputRegisters.BatPowerCharge1, 1, cancellationToken);
@@ -108,20 +144,73 @@ internal sealed class InverterRepository : IInverterRepository
         var pcData = await _client.ReadInputRegistersAsync(InputRegisters.ModbusPowerControl, 1, cancellationToken);
         var powerControlMode = (PowerControlMode)pcData.ToArray()[1];
 
+        // Battery temperature (U16, scaled ×0.1)
+        var btData = await _client.ReadInputRegistersAsync(InputRegisters.BatteryTemperature, 1, cancellationToken);
+        ushort batteryTemperature = BitConverter.ToUInt16([btData.Span[1], btData.Span[0]]);
+
+        // EPS (off-grid / backup) output
+        var epsvData = await _client.ReadInputRegistersAsync(InputRegisters.EpsVoltage, 1, cancellationToken);
+        ushort epsVoltage = BitConverter.ToUInt16([epsvData.Span[1], epsvData.Span[0]]);
+        var epscData = await _client.ReadInputRegistersAsync(InputRegisters.EpsCurrent, 1, cancellationToken);
+        ushort epsCurrent = BitConverter.ToUInt16([epscData.Span[1], epscData.Span[0]]);
+        var epspData = await _client.ReadInputRegistersAsync(InputRegisters.EpsPower, 1, cancellationToken);
+        ushort epsPower = BitConverter.ToUInt16([epspData.Span[1], epspData.Span[0]]);
+        var epsfData = await _client.ReadInputRegistersAsync(InputRegisters.EpsFrequency, 1, cancellationToken);
+        ushort epsFrequency = BitConverter.ToUInt16([epsfData.Span[1], epsfData.Span[0]]);
+        var eps = new EpsState(epsVoltage, epsCurrent, epsPower, epsFrequency);
+
+        // Fault / warning codes (inverter fault is U32 with swapped word order; the rest are U16)
+        var ifData = await _client.ReadInputRegistersAsync(InputRegisters.InverterFault, 2, cancellationToken);
+        uint inverterFault = (uint)BitConverter.ToInt32([ifData.Span[1], ifData.Span[0], ifData.Span[3], ifData.Span[2]]);
+        var cfData = await _client.ReadInputRegistersAsync(InputRegisters.ChargerFault, 1, cancellationToken);
+        ushort chargerFault = BitConverter.ToUInt16([cfData.Span[1], cfData.Span[0]]);
+        var mfData = await _client.ReadInputRegistersAsync(InputRegisters.ManagerFault, 1, cancellationToken);
+        ushort managerFault = BitConverter.ToUInt16([mfData.Span[1], mfData.Span[0]]);
+        var bwData = await _client.ReadInputRegistersAsync(InputRegisters.BmsWarning, 1, cancellationToken);
+        ushort bmsWarning = BitConverter.ToUInt16([bwData.Span[1], bwData.Span[0]]);
+        var faults = new FaultState(inverterFault, chargerFault, managerFault, bmsWarning);
+
+        // Per-phase grid data — three-phase (X3) inverters only.
+        GridPhase? phaseR = null, phaseS = null, phaseT = null;
+        if (IsThreePhaseSerial(serialNumber))
+        {
+            phaseR = await ReadGridPhaseAsync(InputRegisters.GridCurrentR, InputRegisters.GridPowerR, cancellationToken);
+            phaseS = await ReadGridPhaseAsync(InputRegisters.GridCurrentS, InputRegisters.GridPowerS, cancellationToken);
+            phaseT = await ReadGridPhaseAsync(InputRegisters.GridCurrentT, InputRegisters.GridPowerT, cancellationToken);
+        }
+
         return new InverterSnapshot(
             SerialNumber: serialNumber,
             Status: status,
             UseMode: useMode,
             LockState: lockState,
             PowerControlMode: powerControlMode,
-            Battery: new BatteryState(batteryPower, batteryCapacity, batteryOutputToday, batteryInputToday, batteryOutputTotal, batteryInputTotal),
-            Solar: new SolarState(pvVoltage1, pvCurrent1, pvPower1, solarEnergyToday, solarEnergyTotal),
-            Grid: new GridState(feedInPower, feedInEnergy, consumeEnergy),
+            Battery: new BatteryState(batteryPower, batteryCapacity, batteryOutputToday, batteryInputToday, batteryOutputTotal, batteryInputTotal,
+                batteryVoltage, batteryCurrent, batteryTemperature),
+            Solar: new SolarState(pvVoltage1, pvCurrent1, pvPower1, solarEnergyToday, solarEnergyTotal, pvVoltage2, pvCurrent2, pvPower2),
+            Grid: new GridState(feedInPower, feedInEnergy, consumeEnergy, gridFrequency, gridCurrent, phaseR, phaseS, phaseT),
             InverterPower: inverterPower,
             InverterVoltage: inverterVoltage,
-            RegistrationCode: registrationCode
+            RegistrationCode: registrationCode,
+            InverterTemperature: inverterTemperature,
+            RadiatorTemperature: radiatorTemperature,
+            Eps: eps,
+            Faults: faults
         );
     }
+
+    /// <summary>Reads a single grid phase (current + power) for three-phase inverters.</summary>
+    private async Task<GridPhase> ReadGridPhaseAsync(ushort currentRegister, ushort powerRegister, CancellationToken cancellationToken)
+    {
+        var cData = await _client.ReadInputRegistersAsync(currentRegister, 1, cancellationToken);
+        short current = BitConverter.ToInt16([cData.Span[1], cData.Span[0]]);
+        var pData = await _client.ReadInputRegistersAsync(powerRegister, 1, cancellationToken);
+        int power = BitConverter.ToInt16([pData.Span[1], pData.Span[0]]);
+        return new GridPhase(current, power);
+    }
+
+    /// <summary>Three-phase (X3) inverters have serial prefix "H34"; single-phase (X1) use "H4x"/"H1x".</summary>
+    private static bool IsThreePhaseSerial(string serialNumber) => serialNumber.StartsWith("H34");
 
     public async Task SetLockStateAsync(LockState state, CancellationToken cancellationToken)
     {
