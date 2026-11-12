@@ -1,0 +1,107 @@
+name: CI
+
+# Tests run on every code change; a Docker image is only published when they pass.
+#   push to main      -> ghcr.io/thomasgodon/solaxhub:unstable (+ :sha-<short>)
+#   release published -> ghcr.io/thomasgodon/solaxhub:latest   (+ :<version>, :<major>.<minor>)
+#   pull request      -> tests only, no image
+on:
+  push:
+    branches:
+      - main
+    # Documentation/tooling-only commits do not produce a new image.
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
+      - '.mcp.json'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
+      - '.mcp.json'
+      - 'docs/**'
+  release:
+    types:
+      - published
+
+jobs:
+  test:
+    name: Integration tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    # On a release this checks out the commit the release tag points to.
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" --results-directory ./test-results
+
+    - name: Publish test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: ./test-results
+
+  docker:
+    name: Build and push Docker image
+    # Gate: never publish an image unless the tests passed.
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract image metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/thomasgodon/solaxhub
+        # Tags are listed explicitly below; disable the implicit "latest" handling.
+        flavor: |
+          latest=false
+        tags: |
+          type=raw,value=unstable,enable=${{ github.event_name == 'push' }}
+          type=sha,enable=${{ github.event_name == 'push' }}
+          type=raw,value=latest,enable=${{ github.event_name == 'release' && !github.event.release.prerelease }}
+          type=semver,pattern={{version}},enable=${{ github.event_name == 'release' }}
+          type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'release' }}
+
+    - name: Build and push image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        platforms: linux/amd64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
