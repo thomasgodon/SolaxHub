@@ -17,9 +17,6 @@ dotnet test SolaxHub.Integration.Tests/SolaxHub.Integration.Tests.csproj --filte
 # Run the application
 dotnet run --project SolaxHub/SolaxHub.csproj
 
-# Publish (linux-arm64, Raspberry Pi)
-dotnet publish SolaxHub/SolaxHub.csproj -r linux-arm64 -c Release
-
 # Build Docker image (linux-amd64); published to ghcr.io via .github/workflows/ci.yml, only after tests pass
 # (:unstable on push to main, :latest + version tags on a published GitHub release)
 docker build -t solaxhub:test .

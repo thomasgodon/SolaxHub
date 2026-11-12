@@ -178,9 +178,6 @@ set use-mode solar-only    Self-consume charge only (no battery discharge)
 ```bash
 dotnet build SolaxHub.sln
 dotnet run --project SolaxHub/SolaxHub.csproj
-
-# Publish for Raspberry Pi
-dotnet publish SolaxHub/SolaxHub.csproj -r linux-arm64 -c Release
 ```
 
 ## Docker
@@ -238,5 +235,3 @@ The `CI` workflow (`.github/workflows/ci.yml`) publishes to `ghcr.io/thomasgodon
 | Pull request | none (tests only) |
 
 Commits that only touch `*.md`, `.claude/`, `.mcp.json` or `docs/` skip the workflow. A release builds the commit its tag points to, so create the release from `main` with a `v*` semver tag (e.g. `v1.2.3` → `:1.2.3`, `:1.2`, `:latest`). A pre-release gets its version tag but not `:latest`. Pushing a bare git tag no longer publishes anything.
-
-> The `linux-arm64` publish above and the `solax-deploy` skill remain the deployment path for the Raspberry Pi. The Docker image targets x86-64 hosts.
